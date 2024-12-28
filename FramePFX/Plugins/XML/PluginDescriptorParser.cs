@@ -44,7 +44,7 @@ public static class PluginDescriptorParser {
         return attribute;
     }
 
-    public static string GetAttributeNonNull(IGroupedObject owner, XmlElement element, string key, bool requireNonWhitespaces = true) {
+    public static string GetAttributeNonNull(IKeyMapEntry owner, XmlElement element, string key, bool requireNonWhitespaces = true) {
         if (!element.HasAttribute(key)) {
             throw new Exception($"'{key}' attribute must be provided, for object at path '{owner.FullPath ?? "<root>"}'");
         }

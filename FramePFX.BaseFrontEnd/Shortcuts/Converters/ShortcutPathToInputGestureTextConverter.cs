@@ -29,12 +29,12 @@ public class ShortcutPathToInputGestureTextConverter : IValueConverter {
     public string ShortcutFormat { get; set; } = null;
 
     public static string ShortcutToInputGestureText(string path, string shortcutFormat = null, string noSuchShortcutFormat = null) {
-        GroupedShortcut shortcut = ShortcutManager.Instance.FindShortcutByPath(path);
-        if (shortcut == null) {
+        ShortcutEntry shortcutEntry = ShortcutManager.Instance.FindShortcutByPath(path);
+        if (shortcutEntry == null) {
             return noSuchShortcutFormat == null ? path : string.Format(noSuchShortcutFormat, path);
         }
 
-        string representation = shortcut.Shortcut.ToString();
+        string representation = shortcutEntry.Shortcut.ToString();
         return shortcutFormat == null ? representation : string.Format(shortcutFormat, representation);
     }
 

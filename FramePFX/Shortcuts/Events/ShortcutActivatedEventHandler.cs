@@ -21,4 +21,4 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Shortcuts.Events;
 
-public delegate bool ShortcutActivatedEventHandler(ShortcutInputProcessor inputProcessor, GroupedShortcut shortcut, IContextData context);
+public delegate bool ShortcutActivatedEventHandler(ShortcutInputProcessor inputProcessor, ShortcutEntry shortcutEntry, IContextData context);

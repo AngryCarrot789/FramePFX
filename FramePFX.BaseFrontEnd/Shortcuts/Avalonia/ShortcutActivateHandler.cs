@@ -21,4 +21,4 @@ using FramePFX.Shortcuts;
 
 namespace FramePFX.BaseFrontEnd.Shortcuts.Avalonia;
 
-public delegate Task<bool> ShortcutActivateHandler(ShortcutInputProcessor inputProcessor, GroupedShortcut shortcut);
+public delegate Task<bool> ShortcutActivateHandler(ShortcutInputProcessor inputProcessor, ShortcutEntry shortcutEntry);

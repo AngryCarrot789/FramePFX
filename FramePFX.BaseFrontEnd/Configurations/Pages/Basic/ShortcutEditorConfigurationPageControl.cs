@@ -17,10 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using FramePFX.BaseFrontEnd.Shortcuts.Trees;
 using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Configurations.Shortcuts;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.BaseFrontEnd.Configurations.Pages.Basic;
 
@@ -28,6 +31,23 @@ public class ShortcutEditorConfigurationPageControl : BaseConfigurationPageContr
     private ShortcutTreeView? PART_ShortcutTree;
 
     public ShortcutEditorConfigurationPageControl() {
+    }
+    
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+        base.OnApplyTemplate(e);
+        this.PART_ShortcutTree = e.NameScope.GetTemplateChild<ShortcutTreeView>("PART_ShortcutTree");
+        if (e.NameScope.TryGetTemplateChild("PART_DemoHyperlink", out HyperlinkButton? hyperlink)) {
+            hyperlink.Click += this.OnHyperlinkClicked;
+        }
+    }
+
+    private void OnHyperlinkClicked(object? sender, RoutedEventArgs e) {
+        if (((HyperlinkButton) sender!).Content is string text) {
+            ShortcutGroupEntry? target = this.PART_ShortcutTree?.RootEntry?.GetGroupByPath(text);
+            if (target != null) {
+                this.PART_ShortcutTree!.ExpandTo(target);
+            }
+        }
     }
 
     public override void OnConnected() {
@@ -38,10 +58,5 @@ public class ShortcutEditorConfigurationPageControl : BaseConfigurationPageContr
     public override void OnDisconnected() {
         base.OnDisconnected();
         this.PART_ShortcutTree!.RootEntry = null;
-    }
-
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
-        base.OnApplyTemplate(e);
-        this.PART_ShortcutTree = e.NameScope.GetTemplateChild<ShortcutTreeView>("PART_ShortcutTree");
     }
 }

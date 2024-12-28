@@ -47,7 +47,7 @@ public class CommandIdToGestureConverter : IValueConverter {
             return (gesture = fallback) != null;
         }
 
-        IEnumerable<GroupedShortcut>? shortcuts = ShortcutManager.Instance.GetShortcutsByCommandId(id);
+        IEnumerable<ShortcutEntry>? shortcuts = ShortcutManager.Instance.GetShortcutsByCommandId(id);
         if (shortcuts == null) {
             return (gesture = fallback) != null;
         }

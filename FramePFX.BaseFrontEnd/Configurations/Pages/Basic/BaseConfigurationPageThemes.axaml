@@ -3,7 +3,8 @@
                     xmlns:trees="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Trees;assembly=FramePFX.BaseFrontEnd"
                     xmlns:b="clr-namespace:FramePFX.BaseFrontEnd.Configurations.Pages.Basic"
                     xmlns:pages="clr-namespace:FramePFX.BaseFrontEnd.Configurations.Pages"
-                    xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing">
+                    xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing"
+                    xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls">
     <ControlTheme x:Key="{x:Type b:BasicEditorWindowConfigurationPageControl}" TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
@@ -27,18 +28,32 @@
     <ControlTheme x:Key="{x:Type b:ShortcutEditorConfigurationPageControl}" TargetType="{x:Type b:ShortcutEditorConfigurationPageControl}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type b:ShortcutEditorConfigurationPageControl}">
-                <DockPanel Margin="0,2">
-                    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto">
-                        <StackPanel Orientation="Horizontal" Grid.Column="0">
-                            <Button Content="EXP"/>
-                            <Button Content="COL"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Grid.Column="2">
-                            <TextBox Width="200" Text="Search..."/>
-                        </StackPanel>
+                <Grid Margin="0,2" RowDefinitions="Auto,5,*">
+                    <Grid Grid.Row="0">
+                        <TextBlock Padding="10" TextWrapping="Wrap">
+                            <Run Text="The key maps shows a tree of shortcut areas, which represent GUI areas" BaselineAlignment="Center"/>
+                            <LineBreak/>
+                            <LineBreak/>
+                            <Run Text="For example, " BaselineAlignment="Center"/><HyperlinkButton Content="EditorWindow/Timeline" FontWeight="Bold" x:Name="PART_DemoHyperlink" ToolTip.Tip="Navigate to this path"/><Run Text=" is the timeline area." BaselineAlignment="Center"/>
+                            <LineBreak/>
+                            <Run Text="If any control in the timeline is focused and there's an input event, any shortcuts in this timeline area will have a chance of being executed." BaselineAlignment="Center"/>
+                        </TextBlock>
                     </Grid>
-                    <trees:ShortcutTreeView x:Name="PART_ShortcutTree"/>
-                </DockPanel>
+                    <c:GroupBox Grid.Row="2" Header="Keymap" Margin="5,0,5,5">
+                        <Grid Margin="0,2" RowDefinitions="Auto,*">
+                            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                                <StackPanel Orientation="Horizontal" Grid.Column="0">
+                                    <Button Content="EXP"/>
+                                    <Button Content="COL"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Grid.Column="2">
+                                    <TextBox Width="200" Text="Search..."/>
+                                </StackPanel>
+                            </Grid>
+                            <trees:ShortcutTreeView x:Name="PART_ShortcutTree" Grid.Row="1"/>
+                        </Grid>
+                    </c:GroupBox>
+                </Grid>
             </ControlTemplate>
         </Setter>
     </ControlTheme>

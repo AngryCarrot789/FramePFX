@@ -17,7 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Configurations.Shortcuts.Models;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.BaseFrontEnd.Shortcuts.Trees;
 
@@ -38,7 +38,7 @@ public interface IShortcutTreeOrNode {
     /// <summary>
     /// Gets this node's entry, or returns the "root" configuration entry which contains all the root level entries
     /// </summary>
-    BaseShortcutEntry? Entry { get; }
+    IKeyMapEntry? Entry { get; }
 
     /// <summary>
     /// Gets the node at the specific UI index
@@ -47,9 +47,15 @@ public interface IShortcutTreeOrNode {
     /// <returns></returns>
     ShortcutTreeViewItem GetNodeAt(int index);
 
-    void InsertNode(BaseShortcutEntry item, int index);
+    void InsertGroup(ShortcutGroupEntry entry, int index);
 
-    void InsertNode(ShortcutTreeViewItem control, BaseShortcutEntry resource, int index);
+    void InsertInputState(InputStateEntry entry, int index);
 
-    void RemoveNode(int index, bool canCache = true);
+    void InsertShortcut(ShortcutEntry entry, int index);
+
+    void RemoveGroup(int index, bool canCache = true);
+
+    void RemoveInputState(int index, bool canCache = true);
+
+    void RemoveShortcut(int index, bool canCache = true);
 }

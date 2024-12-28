@@ -19,7 +19,7 @@
 
     <ControlTheme x:Key="{x:Type t:TimelineTrackControl}" TargetType="{x:Type t:TimelineTrackControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
-        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/Sequence/Track"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="EditorWindow/Timeline/Sequence/Track"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type t:TimelineTrackControl}">
                 <Panel>
@@ -38,7 +38,7 @@
 
     <ControlTheme x:Key="{x:Type t:TimelineClipControl}" TargetType="{x:Type t:TimelineClipControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
-        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/Sequence/Track/Clip"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="EditorWindow/Timeline/Sequence/Track/Clip"/>
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Template">
@@ -86,7 +86,7 @@
 
     <ControlTheme x:Key="{x:Type t:TimelineControl}" TargetType="{x:Type t:TimelineControl}">
         <Setter Property="Background" Value="{DynamicResource PanelBackground0}"/>
-        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="EditorWindow/Timeline"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type t:TimelineControl}">
                 <Grid VerticalAlignment="Stretch"
@@ -112,7 +112,7 @@
                                   VerticalScrollBarVisibility="Auto"
                                   x:Name="PART_TrackListScrollViewer"
                                   ap:ScrollBinder.VerticalBindGroup="TimelineVerticalScrollGroup"
-                                  avalonia:UIInputManager.FocusPath="Application/EditorWindow/Timeline/ControlSurfaces">
+                                  avalonia:UIInputManager.FocusPath="EditorWindow/Timeline/ControlSurfaces">
                         <s:TrackControlSurfaceList x:Name="PART_TrackListBox"
                                                    Padding="0"
                                                    VerticalAlignment="Top"
@@ -128,7 +128,7 @@
                                   ap:ScrollBinder.VerticalBindGroup="TimelineVerticalScrollGroup"
                                   Grid.Column="2" Grid.Row="2"
                                   Background="{DynamicResource ABrush.Tone4.Background.Static}"
-                                  avalonia:UIInputManager.FocusPath="Application/EditorWindow/Timeline/Sequence">
+                                  avalonia:UIInputManager.FocusPath="EditorWindow/Timeline/Sequence">
                         <t:TimelineScrollableContentGrid x:Name="PART_ContentGrid"
                                                          Timeline="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Timeline}"
                                                          Background="{TemplateBinding Background}"

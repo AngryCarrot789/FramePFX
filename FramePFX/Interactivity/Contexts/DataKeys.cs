@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Configurations.Shortcuts.Models;
 using FramePFX.Editing;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.UI;
@@ -26,6 +25,7 @@ using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Effects;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.Interactivity.Contexts;
 

@@ -57,4 +57,17 @@ public static class DisposableUtils {
         if (d5 != null) try { d5.Dispose(); } catch (Exception e) { errorList?.Add(e); }
         if (d6 != null) try { d6.Dispose(); } catch (Exception e) { errorList?.Add(e); }
     }
+    
+    public static void DisposeMany(ErrorList? errorList, IEnumerable<IDisposable>? disposables) {
+        if (disposables != null) {
+            foreach (IDisposable disposable in disposables) {
+                try {
+                    disposable.Dispose();
+                }
+                catch (Exception e) {
+                    errorList?.Add(e);
+                }
+            }
+        }
+    }
 }

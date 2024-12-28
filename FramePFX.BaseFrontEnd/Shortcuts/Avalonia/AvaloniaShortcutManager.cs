@@ -77,7 +77,7 @@ public sealed class AvaloniaShortcutManager : ShortcutManager {
         }
         catch (Exception e) {
             this.InvalidateShortcutCache();
-            this.Root = ShortcutGroup.CreateRoot(this);
+            this.Root = ShortcutGroupEntry.CreateRoot(this);
             throw new Exception("Failed to process keymap and built caches", e);
         }
     }
@@ -85,7 +85,7 @@ public sealed class AvaloniaShortcutManager : ShortcutManager {
     protected override void OnSecondShortcutUsagesProgressed(ShortcutInputProcessor inputProcessor) {
         base.OnSecondShortcutUsagesProgressed(inputProcessor);
         StringJoiner joiner = new StringJoiner(", ");
-        foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in inputProcessor.ActiveUsages) {
+        foreach (KeyValuePair<IShortcutUsage, ShortcutEntry> pair in inputProcessor.ActiveUsages) {
             joiner.Append(pair.Key.CurrentStroke.ToString());
         }
 
@@ -95,20 +95,20 @@ public sealed class AvaloniaShortcutManager : ShortcutManager {
     protected override void OnShortcutUsagesCreated(ShortcutInputProcessor inputProcessor) {
         base.OnShortcutUsagesCreated(inputProcessor);
         StringJoiner joiner = new StringJoiner(", ");
-        foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in inputProcessor.ActiveUsages) {
+        foreach (KeyValuePair<IShortcutUsage, ShortcutEntry> pair in inputProcessor.ActiveUsages) {
             joiner.Append(pair.Key.CurrentStroke.ToString());
         }
 
         BroadcastShortcutActivity("Waiting for next input: " + joiner);
     }
 
-    protected override void OnCancelUsageForNoSuchNextMouseStroke(ShortcutInputProcessor inputProcessor, IShortcutUsage usage, GroupedShortcut shortcut, MouseStroke stroke) {
-        base.OnCancelUsageForNoSuchNextMouseStroke(inputProcessor, usage, shortcut, stroke);
+    protected override void OnCancelUsageForNoSuchNextMouseStroke(ShortcutInputProcessor inputProcessor, IShortcutUsage usage, ShortcutEntry shortcutEntry, MouseStroke stroke) {
+        base.OnCancelUsageForNoSuchNextMouseStroke(inputProcessor, usage, shortcutEntry, stroke);
         BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
     }
 
-    protected override void OnCancelUsageForNoSuchNextKeyStroke(ShortcutInputProcessor inputProcessor, IShortcutUsage usage, GroupedShortcut shortcut, KeyStroke stroke) {
-        base.OnCancelUsageForNoSuchNextKeyStroke(inputProcessor, usage, shortcut, stroke);
+    protected override void OnCancelUsageForNoSuchNextKeyStroke(ShortcutInputProcessor inputProcessor, IShortcutUsage usage, ShortcutEntry shortcutEntry, KeyStroke stroke) {
+        base.OnCancelUsageForNoSuchNextKeyStroke(inputProcessor, usage, shortcutEntry, stroke);
         BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
     }
 
@@ -126,18 +126,18 @@ public sealed class AvaloniaShortcutManager : ShortcutManager {
         }
     }
 
-    protected override bool OnShortcutActivatedOverride(ShortcutInputProcessor inputProcessor, GroupedShortcut shortcut) {
+    protected override bool OnShortcutActivatedOverride(ShortcutInputProcessor inputProcessor, ShortcutEntry shortcutEntry) {
         string str;
 
         if (Debugger.IsAttached) {
-            str = $"shortcut command: {shortcut} -> {(string.IsNullOrWhiteSpace(shortcut.CommandId) ? "<none>" : shortcut.CommandId)}";
+            str = $"shortcut command: {shortcutEntry} -> {(string.IsNullOrWhiteSpace(shortcutEntry.CommandId) ? "<none>" : shortcutEntry.CommandId)}";
         }
         else {
-            str = $"shortcut command: {(string.IsNullOrWhiteSpace(shortcut.CommandId) ? "<none>" : shortcut.CommandId)}";
+            str = $"shortcut command: {(string.IsNullOrWhiteSpace(shortcutEntry.CommandId) ? "<none>" : shortcutEntry.CommandId)}";
         }
 
         BroadcastShortcutActivity($"Activating {str}...");
-        bool result = Application.Instance.Dispatcher.Invoke(() => base.OnShortcutActivatedOverride(inputProcessor, shortcut), DispatchPriority.Render);
+        bool result = Application.Instance.Dispatcher.Invoke(() => base.OnShortcutActivatedOverride(inputProcessor, shortcutEntry), DispatchPriority.Render);
         BroadcastShortcutActivity($"Activated {str}!");
         return result;
     }

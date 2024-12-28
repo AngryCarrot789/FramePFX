@@ -18,7 +18,7 @@
             TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
             Height="840" Width="1348"
             FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
-            avalonia:UIInputManager.FocusPath="Application/EditorWindow"
+            avalonia:UIInputManager.FocusPath="EditorWindow"
             WindowStartupLocation="CenterScreen"
             Title="FramePFX">
     <Grid Margin="0" x:Name="PART_EditorWindowContent">
@@ -73,7 +73,7 @@
                 </Grid.ColumnDefinitions>
                 <Border Background="{DynamicResource PanelBackground3}">
                     <TabControl BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0" Margin="0">
-                        <TabItem Header="Resources" avalonia:UIInputManager.FocusPath="Application/EditorWindow/ResourceManager">
+                        <TabItem Header="Resources" avalonia:UIInputManager.FocusPath="EditorWindow/ResourceManager">
                             <resourceManaging:ResourcePanelControl x:Name="PART_ResourcePanelControl"/>
                         </TabItem>
                         <!--
@@ -82,12 +82,12 @@
                             <tv:FileTreeView x:Name="PART_FileTree"/>
                         </TabItem>
                         -->
-                        <TabItem Header="Effects" avalonia:UIInputManager.FocusPath="Application/EditorWindow/EffectSourcePanel">
+                        <TabItem Header="Effects" avalonia:UIInputManager.FocusPath="EditorWindow/EffectSourcePanel">
                         </TabItem>
                     </TabControl>
                 </Border>
                 <controls:GroupBox Grid.Column="2" BorderThickness="0" Header="View Port Preview" BorderBrush="{DynamicResource PanelBorderBrush}"
-                            avalonia:UIInputManager.FocusPath="Application/EditorWindow/ViewPort"
+                            avalonia:UIInputManager.FocusPath="EditorWindow/ViewPort"
                             Focusable="True">
                     <DockPanel>
                         <Border Background="{DynamicResource ABrush.Tone5.Background.Static}" DockPanel.Dock="Bottom" Height="32" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
@@ -140,7 +140,7 @@
                             <editing:VideoEditorViewPortControl x:Name="PART_ViewPort"
                                                            Background="Transparent"
                                                            Focusable="True"
-                                                           avalonia:UIInputManager.FocusPath="Application/EditorWindow/Canvas">
+                                                           avalonia:UIInputManager.FocusPath="EditorWindow/Canvas">
                                 <editing:VideoEditorViewPortControl.Styles>
                                     <Style Selector="editing|VideoEditorViewPortControl[IsFocused=false]">
                                         <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
@@ -154,7 +154,7 @@
                     </DockPanel>
                 </controls:GroupBox>
                 <controls:GroupBox Grid.Column="4" BorderThickness="0" Header="Property Editor" BorderBrush="{DynamicResource PanelBorderBrush}"
-                            avalonia:UIInputManager.FocusPath="Application/EditorWindow/PropertyEditor" Focusable="True">
+                            avalonia:UIInputManager.FocusPath="EditorWindow/PropertyEditor" Focusable="True">
                     <Border Background="{DynamicResource PanelBackground3}">
                         <propertyEditing:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
                     </Border>
@@ -168,7 +168,7 @@
                         Grid.ColumnSpan="3"
                         BorderThickness="0" Background="{DynamicResource ABrush.Tone5.Background.Static}"
                         Focusable="True" BorderBrush="{DynamicResource PanelBorderBrush}"
-                        avalonia:UIInputManager.FocusPath="Application/EditorWindow/Timeline"
+                        avalonia:UIInputManager.FocusPath="EditorWindow/Timeline"
                         x:Name="PART_TimelinePresenterGroupBox">
                 <controls:GroupBox.Header>
                     <StackPanel Orientation="Horizontal">

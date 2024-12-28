@@ -25,7 +25,7 @@ namespace FramePFX.Shortcuts;
 /// Manages multiple input states and only allows one to be active at a time. Instances of this class are managed by a <see cref="ShortcutManager"/>
 /// </summary>
 public class InputStateManager {
-    private readonly List<GroupedInputState> inputStates;
+    private readonly List<InputStateEntry> inputStates;
 
     public ShortcutManager Manager { get; }
 
@@ -35,49 +35,49 @@ public class InputStateManager {
     public string Id { get; }
 
     /// <summary>
-    /// All of the input states that are managed. Any <see cref="GroupedInputState"/> instances in this list will also be in the <see cref="Group"/>'s <see cref="ShortcutGroup.InputStates"/> collection
+    /// All of the input states that are managed. Any <see cref="InputStateEntry"/> instances in this list will also be in the <see cref="Group"/>'s <see cref="ShortcutGroupEntry.InputStates"/> collection
     /// </summary>
-    public IReadOnlyList<GroupedInputState> InputStates => this.inputStates;
+    public IReadOnlyList<InputStateEntry> InputStates => this.inputStates;
 
     public InputStateManager(ShortcutManager manager, string id) {
         this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
-        this.inputStates = new List<GroupedInputState>();
+        this.inputStates = new List<InputStateEntry>();
         this.Id = id;
     }
 
     // The input state that was active before another input state was activated
-    private GroupedInputState lastActiveInput;
+    private InputStateEntry lastActiveInput;
 
     // e.g. clicking a toggle button
-    public Task OnInputStateTriggeredExternal(ShortcutInputProcessor inputProcessor, GroupedInputState state, bool activate) {
+    public Task OnInputStateTriggeredExternal(ShortcutInputProcessor inputProcessor, InputStateEntry stateEntry, bool activate) {
         return Task.CompletedTask;
     }
 
     // CBA to get it to work :'(
 
     /// <summary>
-    /// Called by a <see cref="ShortcutInputProcessor"/> when an input state is triggered. The given group's <see cref="GroupedInputState.IsActive"/>
+    /// Called by a <see cref="ShortcutInputProcessor"/> when an input state is triggered. The given group's <see cref="InputStateEntry.IsActive"/>
     /// will be the opposite of the given <see cref="isActive"/> parameter (e.g. when
-    /// <see cref="isActive"/> is false, <see cref="GroupedInputState.IsActive"/> will be true)
+    /// <see cref="isActive"/> is false, <see cref="InputStateEntry.IsActive"/> will be true)
     /// </summary>
     /// <param name="inputProcessor">The processor that caused this input state to be triggered</param>
-    /// <param name="state">The input state to modify</param>
+    /// <param name="stateEntry">The input state to modify</param>
     /// <param name="activate">Whether or not to activate or deactivate the state</param>
-    public void OnInputStateTriggered(ShortcutInputProcessor inputProcessor, GroupedInputState state, bool activate) {
+    public void OnInputStateTriggered(ShortcutInputProcessor inputProcessor, InputStateEntry stateEntry, bool activate) {
         if (activate) {
-            if (!state.IsActive) {
-                foreach (GroupedInputState inputState in this.inputStates) {
+            if (!stateEntry.IsActive) {
+                foreach (InputStateEntry inputState in this.inputStates) {
                     if (inputState.IsActive) {
                         inputState.OnDeactivated(inputProcessor);
                     }
                 }
 
-                state.OnActivated(inputProcessor);
-                this.lastActiveInput = state;
+                stateEntry.OnActivated(inputProcessor);
+                this.lastActiveInput = stateEntry;
             }
         }
-        else if (state.IsActive) {
-            state.OnDeactivated(inputProcessor);
+        else if (stateEntry.IsActive) {
+            stateEntry.OnDeactivated(inputProcessor);
         }
 
         // if (true) { // !state.IsInputPressAndRelease()
@@ -137,15 +137,15 @@ public class InputStateManager {
         // }
     }
 
-    public bool Add(GroupedInputState state) {
-        if (state.StateManager != null) {
-            throw new Exception($"State ({state}) was already located in the state manager '{state.StateManager}'");
+    public bool Add(InputStateEntry stateEntry) {
+        if (stateEntry.StateManager != null) {
+            throw new Exception($"State ({stateEntry}) was already located in the state manager '{stateEntry.StateManager}'");
         }
 
-        if (this.inputStates.Contains(state))
+        if (this.inputStates.Contains(stateEntry))
             return false;
-        this.inputStates.Add(state);
-        state.StateManager = this;
+        this.inputStates.Add(stateEntry);
+        stateEntry.StateManager = this;
         return true;
     }
 }

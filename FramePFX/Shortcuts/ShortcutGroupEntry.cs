@@ -19,24 +19,25 @@
 
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Utils;
+using FramePFX.Utils.Collections.Observable;
 
 namespace FramePFX.Shortcuts;
 
 /// <summary>
 /// A collection of shortcuts
 /// </summary>
-public sealed class ShortcutGroup : IGroupedObject {
+public sealed class ShortcutGroupEntry : IKeyMapEntry {
     public const char SeparatorChar = '/';
 
-    private readonly List<ShortcutGroup> groups;
-    private readonly List<GroupedShortcut> shortcuts;
-    private readonly List<GroupedInputState> inputStates;
+    private readonly ObservableList<ShortcutGroupEntry> groups;
+    private readonly ObservableList<ShortcutEntry> shortcuts;
+    private readonly ObservableList<InputStateEntry> inputStates;
     private readonly Dictionary<string, object> mapToItem;
     private InputStateManager? localStateManager;
 
     public ShortcutManager Manager { get; }
 
-    public ShortcutGroup? Parent { get; }
+    public ShortcutGroupEntry? Parent { get; }
 
     public string? FullPath { get; }
 
@@ -65,19 +66,19 @@ public sealed class ShortcutGroup : IGroupedObject {
     /// <summary>
     /// All shortcuts in this focus group
     /// </summary>
-    public IReadOnlyList<GroupedShortcut> Shortcuts => this.shortcuts;
+    public ReadOnlyObservableList<ShortcutEntry> Shortcuts { get; }
 
     /// <summary>
     /// All input states in this focus group
     /// </summary>
-    public IReadOnlyList<GroupedInputState> InputStates => this.inputStates;
+    public ReadOnlyObservableList<InputStateEntry> InputStates { get; }
 
     /// <summary>
     /// All child-groups in this focus group
     /// </summary>
-    public IReadOnlyList<ShortcutGroup> Groups => this.groups;
+    public ReadOnlyObservableList<ShortcutGroupEntry> Groups { get; }
 
-    public ShortcutGroup(ShortcutManager manager, ShortcutGroup? parent, string name, bool isGlobal = false, bool inherit = false) {
+    public ShortcutGroupEntry(ShortcutManager manager, ShortcutGroupEntry? parent, string name, bool isGlobal = false, bool inherit = false) {
         if (name != null && string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name must be null or a non-empty string that does not consist of only whitespaces");
         this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
@@ -86,14 +87,14 @@ public sealed class ShortcutGroup : IGroupedObject {
         this.Inherit = inherit;
         this.IsGlobal = isGlobal;
         this.Parent = parent;
-        this.groups = new List<ShortcutGroup>();
-        this.shortcuts = new List<GroupedShortcut>();
-        this.inputStates = new List<GroupedInputState>();
+        this.Groups = new ReadOnlyObservableList<ShortcutGroupEntry>(this.groups = new ObservableList<ShortcutGroupEntry>());
+        this.Shortcuts = new ReadOnlyObservableList<ShortcutEntry>(this.shortcuts = new ObservableList<ShortcutEntry>());
+        this.InputStates = new ReadOnlyObservableList<InputStateEntry>(this.inputStates = new ObservableList<InputStateEntry>());
         this.mapToItem = new Dictionary<string, object>();
     }
 
-    public static ShortcutGroup CreateRoot(ShortcutManager manager, bool isGlobal = true, bool inherit = false) {
-        return new ShortcutGroup(manager, null, null, isGlobal, inherit);
+    public static ShortcutGroupEntry CreateRoot(ShortcutManager manager, bool isGlobal = true, bool inherit = false) {
+        return new ShortcutGroupEntry(manager, null, null, isGlobal, inherit);
     }
 
     public string GetPathForName(string name) {
@@ -101,46 +102,73 @@ public sealed class ShortcutGroup : IGroupedObject {
         return this.FullPath != null ? StringUtils.Join(this.FullPath, name, SeparatorChar) : name;
     }
 
-    public ShortcutGroup CreateGroupByName(string name, bool isGlobal = false, bool inherit = false) {
+    public ShortcutGroupEntry CreateGroupByName(string name, bool isGlobal = false, bool inherit = false) {
         ValidateName(name, "Group name cannot be null or consist of only whitespaces");
         this.ValidateNameNotInUse(name);
-        ShortcutGroup group = new ShortcutGroup(this.Manager, this, name, isGlobal, inherit);
-        this.mapToItem[name] = group;
-        this.groups.Add(group);
-        return group;
+        ShortcutGroupEntry groupEntry = new ShortcutGroupEntry(this.Manager, this, name, isGlobal, inherit);
+        this.mapToItem[name] = groupEntry;
+        this.groups.Add(groupEntry);
+        return groupEntry;
     }
 
-    public void AddGroup(ShortcutGroup group) {
-        ValidateName(group.Name, "Group name cannot be null or consist of only whitespaces");
-        this.ValidateNameNotInUse(group.Name);
-        this.mapToItem[group.Name!] = group;
-        this.groups.Add(group);
+    public void AddGroup(ShortcutGroupEntry groupEntry) {
+        ValidateName(groupEntry.Name, "Group name cannot be null or consist of only whitespaces");
+        this.ValidateNameNotInUse(groupEntry.Name);
+        this.mapToItem[groupEntry.Name!] = groupEntry;
+        this.groups.Add(groupEntry);
     }
 
-    public GroupedShortcut AddShortcut(string name, IShortcut shortcut, bool isGlobal = false) {
+    public ShortcutEntry AddShortcut(string name, IShortcut shortcut, bool isGlobal = false) {
         ValidateName(name, "Shortcut name cannot be null or consist of only whitespaces");
         this.ValidateNameNotInUse(name);
-        GroupedShortcut managed = new GroupedShortcut(this, name, shortcut, isGlobal);
+        ShortcutEntry managed = new ShortcutEntry(this, name, shortcut, isGlobal);
         this.mapToItem[name] = managed;
         this.shortcuts.Add(managed);
         return managed;
     }
 
-    public GroupedInputState AddInputState(string name, IInputStroke activation, IInputStroke deactivation) {
+    public InputStateEntry AddInputState(string name, IInputStroke activation, IInputStroke deactivation) {
         ValidateName(name, "Shortcut name cannot be null or consist of only whitespaces");
         this.ValidateNameNotInUse(name);
-        GroupedInputState managed = new GroupedInputState(this, name, activation, deactivation);
+        InputStateEntry managed = new InputStateEntry(this, name, activation, deactivation);
         this.mapToItem[name] = managed;
         this.inputStates.Add(managed);
         return managed;
     }
+    
+    public void RemoveGroup(ShortcutGroupEntry entry) {
+        if (entry.Name == null || !this.mapToItem.TryGetValue(entry.Name, out object? value) || entry.Parent != this || !ReferenceEquals(value, entry)) {
+            throw new InvalidOperationException("Invalid entry");
+        }
+
+        this.mapToItem.Remove(entry.Name);
+        this.groups.Remove(entry);
+    }
+
+    public void RemoveShortcut(ShortcutEntry entry) {
+        if (!this.mapToItem.TryGetValue(entry.Name, out object? value) || entry.Parent != this || !ReferenceEquals(value, entry)) {
+            throw new InvalidOperationException("Invalid entry");
+        }
+
+        this.mapToItem.Remove(entry.Name);
+        this.shortcuts.Remove(entry);
+    }
+
+    public void RemoveInputState(InputStateEntry entry) {
+        if (!this.mapToItem.TryGetValue(entry.Name, out object? value) || entry.Parent != this || !ReferenceEquals(value, entry)) {
+            throw new InvalidOperationException("Invalid entry");
+        }
+
+        this.mapToItem.Remove(entry.Name);
+        this.inputStates.Remove(entry);
+    }
 
     public bool ContainsShortcutByName(string name) {
-        return this.mapToItem.TryGetValue(name, out object? value) && value is ShortcutGroup;
+        return this.mapToItem.TryGetValue(name, out object? value) && value is ShortcutGroupEntry;
     }
 
     public bool ContainsGroupByName(string name) {
-        return this.mapToItem.TryGetValue(name, out object? value) && value is ShortcutGroup;
+        return this.mapToItem.TryGetValue(name, out object? value) && value is ShortcutGroupEntry;
     }
 
     /// <summary>
@@ -150,7 +178,7 @@ public sealed class ShortcutGroup : IGroupedObject {
         this.CollectShortcutsInternal(ref args, string.IsNullOrWhiteSpace(focus) ? null : focus, allowDuplicateInheritedShortcuts);
     }
 
-    private static bool FindPrimaryStroke(List<GroupedShortcut> list, IInputStroke stroke) {
+    private static bool FindPrimaryStroke(List<ShortcutEntry> list, IInputStroke stroke) {
         for (int i = 0, c = list.Count; i < c; i++) {
             if (list[i].Shortcut.IsPrimaryStroke(stroke)) {
                 return true;
@@ -163,12 +191,12 @@ public sealed class ShortcutGroup : IGroupedObject {
     private void CollectShortcutsInternal(ref ShortcutEvalArgs args, string? focus, bool allowDuplicateInheritedShortcuts = false) {
         // Searching groups first is what allows inheritance to work properly, because you search the deepest
         // levels first and make your way to the root. Similar to how bubble events work
-        foreach (ShortcutGroup group in this.groups) {
+        foreach (ShortcutGroupEntry group in this.groups) {
             group.CollectShortcutsInternal(ref args, focus);
         }
 
         bool requireGlobal = !this.IsGlobal && !IsFocusPathInScope(this.FullPath, focus, args.canInherit && this.Inherit);
-        foreach (GroupedShortcut shortcut in this.shortcuts) {
+        foreach (ShortcutEntry shortcut in this.shortcuts) {
             if (args.filter != null && !args.filter(shortcut)) {
                 continue;
             }
@@ -191,7 +219,7 @@ public sealed class ShortcutGroup : IGroupedObject {
         }
 
         if (args.canProcessInputStates) {
-            foreach (GroupedInputState state in this.inputStates) {
+            foreach (InputStateEntry state in this.inputStates) {
                 if (state.ActivationStroke.Equals(args.stroke)) {
                     // IsUsingToggleBehaviour ? !state.IsActive : true
                     args.inputStates.Add((state, !state.IsUsingToggleBehaviour || !state.IsActive));
@@ -207,15 +235,15 @@ public sealed class ShortcutGroup : IGroupedObject {
         return path != null && focused != null && (inherit ? focused.StartsWith(path) : focused.Equals(path));
     }
 
-    public GroupedShortcut? FindFirstShortcutByCommandId(string cmdId) {
-        foreach (GroupedShortcut shortcut in this.shortcuts) {
+    public ShortcutEntry? FindFirstShortcutByCommandId(string cmdId) {
+        foreach (ShortcutEntry shortcut in this.shortcuts) {
             if (cmdId.Equals(shortcut.CommandId)) {
                 return shortcut;
             }
         }
 
-        foreach (ShortcutGroup group in this.Groups) {
-            GroupedShortcut? result = group.FindFirstShortcutByCommandId(cmdId);
+        foreach (ShortcutGroupEntry group in this.Groups) {
+            ShortcutEntry? result = group.FindFirstShortcutByCommandId(cmdId);
             if (result != null) {
                 return result;
             }
@@ -224,12 +252,12 @@ public sealed class ShortcutGroup : IGroupedObject {
         return null;
     }
 
-    public ShortcutGroup? GetGroupByName(string name) {
+    public ShortcutGroupEntry? GetGroupByName(string name) {
         ValidateName(name);
-        return this.mapToItem.TryGetValue(name, out object? value) ? value as ShortcutGroup : null;
+        return this.mapToItem.TryGetValue(name, out object? value) ? value as ShortcutGroupEntry : null;
     }
 
-    public ShortcutGroup? GetGroupByPath(string path) {
+    public ShortcutGroupEntry? GetGroupByPath(string path) {
         if (string.IsNullOrWhiteSpace(path)) {
             return null;
         }
@@ -238,17 +266,17 @@ public sealed class ShortcutGroup : IGroupedObject {
         return split == -1 ? this.GetGroupByName(path) : this.GetGroupByPath(path.Split(SeparatorChar));
     }
 
-    public ShortcutGroup? GetGroupByPath(string[] path) {
+    public ShortcutGroupEntry? GetGroupByPath(string[] path) {
         return this.GetGroupByPath(path, 0, path.Length);
     }
 
-    public ShortcutGroup? GetGroupByPath(string[]? path, int startIndex, int endIndex) {
+    public ShortcutGroupEntry? GetGroupByPath(string[]? path, int startIndex, int endIndex) {
         if (path == null || (endIndex - startIndex) == 0) {
             return null;
         }
 
         ValidatePathBounds(path, startIndex, endIndex);
-        ShortcutGroup? root = this;
+        ShortcutGroupEntry? root = this;
         for (int i = startIndex; i < endIndex; i++) {
             if ((root = root.GetGroupByName(path[i])) == null) {
                 return null;
@@ -258,12 +286,12 @@ public sealed class ShortcutGroup : IGroupedObject {
         return root;
     }
 
-    public GroupedShortcut GetShortcutByName(string name) {
+    public ShortcutEntry GetShortcutByName(string name) {
         ValidateName(name);
-        return this.mapToItem.TryGetValue(name, out object? value) ? value as GroupedShortcut : null;
+        return this.mapToItem.TryGetValue(name, out object? value) ? value as ShortcutEntry : null;
     }
 
-    public GroupedShortcut GetShortcutByPath(string path) {
+    public ShortcutEntry GetShortcutByPath(string path) {
         if (string.IsNullOrWhiteSpace(path)) {
             return null;
         }
@@ -272,17 +300,17 @@ public sealed class ShortcutGroup : IGroupedObject {
         return split == -1 ? this.GetShortcutByName(path) : this.GetShortcutByPath(path.Split(SeparatorChar));
     }
 
-    public GroupedShortcut GetShortcutByPath(string[] path) {
+    public ShortcutEntry GetShortcutByPath(string[] path) {
         return this.GetShortcutByPath(path, 0, path.Length);
     }
 
-    public GroupedShortcut GetShortcutByPath(string[] path, int startIndex, int endIndex) {
+    public ShortcutEntry GetShortcutByPath(string[] path, int startIndex, int endIndex) {
         if (path == null || (endIndex - startIndex) == 0) {
             return null;
         }
 
         ValidatePathBounds(path, startIndex, endIndex);
-        ShortcutGroup root = this;
+        ShortcutGroupEntry root = this;
         int groupEndIndex = endIndex - 1;
         for (int i = startIndex; i < groupEndIndex; i++) {
             if ((root = root.GetGroupByName(path[i])) == null) {
@@ -317,7 +345,7 @@ public sealed class ShortcutGroup : IGroupedObject {
     }
 
     public override string ToString() {
-        return $"{nameof(ShortcutGroup)} ({this.FullPath ?? "<root>"}{(!string.IsNullOrWhiteSpace(this.DisplayName) ? $" \"{this.DisplayName}\"" : "")})";
+        return $"{nameof(ShortcutGroupEntry)} ({this.FullPath ?? "<root>"}{(!string.IsNullOrWhiteSpace(this.DisplayName) ? $" \"{this.DisplayName}\"" : "")})";
     }
 
     public InputStateManager GetInputStateManager() {

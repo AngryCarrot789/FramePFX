@@ -45,17 +45,17 @@ public class ShortcutIdToGestureConverter : IValueConverter {
     }
 
     public static bool ShortcutIdToGesture(string path, string fallback, out string gesture) {
-        GroupedShortcut shortcut = ShortcutManager.Instance?.FindShortcutByPath(path);
-        if (shortcut == null) {
+        ShortcutEntry shortcutEntry = ShortcutManager.Instance?.FindShortcutByPath(path);
+        if (shortcutEntry == null) {
             return (gesture = fallback) != null;
         }
 
-        gesture = shortcut.Shortcut.ToString();
+        gesture = shortcutEntry.Shortcut.ToString();
         return true;
     }
 
     public static bool ShortcutIdToGesture(IEnumerable<string> paths, string fallback, out string gesture) {
-        List<GroupedShortcut> shortcut = ShortcutManager.Instance?.FindShortcutsByPaths(paths).ToList();
+        List<ShortcutEntry> shortcut = ShortcutManager.Instance?.FindShortcutsByPaths(paths).ToList();
         if (shortcut == null || shortcut.Count < 1) {
             return (gesture = fallback) != null;
         }
@@ -63,11 +63,11 @@ public class ShortcutIdToGestureConverter : IValueConverter {
         return (gesture = ShortcutsToGesture(shortcut, null)) != null;
     }
 
-    public static string ShortcutsToGesture(IEnumerable<GroupedShortcut> shortcuts, string fallback, bool removeDupliateInputStrokes = true) {
+    public static string ShortcutsToGesture(IEnumerable<ShortcutEntry> shortcuts, string fallback, bool removeDupliateInputStrokes = true) {
         if (removeDupliateInputStrokes) {
             HashSet<string> strokes = new HashSet<string>();
             List<string> newList = new List<string>();
-            foreach (GroupedShortcut sc in shortcuts) {
+            foreach (ShortcutEntry sc in shortcuts) {
                 string text = ToString(sc);
                 if (!strokes.Contains(text)) {
                     strokes.Add(text);
@@ -82,8 +82,8 @@ public class ShortcutIdToGestureConverter : IValueConverter {
         }
     }
 
-    public static string ToString(GroupedShortcut shortcut) {
-        return string.Join("+", shortcut.Shortcut.InputStrokes.Select(ToString));
+    public static string ToString(ShortcutEntry shortcutEntry) {
+        return string.Join("+", shortcutEntry.Shortcut.InputStrokes.Select(ToString));
     }
 
     public static string ToString(IInputStroke stroke) {

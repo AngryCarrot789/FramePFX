@@ -24,7 +24,7 @@ namespace FramePFX.Shortcuts;
 /// <summary>
 /// An input state has a property called <see cref="IsActive"/> which can be activated, deactivated or toggled by the user
 /// </summary>
-public class GroupedInputState : IGroupedObject {
+public class InputStateEntry : IKeyMapEntry {
     private IInputStroke activationStroke;
     private IInputStroke deactivationStroke;
     private bool? isPressAndRelease;
@@ -32,11 +32,15 @@ public class GroupedInputState : IGroupedObject {
 
     public ShortcutManager Manager => this.Parent?.Manager;
 
-    public ShortcutGroup Parent { get; }
+    public ShortcutGroupEntry Parent { get; }
 
-    public string Name { get; }
+    public string? Name { get; }
 
-    public string FullPath { get; }
+    public string? FullPath { get; }
+
+    public string? DisplayName { get; set; }
+    
+    public string? Description { get; set; }
 
     /// <summary>
     /// Gets or sets the <see cref="InputStateManager"/> that manages this input state
@@ -103,12 +107,12 @@ public class GroupedInputState : IGroupedObject {
         }
     }
 
-    public GroupedInputState(ShortcutGroup group, string name, IInputStroke activationStroke, IInputStroke deactivationStroke) {
+    public InputStateEntry(ShortcutGroupEntry groupEntry, string name, IInputStroke activationStroke, IInputStroke deactivationStroke) {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be null, empty, or consist of only whitespaces");
-        this.Parent = group ?? throw new ArgumentNullException(nameof(group), "Collection cannot be null");
+        this.Parent = groupEntry ?? throw new ArgumentNullException(nameof(groupEntry), "Collection cannot be null");
         this.Name = name;
-        this.FullPath = group.GetPathForName(name);
+        this.FullPath = groupEntry.GetPathForName(name);
         this.ActivationStroke = activationStroke;
         this.DeactivationStroke = deactivationStroke;
     }
@@ -142,6 +146,6 @@ public class GroupedInputState : IGroupedObject {
     }
 
     public override string ToString() {
-        return $"{nameof(GroupedInputState)} ({this.FullPath}: {(this.IsActive ? "pressed" : "released")} [{this.activationStroke}, {this.deactivationStroke}])";
+        return $"{nameof(InputStateEntry)} ({this.FullPath}: {(this.IsActive ? "pressed" : "released")} [{this.activationStroke}, {this.deactivationStroke}])";
     }
 }

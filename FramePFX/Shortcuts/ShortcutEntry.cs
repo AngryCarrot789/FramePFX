@@ -21,16 +21,18 @@ using System.Text;
 
 namespace FramePFX.Shortcuts;
 
+public delegate void ShortcutEntryShortcutChangedEventHandler(ShortcutEntry sender, IShortcut oldShortcut, IShortcut newShortcut);
+
 /// <summary>
 /// A class used to store a reference to a <see cref="Shortcut"/> and its
-/// owning <see cref="ShortcutGroup"/>, and also other shortcut data
+/// owning <see cref="ShortcutGroupEntry"/>, and also other shortcut data
 /// </summary>
-public sealed class GroupedShortcut : IGroupedObject {
+public sealed class ShortcutEntry : IKeyMapEntry {
     private IShortcut shortcut;
 
-    public ShortcutManager Manager => this.Parent?.Manager;
+    public ShortcutManager? Manager => this.Parent?.Manager;
 
-    public ShortcutGroup Parent { get; }
+    public ShortcutGroupEntry? Parent { get; }
 
     /// <summary>
     /// The name of the shortcut. This will not be null or empty and will not consist of only whitespaces;
@@ -84,23 +86,33 @@ public sealed class GroupedShortcut : IGroupedObject {
     /// </summary>
     public IShortcut Shortcut {
         get => this.shortcut;
-        set => this.shortcut = value ?? throw new ArgumentNullException(nameof(value), "Shortcut cannot be null");
+        set {
+            IShortcut oldShortcut = this.shortcut;
+            if (ReferenceEquals(oldShortcut, value)) {
+                return;
+            }
+            
+            this.shortcut = value ?? throw new ArgumentNullException(nameof(value), "Shortcut cannot be null");
+            this.ShortcutChanged?.Invoke(this, oldShortcut, value);
+        }
     }
 
-    public GroupedShortcut(ShortcutGroup group, string name, IShortcut shortcut, bool isGlobal = false) {
+    public event ShortcutEntryShortcutChangedEventHandler? ShortcutChanged;
+
+    public ShortcutEntry(ShortcutGroupEntry groupEntry, string name, IShortcut shortcut, bool isGlobal = false) {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be null, empty, or consist of only whitespaces");
-        this.Parent = group ?? throw new ArgumentNullException(nameof(group), "Collection cannot be null");
+        this.Parent = groupEntry ?? throw new ArgumentNullException(nameof(groupEntry), "Collection cannot be null");
         this.Name = name;
         this.shortcut = shortcut ?? throw new ArgumentNullException(nameof(shortcut));
-        this.FullPath = group.GetPathForName(name);
+        this.FullPath = groupEntry.GetPathForName(name);
         this.IsGlobal = isGlobal;
         this.IsInherited = true;
     }
 
     public override string ToString() {
         StringBuilder sb = new StringBuilder();
-        sb.Append(nameof(GroupedShortcut)).Append(" (").Append(this.Shortcut.IsEmpty ? "Empty/No Shortcut" : this.Shortcut.ToString()).Append(" -> ").Append(this.FullPath);
+        sb.Append(nameof(ShortcutEntry)).Append(" (").Append(this.Shortcut.IsEmpty ? "Empty/No Shortcut" : this.Shortcut.ToString()).Append(" -> ").Append(this.FullPath);
         if (!string.IsNullOrWhiteSpace(this.Description)) {
             sb.Append(" (").Append(this.Description).Append(")");
         }

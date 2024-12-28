@@ -53,7 +53,15 @@ public abstract class ConfigurationManager {
     }
 
     protected async Task UnloadContextAsync(ConfigurationContext context) {
-        await ApplyPagesRecursive(this.RootEntry, (x) => x.OnContextDestroyed(context), Flag_None);
+        await ApplyPagesRecursive(this.RootEntry, (x) => {
+            // Should not be non-null if the page system has no bugs in it. But, check
+            // anyway because some pages might do stuff in the context change handler
+            if (x.ActiveContext != null) {
+                ConfigurationPage.InternalSetContext(x, null);
+            }
+            
+            return x.OnContextDestroyed(context);
+        }, Flag_None);
     }
 
     private static async ValueTask ApplyPagesRecursive(ConfigurationEntry entry, Func<ConfigurationPage, ValueTask> action, int flags) {

@@ -81,8 +81,8 @@ public abstract class ConfigurationPage {
 
     /// <summary>
     /// Invoked when the active context changes. One of the parameters will be null, unless I forget
-    /// to update this comment. This happens when the page is no longer being viewed, and so maybe
-    /// the page shouldn't listen to intense application updates
+    /// to update this comment. This happens when the page is no longer being viewed (either by the user clicking
+    /// another page, or closing the dialog), and so maybe the page shouldn't listen to intense application updates
     /// </summary>
     /// <param name="oldContext">The previous context</param>
     /// <param name="newContext">The new context</param>
@@ -107,14 +107,19 @@ public abstract class ConfigurationPage {
     }
 
     public void ClearModifiedState() {
-        this.IsMarkedImmediatelyModified = false;
-        this.ActiveContext?.ClearModifiedState(this);
+        if (this.IsMarkedImmediatelyModified) {
+            this.IsMarkedImmediatelyModified = false;
+            this.ActiveContext?.ClearModifiedState(this);
+        }
     }
 
     internal static void InternalSetContext(ConfigurationPage page, ConfigurationContext? context) {
         ConfigurationContext? oldContext = page.ActiveContext;
-        page.ActiveContext = context;
+        if (ReferenceEquals(oldContext, context)) {
+            return;
+        }
         
+        page.ActiveContext = context;
         page.OnActiveContextChanged(oldContext, context);
     }
 }

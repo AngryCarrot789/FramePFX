@@ -39,8 +39,8 @@ public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
         document.Save(stream);
     }
 
-    private void SerialiseGroupData(XmlDocument doc, XmlElement groupElement, ShortcutGroup group) {
-        foreach (ShortcutGroup innerGroup in group.Groups) {
+    private void SerialiseGroupData(XmlDocument doc, XmlElement groupElement, ShortcutGroupEntry groupEntry) {
+        foreach (ShortcutGroupEntry innerGroup in groupEntry.Groups) {
             XmlElement childGroupElement = doc.CreateElement("Group");
             if (innerGroup.Name != null) // guaranteed not to be empty or only whitespaces
                 childGroupElement.SetAttribute("Name", innerGroup.Name);
@@ -56,7 +56,7 @@ public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
             groupElement.AppendChild(childGroupElement);
         }
 
-        foreach (GroupedShortcut shortcut in group.Shortcuts) {
+        foreach (ShortcutEntry shortcut in groupEntry.Shortcuts) {
             XmlElement shortcutElement = doc.CreateElement("Shortcut");
             shortcutElement.SetAttribute("Name", shortcut.Name); // guaranteed non-null, not empty and not whitespaces
             if (!string.IsNullOrWhiteSpace(shortcut.DisplayName))
@@ -93,7 +93,7 @@ public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
             groupElement.AppendChild(shortcutElement);
         }
 
-        foreach (GroupedInputState state in group.InputStates) {
+        foreach (InputStateEntry state in groupEntry.InputStates) {
             bool isEqualAbsolutely;
             XmlElement elem = doc.CreateElement("InputState");
             elem.SetAttribute("Name", state.Name);
@@ -170,7 +170,7 @@ public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
         string version = GetAttributeNullable(rootElement, "Version");
         Version keymapVersion = !string.IsNullOrEmpty(version) ? Version.Parse(version) : new Version(1, 0, 0);
 
-        ShortcutGroup root = ShortcutGroup.CreateRoot(manager);
+        ShortcutGroupEntry root = ShortcutGroupEntry.CreateRoot(manager);
         this.DeserialiseGroupData(rootElement, root);
         return new Keymap() {
             Version = keymapVersion,
@@ -178,14 +178,14 @@ public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
         };
     }
 
-    private void DeserialiseGroupData(XmlElement src, ShortcutGroup dst) {
+    private void DeserialiseGroupData(XmlElement src, ShortcutGroupEntry dst) {
         foreach (XmlElement child in src.ChildNodes.OfType<XmlElement>()) {
             switch (child.Name) {
                 case "Group": {
-                    ShortcutGroup innerGroup = dst.CreateGroupByName(GetElementName(dst, child), GetIsGlobal(child), GetIsInherit(child));
-                    innerGroup.Description = GetDescription(child);
-                    innerGroup.DisplayName = GetDisplayName(child);
-                    this.DeserialiseGroupData(child, innerGroup);
+                    ShortcutGroupEntry innerGroupEntry = dst.CreateGroupByName(GetElementName(dst, child), GetIsGlobal(child), GetIsInherit(child));
+                    innerGroupEntry.Description = GetDescription(child);
+                    innerGroupEntry.DisplayName = GetDisplayName(child);
+                    this.DeserialiseGroupData(child, innerGroupEntry);
                     break;
                 }
                 case "InputState": {
@@ -242,12 +242,12 @@ public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
                     }
 
                     string id;
-                    GroupedInputState state = dst.AddInputState(name, activator, deactivator);
+                    InputStateEntry stateEntry = dst.AddInputState(name, activator, deactivator);
                     if (GetBool(child, "UseGroupAsManager") == true) {
-                        dst.GetInputStateManager().Add(state);
+                        dst.GetInputStateManager().Add(stateEntry);
                     }
                     else if ((id = GetAttributeNullable(child, "StateManager")) != null) {
-                        dst.Manager.GetInputStateManager(id).Add(state);
+                        dst.Manager.GetInputStateManager(id).Add(stateEntry);
                     }
 
                     break;
@@ -287,7 +287,7 @@ public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
                         continue;
                     }
 
-                    GroupedShortcut managed = dst.AddShortcut(name, shortcut, GetIsGlobal(child));
+                    ShortcutEntry managed = dst.AddShortcut(name, shortcut, GetIsGlobal(child));
                     managed.IsInherited = GetIsInherit(child);
                     managed.RepeatMode = GetRepeatMode(child);
                     managed.CommandId = GetAttributeNullable(child, "CommandId");
@@ -347,9 +347,9 @@ public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
         return attribute;
     }
 
-    protected static string GetElementName(IGroupedObject owner, XmlElement child) => GetAttributeNonNull(owner, child, "Name");
+    protected static string GetElementName(IKeyMapEntry owner, XmlElement child) => GetAttributeNonNull(owner, child, "Name");
 
-    protected static string GetAttributeNonNull(IGroupedObject owner, XmlElement element, string key, bool requireNonWhitespaces = true) {
+    protected static string GetAttributeNonNull(IKeyMapEntry owner, XmlElement element, string key, bool requireNonWhitespaces = true) {
         if (!element.HasAttribute(key)) {
             throw new Exception($"'{key}' attribute must be provided, for object at path '{owner.FullPath ?? "<root>"}'");
         }

@@ -40,13 +40,13 @@ public class ShortcutIdToHeaderConverter : IValueConverter {
     }
 
     public static bool ShortcutIdToHeader(string path, string fallback, out string header) {
-        GroupedShortcut shortcut = ShortcutManager.Instance.FindShortcutByPath(path);
-        if (shortcut == null) {
+        ShortcutEntry shortcutEntry = ShortcutManager.Instance.FindShortcutByPath(path);
+        if (shortcutEntry == null) {
             return (header = fallback) != null;
         }
 
         // This could probably go in the guinness world records
-        header = shortcut.DisplayName ?? shortcut.Name ?? shortcut.FullPath ?? shortcut.CommandId ?? fallback ?? shortcut.Shortcut.ToString();
+        header = shortcutEntry.DisplayName ?? shortcutEntry.Name ?? shortcutEntry.FullPath ?? shortcutEntry.CommandId ?? fallback ?? shortcutEntry.Shortcut.ToString();
         return true;
     }
 }

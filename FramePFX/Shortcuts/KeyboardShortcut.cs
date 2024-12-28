@@ -35,6 +35,8 @@ public class KeyboardShortcut : IKeyboardShortcut {
     private readonly List<KeyStroke> keyStrokes;
 
     public IInputStroke PrimaryStroke => this.keyStrokes[0];
+    
+    public KeyStroke PrimaryKeyStroke => this.keyStrokes[0];
 
     public IEnumerable<IInputStroke> InputStrokes {
         get => this.keyStrokes.Cast<IInputStroke>();

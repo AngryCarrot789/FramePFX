@@ -23,10 +23,10 @@ namespace FramePFX.Shortcuts;
 
 public readonly struct ShortcutCollectorArgs {
     public readonly IInputStroke stroke;
-    public readonly List<GroupedShortcut> list;
-    public readonly Predicate<GroupedShortcut> filter;
+    public readonly List<ShortcutEntry> list;
+    public readonly Predicate<ShortcutEntry> filter;
 
-    public ShortcutCollectorArgs(IInputStroke stroke, List<GroupedShortcut> list, Predicate<GroupedShortcut> filter) {
+    public ShortcutCollectorArgs(IInputStroke stroke, List<ShortcutEntry> list, Predicate<ShortcutEntry> filter) {
         this.stroke = stroke;
         this.list = list;
         this.filter = filter;

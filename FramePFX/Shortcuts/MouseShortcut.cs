@@ -30,6 +30,8 @@ public class MouseShortcut : IMouseShortcut {
 
     public IInputStroke PrimaryStroke => this.mouseStrokes[0];
 
+    public MouseStroke PrimaryMouseStroke => this.mouseStrokes[0];
+    
     public IEnumerable<IInputStroke> InputStrokes {
         get => this.mouseStrokes.Cast<IInputStroke>();
     }

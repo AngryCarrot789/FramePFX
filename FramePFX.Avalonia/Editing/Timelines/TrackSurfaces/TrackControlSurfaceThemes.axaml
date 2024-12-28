@@ -71,7 +71,7 @@
         <Setter Property="Background" Value="{DynamicResource PanelBorderBrush}"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/ControlSurfaces"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="EditorWindow/Timeline/ControlSurfaces"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceList}">
                 <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
@@ -95,7 +95,7 @@
         <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/ControlSurfaces/Item"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="EditorWindow/Timeline/ControlSurfaces/Item"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceItem}">
                 <Border x:Name="Bd"

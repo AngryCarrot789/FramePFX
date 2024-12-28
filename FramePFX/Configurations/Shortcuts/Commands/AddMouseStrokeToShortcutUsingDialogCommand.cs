@@ -18,7 +18,6 @@
 // 
 
 using FramePFX.CommandSystem;
-using FramePFX.Configurations.Shortcuts.Models;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Services.InputStrokes;
 using FramePFX.Shortcuts;
@@ -36,25 +35,23 @@ public class AddMouseStrokeToShortcutUsingDialogCommand : AsyncCommand {
             return;
         }
 
-        MouseStroke? stroke = await IInputStrokeQueryDialogService.Instance.ShowGetMouseStrokeDialog(default);
-        if (!stroke.HasValue) {
-            return;
-        }
-
-        if (entry.Shortcut is MouseShortcut shortcut) {
-            entry.Shortcut = new MouseShortcut(shortcut.MouseStrokes.Append(stroke.Value).ToList());
-        }
-        else {
-            // Try to convert into appropriate shortcut
-            if (entry.Shortcut is MouseKeyboardShortcut mkShortcut) {
-                // Shortcut has mouse and key strokes, so just append the key stroke
-                entry.Shortcut = new MouseKeyboardShortcut(mkShortcut.InputStrokes.Append(stroke.Value).ToList());
+        MouseStroke? stroke = await IInputStrokeQueryDialogService.Instance.ShowGetMouseStrokeDialog(null);
+        if (stroke.HasValue) {
+            if (entry.Shortcut is MouseShortcut shortcut) {
+                entry.Shortcut = new MouseShortcut(shortcut.MouseStrokes.Append(stroke.Value).ToList());
             }
-            else if (entry.Shortcut is KeyboardShortcut keyShortcut) {
-                // Shortcut is a mouse shortcut, so convert to mouse-key shortcut and append key stroke to mouse strokes list
-                List<IInputStroke> list = keyShortcut.InputStrokes.ToList();
-                list.Add(stroke.Value);
-                entry.Shortcut = new MouseKeyboardShortcut(list);
+            else {
+                // Try to convert into appropriate shortcut
+                if (entry.Shortcut is MouseKeyboardShortcut mkShortcut) {
+                    // Shortcut has mouse and key strokes, so just append the key stroke
+                    entry.Shortcut = new MouseKeyboardShortcut(mkShortcut.InputStrokes.Append(stroke.Value).ToList());
+                }
+                else if (entry.Shortcut is KeyboardShortcut keyShortcut) {
+                    // Shortcut is a mouse shortcut, so convert to mouse-key shortcut and append key stroke to mouse strokes list
+                    List<IInputStroke> list = keyShortcut.InputStrokes.ToList();
+                    list.Add(stroke.Value);
+                    entry.Shortcut = new MouseKeyboardShortcut(list);
+                }
             }
         }
     }

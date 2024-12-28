@@ -19,7 +19,7 @@
 
 using Avalonia;
 using Avalonia.Controls;
-using FramePFX.Configurations.Shortcuts.Models;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.BaseFrontEnd.Shortcuts.Trees;
 
@@ -34,16 +34,20 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode {
         set => this.SetValue(RootEntryProperty, value);
     }
 
-    private readonly ModelControlDictionary<BaseShortcutEntry, ShortcutTreeViewItem> itemMap = new ModelControlDictionary<BaseShortcutEntry, ShortcutTreeViewItem>();
+    private readonly ModelControlDictionary<IKeyMapEntry, ShortcutTreeViewItem> itemMap = new ModelControlDictionary<IKeyMapEntry, ShortcutTreeViewItem>();
     internal readonly Stack<ShortcutTreeViewItem> itemCache;
 
-    public IModelControlDictionary<BaseShortcutEntry, ShortcutTreeViewItem> ItemMap => this.itemMap;
+    public IModelControlDictionary<IKeyMapEntry, ShortcutTreeViewItem> ItemMap => this.itemMap;
 
     ShortcutTreeView? IShortcutTreeOrNode.ResourceTree => this;
 
     ShortcutTreeViewItem? IShortcutTreeOrNode.ParentNode => null;
 
-    BaseShortcutEntry IShortcutTreeOrNode.Entry => this.RootEntry ?? throw new InvalidOperationException("Invalid usage of the interface");
+    IKeyMapEntry IShortcutTreeOrNode.Entry => this.RootEntry ?? throw new InvalidOperationException("Invalid usage of the interface");
+
+    public int GroupCounter { get; private set; }
+
+    public int InputStateCounter { get; private set; }
 
     public ShortcutTreeView() {
         this.itemCache = new Stack<ShortcutTreeViewItem>();
@@ -57,21 +61,59 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode {
     private void OnRootEntryChanged(ShortcutGroupEntry? oldEntry, ShortcutGroupEntry? newEntry) {
         if (oldEntry != null) {
             for (int i = this.Items.Count - 1; i >= 0; i--)
-                this.RemoveNode(i);
+                this.RemoveNodeInternal(i);
         }
 
         if (newEntry != null) {
             int i = 0;
-            foreach (BaseShortcutEntry resource in newEntry.Items)
-                this.InsertNode(resource, i++);
+            foreach (ShortcutGroupEntry entry in newEntry.Groups) {
+                this.InsertGroup(entry, i++);
+            }
+
+            i = 0;
+            foreach (InputStateEntry entry in newEntry.InputStates) {
+                this.InsertInputState(entry, i++);
+            }
+
+            i = 0;
+            foreach (ShortcutEntry entry in newEntry.Shortcuts) {
+                this.InsertShortcut(entry, i++);
+            }
         }
     }
 
     public ShortcutTreeViewItem GetNodeAt(int index) => (ShortcutTreeViewItem) this.Items[index]!;
 
-    public void InsertNode(BaseShortcutEntry item, int index) => this.InsertNode(this.GetCachedItemOrNew(), item, index);
+    public void InsertGroup(ShortcutGroupEntry entry, int index) {
+        this.GroupCounter++;
+        this.InsertNodeInternal(entry, index);
+    }
 
-    public void InsertNode(ShortcutTreeViewItem control, BaseShortcutEntry layer, int index) {
+    public void InsertInputState(InputStateEntry entry, int index) {
+        this.InputStateCounter++;
+        this.InsertNodeInternal(entry, index + this.GroupCounter);
+    }
+
+    public void InsertShortcut(ShortcutEntry entry, int index) {
+        this.InsertNodeInternal(entry, index + this.GroupCounter + this.InputStateCounter);
+    }
+
+    public void RemoveGroup(int index, bool canCache = true) {
+        this.GroupCounter--;
+        this.RemoveNodeInternal(index, canCache);
+    }
+
+    public void RemoveInputState(int index, bool canCache = true) {
+        this.InputStateCounter--;
+        this.RemoveNodeInternal(index + this.GroupCounter, canCache);
+    }
+
+    public void RemoveShortcut(int index, bool canCache = true) {
+        this.RemoveNodeInternal(index + this.GroupCounter + this.InputStateCounter, canCache);
+    }
+
+    private void InsertNodeInternal(IKeyMapEntry layer, int index) {
+        ShortcutTreeViewItem control = this.GetCachedItemOrNew();
         control.OnAdding(this, null, layer);
         this.Items.Insert(index, control);
         this.AddResourceMapping(control, layer);
@@ -80,9 +122,9 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode {
         control.OnAdded();
     }
 
-    public void RemoveNode(int index, bool canCache = true) {
+    public void RemoveNodeInternal(int index, bool canCache = true) {
         ShortcutTreeViewItem control = (ShortcutTreeViewItem) this.Items[index]!;
-        BaseShortcutEntry model = control.Entry ?? throw new Exception("Expected node to have a resource");
+        IKeyMapEntry model = control.Entry ?? throw new Exception("Expected node to have a resource");
         control.OnRemoving();
         this.Items.RemoveAt(index);
         this.RemoveResourceMapping(control, model);
@@ -91,9 +133,9 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode {
             this.PushCachedItem(control);
     }
 
-    public void AddResourceMapping(ShortcutTreeViewItem control, BaseShortcutEntry layer) => this.itemMap.AddMapping(layer, control);
+    public void AddResourceMapping(ShortcutTreeViewItem control, IKeyMapEntry layer) => this.itemMap.AddMapping(layer, control);
 
-    public void RemoveResourceMapping(ShortcutTreeViewItem control, BaseShortcutEntry layer) => this.itemMap.RemoveMapping(layer, control);
+    public void RemoveResourceMapping(ShortcutTreeViewItem control, IKeyMapEntry layer) => this.itemMap.RemoveMapping(layer, control);
 
     public ShortcutTreeViewItem GetCachedItemOrNew() {
         return this.itemCache.Count > 0 ? this.itemCache.Pop() : new ShortcutTreeViewItem();
@@ -107,5 +149,27 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode {
 
     public void SetSelection(ShortcutTreeViewItem item) {
         this.SelectedItem = item;
+    }
+
+    public void ExpandTo(ShortcutGroupEntry target, bool expandAlso = true, bool selectTarget = true) {
+        if (this.itemMap.TryGetControl(target, out ShortcutTreeViewItem? treeItem)) {
+            List<ShortcutTreeViewItem> items = new List<ShortcutTreeViewItem>();
+            if (expandAlso) {
+                items.Add(treeItem);
+            }
+
+            for (ShortcutTreeViewItem? parent = treeItem.ParentNode; parent != null; parent = parent.ParentNode) {
+                items.Add(parent);
+            }
+
+            items.Reverse();
+            foreach (ShortcutTreeViewItem node in items) {
+                node.IsExpanded = true;
+            }
+
+            if (selectTarget) {
+                treeItem.IsSelected = true;
+            }
+        }
     }
 }

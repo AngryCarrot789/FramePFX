@@ -40,11 +40,11 @@ public class ShortcutIdToToolTipConverter : IValueConverter {
     }
 
     public static bool ShortcutIdToTooltip(string path, string fallback, out string tooltip) {
-        GroupedShortcut shortcut = ShortcutManager.Instance?.FindShortcutByPath(path);
-        if (shortcut == null) {
+        ShortcutEntry shortcutEntry = ShortcutManager.Instance?.FindShortcutByPath(path);
+        if (shortcutEntry == null) {
             return (tooltip = fallback) != null;
         }
 
-        return (tooltip = shortcut.Description) != null;
+        return (tooltip = shortcutEntry.Description) != null;
     }
 }

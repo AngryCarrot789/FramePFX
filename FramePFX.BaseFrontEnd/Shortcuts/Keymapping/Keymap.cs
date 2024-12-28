@@ -33,7 +33,7 @@ public class Keymap {
     /// <summary>
     /// The root shortcut group
     /// </summary>
-    public ShortcutGroup Root { get; set; }
+    public ShortcutGroupEntry Root { get; set; }
 
     public Keymap() { }
 }

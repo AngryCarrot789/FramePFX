@@ -17,7 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Configurations.Shortcuts.Models;
+using System.Diagnostics;
 using FramePFX.Shortcuts;
 
 namespace FramePFX.Configurations.Shortcuts;
@@ -27,52 +27,59 @@ public delegate void ModifiedShortcutsChangedEventHandler(ShortcutEditorConfigur
 public class ShortcutEditorConfigurationPage : ConfigurationPage {
     public ShortcutManager ShortcutManager { get; }
 
-    public ShortcutGroupEntry RootGroupEntry { get; private set; }
+    public ShortcutGroupEntry? RootGroupEntry { get; private set; }
 
-    private HashSet<ShortcutEntry>? modifiedEntries;
-
-    public IEnumerable<ShortcutEntry> ModifiedEntries => this.modifiedEntries ?? Enumerable.Empty<ShortcutEntry>();
-
-    /// <summary>
-    /// An event fired when a shortcut entry is added to or removed from our modified shortcuts list
-    /// </summary>
-    public event ModifiedShortcutsChangedEventHandler? ModifiedShortcutsChanged;
-
+    private Dictionary<ShortcutEntry, IShortcut>? originalShortcuts;
+    
+    public IEnumerable<ShortcutEntry> ModifiedShortcuts => this.originalShortcuts?.Keys ?? Enumerable.Empty<ShortcutEntry>();
+    
     public ShortcutEditorConfigurationPage(ShortcutManager shortcutManager) {
         this.ShortcutManager = shortcutManager;
     }
 
     public override ValueTask OnContextCreated(ConfigurationContext context) {
-        this.RootGroupEntry = new ShortcutGroupEntry(this, null, this.ShortcutManager.Root);
+        this.RootGroupEntry = this.ShortcutManager.Root;
+        this.originalShortcuts = new Dictionary<ShortcutEntry, IShortcut>();
         return base.OnContextCreated(context);
+    }
+
+    protected override void OnActiveContextChanged(ConfigurationContext? oldContext, ConfigurationContext? newContext) {
+        base.OnActiveContextChanged(oldContext, newContext);
+        if (newContext == null) {
+            this.originalShortcuts = null;
+        }
     }
 
     public override ValueTask OnContextDestroyed(ConfigurationContext context) {
         this.RootGroupEntry = null;
-        this.modifiedEntries = null;
         return base.OnContextDestroyed(context);
     }
 
+    // TODO: Create a shadow of the shortcut tree that is mutable, and then reflect back to tree in this method
     public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
-        if (this.modifiedEntries != null) {
-            foreach (ShortcutEntry entry in this.modifiedEntries)
-                entry.GroupedObject.Shortcut = entry.Shortcut;
-
-            this.modifiedEntries = null;
-        }
-
         return ValueTask.CompletedTask;
     }
 
-    public void OnShortcutChanged(ShortcutEntry entry, IShortcut newShortcut) {
-        if (Equals(newShortcut, entry.GroupedObject.Shortcut)) {
-            this.modifiedEntries?.Remove(entry);
-        }
-        else if (!(this.modifiedEntries ??= new HashSet<ShortcutEntry>()).Add(entry)) {
+    public void OnShortcutChanged(ShortcutEntry entry, IShortcut oldShortcut, IShortcut newShortcut) {
+        if (this.originalShortcuts == null) {
+            Debug.Assert(false, "This method should not get called when the page is not active");
             return;
         }
 
-        this.ModifiedShortcutsChanged?.Invoke(this);
-        this.MarkModified();
+        if (this.originalShortcuts.TryGetValue(entry, out IShortcut? original)) {
+            if (Equals(original, newShortcut)) {
+                this.originalShortcuts.Remove(entry);
+            }
+        }
+        else {
+            this.originalShortcuts[entry] = newShortcut;
+        }
+
+        if (this.originalShortcuts.Count < 1) {
+            this.ClearModifiedState();
+        }
+        else if (!this.IsModified()) {
+            this.MarkModified();
+        }
     }
 }

@@ -18,7 +18,6 @@
 // 
 
 using FramePFX.AdvancedMenuService;
-using FramePFX.Configurations.Shortcuts.Models;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Inputs;

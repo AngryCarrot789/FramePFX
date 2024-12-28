@@ -3,6 +3,12 @@
                     xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
                     xmlns:trees="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Trees"
                     xmlns:isc="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Trees.InputStrokeControls">
+    <ControlTheme x:Key="{x:Type trees:ShortcutEntryHeaderControl}" TargetType="{x:Type trees:ShortcutEntryHeaderControl}">
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
+        <Setter Property="DisplayNameForeground" Value="{DynamicResource ABrush.Foreground.Static}"/>
+        <Setter Property="RawNameForeground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
+    </ControlTheme>
+    
     <ControlTheme x:Key="{x:Type trees:ShortcutTreeView}" TargetType="{x:Type trees:ShortcutTreeView}" BasedOn="{StaticResource {x:Type TreeView}}">
         <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="Background" Value="{DynamicResource AColour.Tone2.Background.Static}"/>
@@ -73,7 +79,7 @@
                                       Focusable="False" ColumnDefinitions="Auto,*,Auto">
                                     <StackPanel Orientation="Horizontal" Spacing="3" Grid.Column="0">
                                         <Panel VerticalAlignment="Center">
-                                            <TextBlock x:Name="PART_HeaderTextBlock" Text="{TemplateBinding Header}" Margin="0,-1,0,0"/>
+                                            <trees:ShortcutEntryHeaderControl x:Name="PART_HeaderControl" Margin="0,-1,0,0"/>
                                         </Panel>
                                     </StackPanel>
                                     <StackPanel x:Name="PART_InputStrokeList" Orientation="Horizontal" Spacing="5" Grid.Column="2"/>

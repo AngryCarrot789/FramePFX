@@ -23,13 +23,13 @@ namespace FramePFX.Shortcuts;
 
 public readonly struct ShortcutEvalArgs {
     public readonly IInputStroke stroke;
-    public readonly List<GroupedShortcut> shortcuts;
-    public readonly List<(GroupedInputState, bool)> inputStates;
-    public readonly Predicate<GroupedShortcut>? filter;
+    public readonly List<ShortcutEntry> shortcuts;
+    public readonly List<(InputStateEntry, bool)> inputStates;
+    public readonly Predicate<ShortcutEntry>? filter;
     public readonly bool canProcessInputStates;
     public readonly bool canInherit;
 
-    public ShortcutEvalArgs(IInputStroke stroke, List<GroupedShortcut> shortcuts, List<(GroupedInputState, bool)> inputStates, Predicate<GroupedShortcut>? filter, bool canProcessInputStates, bool canInherit) {
+    public ShortcutEvalArgs(IInputStroke stroke, List<ShortcutEntry> shortcuts, List<(InputStateEntry, bool)> inputStates, Predicate<ShortcutEntry>? filter, bool canProcessInputStates, bool canInherit) {
         this.stroke = stroke;
         this.shortcuts = shortcuts;
         this.inputStates = inputStates;

@@ -40,7 +40,22 @@ public class IconControl : Control {
     }
 
     static IconControl() {
+        IconProperty.Changed.AddClassHandler<IconControl, Icon?>((d, e) => d.OnIconChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         AffectsRender<IconControl>(IconProperty);
+    }
+    
+    private void OnIconChanged(Icon? oldValue, Icon? newValue) {
+        if (oldValue is AbstractAvaloniaIcon oldIcon) {
+            oldIcon.RenderInvalidated -= this.OnIconInvalidated;
+        }
+        
+        if (newValue is AbstractAvaloniaIcon newIcon) {
+            newIcon.RenderInvalidated += this.OnIconInvalidated;
+        }
+    }
+
+    private void OnIconInvalidated(object? sender, EventArgs e) {
+        this.InvalidateVisual();
     }
 
     public override void Render(DrawingContext context) {

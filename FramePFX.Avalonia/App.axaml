@@ -1,9 +1,9 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:e="clr-namespace:FramePFX.Avalonia.Editing"
-             xmlns:avControls="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
+             xmlns:av="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
              x:Class="FramePFX.Avalonia.App"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
     <Application.Styles>
         <SimpleTheme/>
         <StyleInclude Source="Themes/Controls.axaml"/>
@@ -12,8 +12,21 @@
     <Application.Resources>
         <ResourceDictionary>
             <FontFamily x:Key="FontOxanium">/Resources/Fonts/Oxanium/#Oxanium</FontFamily>
+
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key='Dark'>
+                    <ResourceDictionary.MergedDictionaries>
+                        <MergeResourceInclude Source="/Themes/Colours/SoftDark.axaml"/>
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key='Light'>
+                    <ResourceDictionary.MergedDictionaries>
+                        <MergeResourceInclude Source="/Themes/Colours/CrappyLight.axaml"/>
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
             <ResourceDictionary.MergedDictionaries>
-                <ResourceInclude Source="/Themes/Colours/SoftDark.axaml"/>
                 <ResourceInclude Source="/Themes/ControlColours.axaml"/>
                 <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/AvControls/ControlStyles.axaml"/>
                 <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/AvControls/Dragger/NumberDraggerStyles.axaml"/>
@@ -24,7 +37,7 @@
                 <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Configurations/Trees/ConfigurationTreeThemes.axaml"/>
                 <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Configurations/Pages/Basic/BaseConfigurationPageThemes.axaml"/>
                 <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/ResourceManaging/Autoloading/InvalidResourceEntryThemes.axaml"/>
-                
+
                 <MergeResourceInclude Source="/Editing/Playheads/PlayHeadThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/Automation/AutomationSequenceEditorThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/Timelines/TimelineRulerThemes.axaml"/>
@@ -44,16 +57,16 @@
             <Setter Property="Template">
                 <ControlTemplate TargetType="{x:Type e:VideoEditorViewPortControl}">
                     <Grid>
-                        <avControls:FreeMoveViewPortV2 x:Name="PART_FreeMoveViewPort"
-                                              UseLayoutRounding="False"
-                                              PanToCursorOnUserZoom="{TemplateBinding PanToCursorOnUserZoom}"
-                                              HorizontalAlignment="Stretch"
-                                              VerticalAlignment="Stretch"
-                                              Margin="{TemplateBinding BorderThickness}">
-                            <avControls:TransformationContainer x:Name="PART_CanvasContainer" UseLayoutRounding="False">
-                                <avControls:SKAsyncViewPort x:Name="PART_SkiaViewPort" UseLayoutRounding="False"/>
-                            </avControls:TransformationContainer>
-                        </avControls:FreeMoveViewPortV2>
+                        <av:FreeMoveViewPortV2 x:Name="PART_FreeMoveViewPort"
+                                               UseLayoutRounding="False"
+                                               PanToCursorOnUserZoom="{TemplateBinding PanToCursorOnUserZoom}"
+                                               HorizontalAlignment="Stretch"
+                                               VerticalAlignment="Stretch"
+                                               Margin="{TemplateBinding BorderThickness}">
+                            <av:TransformationContainer x:Name="PART_CanvasContainer" UseLayoutRounding="False">
+                                <av:SKAsyncViewPort x:Name="PART_SkiaViewPort" UseLayoutRounding="False"/>
+                            </av:TransformationContainer>
+                        </av:FreeMoveViewPortV2>
                         <!-- Setting background to null should disable hit-testing but I set the property just to be double sure -->
                         <Border Background="{x:Null}" IsHitTestVisible="False"
                                 BorderBrush="{TemplateBinding BorderBrush}"

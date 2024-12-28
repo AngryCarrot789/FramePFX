@@ -24,6 +24,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
+using Avalonia.Styling;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Interactivity.Contexts;
 using FramePFX.BaseFrontEnd.Themes.Controls;
@@ -339,5 +340,11 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         this.IsClosing = true;
         this.Close();
         return Task.CompletedTask;
+    }
+
+    private void SetTheme_Click(object? sender, RoutedEventArgs e) {
+        if ((sender as MenuItem)?.Tag is object theme) {
+            global::Avalonia.Application.Current!.RequestedThemeVariant = new ThemeVariant(theme, null);
+        }
     }
 }

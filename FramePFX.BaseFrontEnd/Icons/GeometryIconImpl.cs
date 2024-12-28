@@ -19,18 +19,25 @@
 
 using Avalonia;
 using Avalonia.Media;
+using FramePFX.BaseFrontEnd.Themes.BrushFactories;
 using FramePFX.Logging;
+using FramePFX.Themes;
 
 namespace FramePFX.BaseFrontEnd.Icons;
 
 public class GeometryIconImpl : AbstractAvaloniaIcon {
     public string[] Elements { get; }
 
-    public IBrush? Brush { get; }
+    public IColourBrush? TheFillBrush { get; }
+    public IColourBrush? TheStrokeBrush { get; }
+
+    private IBrush? myFillBrush, myPenBrush;
+    private IPen? myPen;
     
-    public IPen? Pen { get; }
+    public double StrokeThickness { get; set; }
     
     private Geometry?[]? geometries;
+    private readonly IDisposable disposeFillBrush, disposeStrokeBrush;
 
     public Geometry?[] Geometries {
         get {
@@ -50,16 +57,47 @@ public class GeometryIconImpl : AbstractAvaloniaIcon {
         }
     }
     
-    public GeometryIconImpl(string name, IBrush? brush, IPen? pen, string[] svgElements) : base(name) {
+    public GeometryIconImpl(string name, IColourBrush? brush, IColourBrush? stroke, double strokeThickness, string[] svgElements) : base(name) {
         this.Elements = svgElements;
-        this.Brush = brush;
-        this.Pen = pen;
+        this.TheFillBrush = brush;
+        this.TheStrokeBrush = stroke;
+        this.StrokeThickness = strokeThickness;
+        
+        if (brush is DynamicResourceAvaloniaColourBrush b) {
+            this.disposeFillBrush = b.Subscribe(this.OnFillBrushInvalidated);
+        }
+        else if (brush != null) {
+            this.myFillBrush = ((ImmutableAvaloniaColourBrush) brush).Brush;
+        }
+        
+        if (stroke is DynamicResourceAvaloniaColourBrush s) {
+            this.disposeFillBrush = s.Subscribe(this.OnStrokeBrushInvalidated);
+        }
+        else if (stroke != null) {
+            this.myFillBrush = ((ImmutableAvaloniaColourBrush) stroke).Brush;
+        }
+    }
+
+    private void OnFillBrushInvalidated(IBrush? brush) {
+        this.myFillBrush = brush;
+        this.OnRenderInvalidated();
+    }
+    
+    private void OnStrokeBrushInvalidated(IBrush? brush) {
+        this.myPenBrush = brush;
+        this.myPen = null;
+        this.OnRenderInvalidated();
     }
 
     public override void Render(DrawingContext context, Rect rect) {
         foreach (Geometry? geometry in this.Geometries) {
-            if (geometry != null)
-                context.DrawGeometry(this.Brush, this.Pen, geometry);
+            if (geometry != null) {
+                if (this.myPen == null && this.myPenBrush != null) {
+                    this.myPen = new Pen(this.myPenBrush, this.StrokeThickness);
+                }
+                
+                context.DrawGeometry(this.myFillBrush, this.myPen, geometry);
+            }
         }
     }
 

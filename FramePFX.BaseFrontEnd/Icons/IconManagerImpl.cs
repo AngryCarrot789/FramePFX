@@ -25,6 +25,7 @@ using Avalonia.Platform;
 using Avalonia.Skia;
 using FramePFX.Icons;
 using FramePFX.Logging;
+using FramePFX.Themes;
 using SkiaSharp;
 
 namespace FramePFX.BaseFrontEnd.Icons;
@@ -65,8 +66,8 @@ public class IconManagerImpl : IconManager {
         }
     }
 
-    public override Icon RegisterGeometryIcon(string name, SKColor? brush, SKColor? stroke, string[] geometry, double strokeThickness = 0.0) {
-        return this.RegisterCore(new GeometryIconImpl(name, ColourToBrush(brush), brush.HasValue ? new ImmutablePen(ColourToBrush(brush), strokeThickness) : null, geometry));
+    public override Icon RegisterGeometryIcon(string name, IColourBrush? brush, IColourBrush? stroke, string[] geometry, double strokeThickness = 0.0) {
+        return this.RegisterCore(new GeometryIconImpl(name, brush, stroke, strokeThickness, geometry));
     }
 
     private static ImmutableSolidColorBrush? ColourToBrush(SKColor? colour) {

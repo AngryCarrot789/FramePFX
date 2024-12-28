@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Themes;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -72,7 +73,7 @@ public abstract class IconManager {
 
     public abstract Icon RegisterIconUsingBitmap(string name, SKBitmap bitmap);
     
-    public abstract Icon RegisterGeometryIcon(string name, SKColor? brush, SKColor? stroke, string[] geometry, double strokeThickness = 0.0);
+    public abstract Icon RegisterGeometryIcon(string name, IColourBrush? brush, IColourBrush? stroke, string[] geometry, double strokeThickness = 0.0);
 
     /// <summary>
     /// Adds the icon key, with the given name. Throws if the name is

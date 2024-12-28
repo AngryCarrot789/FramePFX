@@ -11,6 +11,8 @@
             xmlns:ams="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd"
             xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
             xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
+            xmlns:avControls="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
+            xmlns:framePfx="clr-namespace:FramePFX;assembly=FramePFX-core"
             mc:Ignorable="d"
             x:Class="FramePFX.Avalonia.EditorWindow"
             Background="{DynamicResource PanelBackground0}"
@@ -55,6 +57,10 @@
                                     ToolTip.Tip="Export the current project"/>
                 <ams:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
                                     ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>
+            </MenuItem>
+            <MenuItem Header="Theme">
+                <MenuItem Header="Dark" Tag="Dark" Click="SetTheme_Click"/>
+                <MenuItem Header="Light" Tag="Light" Click="SetTheme_Click"/>
             </MenuItem>
         </ams:ContextCapturingMenu>
         <Grid Grid.Row="1">
@@ -122,11 +128,9 @@
                                                         HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop"
                                                         CommandId="commands.editor.PlaybackStopCommand"
                                                         ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
-                                    <!--
                                     <avControls:IconButton Icon="{x:Static framePfx:SimpleIcons.AnIcon}" 
                                                            Width="24" Focusable="False"
                                                            HorizontalAlignment="Left" Margin="5,0,0,0"/>
-                                    -->
                                 </StackPanel>
                             </DockPanel>
                         </Border>

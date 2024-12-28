@@ -33,6 +33,7 @@ using FramePFX.Avalonia.Editing.Toolbars;
 using FramePFX.Avalonia.Exporting;
 using FramePFX.Avalonia.Services;
 using FramePFX.Avalonia.Services.Startups;
+using FramePFX.Avalonia.Themes;
 using FramePFX.BaseFrontEnd;
 using FramePFX.BaseFrontEnd.Configurations;
 using FramePFX.BaseFrontEnd.Icons;
@@ -42,6 +43,7 @@ using FramePFX.BaseFrontEnd.Services.Colours;
 using FramePFX.BaseFrontEnd.Services.Files;
 using FramePFX.BaseFrontEnd.Shortcuts.Avalonia;
 using FramePFX.BaseFrontEnd.Shortcuts.Dialogs;
+using FramePFX.BaseFrontEnd.Themes.BrushFactories;
 using FramePFX.Configurations;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging;
@@ -60,6 +62,7 @@ using FramePFX.Services.Messaging;
 using FramePFX.Services.UserInputs;
 using FramePFX.Services.VideoEditors;
 using FramePFX.Shortcuts;
+using FramePFX.Themes;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia;
@@ -107,6 +110,7 @@ public class ApplicationImpl : Application, IFrontEndApplication {
         manager.RegisterConstant<IInputStrokeQueryDialogService>(new InputStrokeDialogsImpl());
         manager.RegisterConstant<IVideoEditorService>(new VideoEditorServiceImpl());
         manager.RegisterConstant<TimelineToolBarManager>(new TimelineToolBarManagerImpl());
+        manager.RegisterConstant<BrushFactory>(new BrushFactoryImpl());
     }
 
     protected override async Task<bool> LoadKeyMapAsync() {

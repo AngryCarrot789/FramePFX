@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Net.Security;
 using System.Runtime.CompilerServices;
 using FramePFX.Utils;
 

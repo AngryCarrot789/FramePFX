@@ -17,26 +17,27 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Net.Security;
-using Avalonia;
-using Avalonia.Media;
-using FramePFX.Icons;
+using SkiaSharp;
 
-namespace FramePFX.BaseFrontEnd.Icons;
+namespace FramePFX.Themes;
 
-public abstract class AbstractAvaloniaIcon : Icon {
+/// <summary>
+/// A factory used to create brushes
+/// </summary>
+public abstract class BrushFactory {
+    public static BrushFactory Instance => Application.Instance.ServiceManager.GetService<BrushFactory>();
+    
     /// <summary>
-    /// An event fired when this icon's visual becomes invalid (e.g. a dynamic resource value changes)
+    /// Creates a brush whose underlying colour does not change
     /// </summary>
-    public event EventHandler? RenderInvalidated;
-    
-    protected AbstractAvaloniaIcon(string name) : base(name) {
-        
-    }
-    
-    protected void OnRenderInvalidated() => this.RenderInvalidated?.Invoke(this, EventArgs.Empty);
-    
-    public abstract void Render(DrawingContext context, Rect rect);
+    /// <param name="colour">The colour</param>
+    /// <returns>The brush</returns>
+    public abstract IColourBrush CreateConstant(SKColor colour);
 
-    public abstract Size GetSize(Size availableSize);
+    /// <summary>
+    /// Creates a dynamic brush from a known theme key
+    /// </summary>
+    /// <param name="themeKey">The key</param>
+    /// <returns>The brush</returns>
+    public abstract IColourBrush CreateDynamic(string themeKey);
 }

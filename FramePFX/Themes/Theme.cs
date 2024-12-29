@@ -58,13 +58,14 @@ public abstract class Theme {
     /// <param name="key">The key</param>
     /// <param name="colour">The new brush</param>
     public abstract void SetThemeBrush(string key, IColourBrush brush);
-    
+
     /// <summary>
     /// Returns true if the theme key is a real key that would return a colour
     /// </summary>
     /// <param name="themeKey">The key</param>
+    /// <param name="allowInherited">True to allow searching this and parent themes, False to only allow searching this theme</param>
     /// <returns>See above</returns>
-    public abstract bool IsThemeKeyValid(string themeKey);
+    public abstract bool IsThemeKeyValid(string themeKey, bool allowInherited = true);
 
     /// <summary>
     /// Creates a saved theme entry that stores the current state of the colour
@@ -78,5 +79,5 @@ public abstract class Theme {
     /// </summary>
     /// <param name="themeKey">The key</param>
     /// <param name="entry">The entry</param>
-    public abstract void RestoreThemeEntry(string themeKey, ISavedThemeEntry entry);
+    public abstract void ApplyThemeEntry(string themeKey, ISavedThemeEntry entry);
 }

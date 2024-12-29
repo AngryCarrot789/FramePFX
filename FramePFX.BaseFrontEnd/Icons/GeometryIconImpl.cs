@@ -61,14 +61,14 @@ public class GeometryIconImpl : AbstractAvaloniaIcon {
         this.TheStrokeBrush = stroke;
         this.StrokeThickness = strokeThickness;
 
-        if (brush is DynamicResourceAvaloniaColourBrush b) {
+        if (brush is DynamicAvaloniaColourBrush b) {
             this.disposeFillBrush = b.Subscribe(this.OnFillBrushInvalidated);
         }
         else if (brush != null) {
             this.myFillBrush = ((AvaloniaColourBrush) brush).Brush;
         }
 
-        if (stroke is DynamicResourceAvaloniaColourBrush s) {
+        if (stroke is DynamicAvaloniaColourBrush s) {
             this.disposeStrokeBrush = s.Subscribe(this.OnStrokeBrushInvalidated);
         }
         else if (stroke != null) {

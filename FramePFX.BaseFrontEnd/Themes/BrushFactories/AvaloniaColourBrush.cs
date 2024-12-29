@@ -44,18 +44,18 @@ public sealed class ConstantAvaloniaColourBrush : AvaloniaColourBrush, IStaticCo
     }
 }
 
-public class StaticResourceAvaloniaColourBrush : AvaloniaColourBrush, IStaticColourBrush {
+public class StaticAvaloniaColourBrush : AvaloniaColourBrush, IStaticColourBrush {
     public string ThemeKey { get; }
 
     public override IImmutableBrush? Brush { get; }
     
-    public StaticResourceAvaloniaColourBrush(string themeKey, IImmutableBrush? brush) {
+    public StaticAvaloniaColourBrush(string themeKey, IImmutableBrush? brush) {
         this.ThemeKey = themeKey;
         this.Brush = brush;
     }
 }
 
-public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, IDynamicColourBrush {
+public sealed class DynamicAvaloniaColourBrush : AvaloniaColourBrush, IDynamicColourBrush {
     public string ThemeKey { get; }
 
     /// <summary>
@@ -72,7 +72,7 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
     
     public event DynamicColourBrushChangedEventHandler? BrushChanged;
 
-    public DynamicResourceAvaloniaColourBrush(string themeKey) {
+    public DynamicAvaloniaColourBrush(string themeKey) {
         this.ThemeKey = themeKey;
     }
     
@@ -98,8 +98,8 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
             // We expect the handler list to be empty due to the logic in Unsubscribe
             Debug.Assert(onBrushChanged != null ? this.handlers?.Count == 1 : (this.handlers == null || this.handlers.Count < 1));
             
-            global::Avalonia.Application.Current!.ActualThemeVariantChanged += this.OnApplicationThemeChanged;
-            global::Avalonia.Application.Current.ResourcesChanged += this.CurrentOnResourcesChanged;
+            Avalonia.Application.Current!.ActualThemeVariantChanged += this.OnApplicationThemeChanged;
+            Avalonia.Application.Current.ResourcesChanged += this.CurrentOnResourcesChanged;
             this.FindBrush();
         }
         else if (invokeHandlerImmediately && onBrushChanged != null && this.CurrentBrush != null) {
@@ -130,8 +130,8 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
             // it should be impossible for it to not get removed
             Debug.Assert(this.handlers == null || this.handlers.Count < 1);
             
-            global::Avalonia.Application.Current!.ActualThemeVariantChanged -= this.OnApplicationThemeChanged;
-            global::Avalonia.Application.Current.ResourcesChanged -= this.CurrentOnResourcesChanged;
+            Avalonia.Application.Current!.ActualThemeVariantChanged -= this.OnApplicationThemeChanged;
+            Avalonia.Application.Current.ResourcesChanged -= this.CurrentOnResourcesChanged;
 
             if (this.CurrentBrush != null) {
                 this.CurrentBrush = null;
@@ -143,7 +143,7 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
     private void CurrentOnResourcesChanged(object? sender, ResourcesChangedEventArgs e) => this.FindBrush();
 
     private void FindBrush() {
-        if (global::Avalonia.Application.Current!.TryGetResource(this.ThemeKey, global::Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
+        if (Avalonia.Application.Current!.TryGetResource(this.ThemeKey, Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
             if (value is IBrush brush) {
                 if (!ReferenceEquals(this.CurrentBrush, brush)) {
                     this.CurrentBrush = brush;
@@ -184,10 +184,10 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
     }
 
     private class UsageToken : IDisposable {
-        private DynamicResourceAvaloniaColourBrush? brush;
+        private DynamicAvaloniaColourBrush? brush;
         public readonly Action<IBrush?>? invalidatedHandler;
 
-        public UsageToken(DynamicResourceAvaloniaColourBrush brush, Action<IBrush?>? invalidatedHandler) {
+        public UsageToken(DynamicAvaloniaColourBrush brush, Action<IBrush?>? invalidatedHandler) {
             this.brush = brush;
             this.invalidatedHandler = invalidatedHandler;
         }

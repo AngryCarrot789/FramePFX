@@ -24,7 +24,7 @@ namespace FramePFX.Services.UserInputs;
 
 public delegate void DoubleUserInputDataEventHandler(DoubleUserInputInfo sender);
 
-public class DoubleUserInputInfo : UserInputInfo {
+public class DoubleUserInputInfo : BaseTextUserInputInfo {
     public static readonly DataParameterString TextAParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(TextA), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(textA))));
     public static readonly DataParameterString TextBParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(TextB), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(textB))));
     public static readonly DataParameterString LabelAParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(LabelA), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(labelA))));
@@ -36,6 +36,8 @@ public class DoubleUserInputInfo : UserInputInfo {
     private string? labelB = LabelBParameter.DefaultValue;
     private bool allowEmptyTextA;
     private bool allowEmptyTextB;
+    private string? textErrorA, textErrorB;
+    private Func<string?, string?>? validatorA, validatorB;
 
     public string? TextA {
         get => this.textA;
@@ -65,6 +67,7 @@ public class DoubleUserInputInfo : UserInputInfo {
 
             this.allowEmptyTextA = value;
             this.AllowEmptyTextAChanged?.Invoke(this);
+            this.UpdateTextAError();
         }
     }
 
@@ -76,16 +79,64 @@ public class DoubleUserInputInfo : UserInputInfo {
 
             this.allowEmptyTextB = value;
             this.AllowEmptyTextBChanged?.Invoke(this);
+            this.UpdateTextBError();
+        }
+    }
+
+    /// <summary>
+    /// A validation function that is invoked when the A text changes. This converts the text into an error message.
+    /// This function should return a non-null value when there's an error (preventing
+    /// the dialog from closing), and return null when there's no error
+    /// </summary>
+    public Func<string?, string?>? ValidatorA {
+        get => this.validatorA;
+        set {
+            this.validatorA = value;
+            this.UpdateTextAError();
+        }
+    }
+
+    /// <summary>
+    /// A validation function that is invoked when the B text changes. This converts the text into an error message.
+    /// This function should return a non-null value when there's an error (preventing
+    /// the dialog from closing), and return null when there's no error
+    /// </summary>
+    public Func<string?, string?>? ValidatorB {
+        get => this.validatorB;
+        set {
+            this.validatorB = value;
+            this.UpdateTextBError();
+        }
+    }
+
+    public string? TextErrorA {
+        get => this.textErrorA;
+        private set {
+            if (this.textErrorA == value)
+                return;
+
+            this.textErrorA = value;
+            this.TextErrorAChanged?.Invoke(this);
+            this.RaiseHasErrorsChanged();
+        }
+    }
+
+    public string? TextErrorB {
+        get => this.textErrorB;
+        private set {
+            if (this.textErrorB == value)
+                return;
+
+            this.textErrorB = value;
+            this.TextErrorBChanged?.Invoke(this);
+            this.RaiseHasErrorsChanged();
         }
     }
 
     public event DoubleUserInputDataEventHandler? AllowEmptyTextAChanged;
     public event DoubleUserInputDataEventHandler? AllowEmptyTextBChanged;
-
-    /// <summary>
-    /// A validation predicate that is invoked when either of our text properties change, and is used to determine if the dialog can close successfully
-    /// </summary>
-    public Func<string?, string?, bool>? Validate { get; set; }
+    public event DoubleUserInputDataEventHandler? TextErrorAChanged;
+    public event DoubleUserInputDataEventHandler? TextErrorBChanged;
 
     public DoubleUserInputInfo() {
     }
@@ -95,10 +146,33 @@ public class DoubleUserInputInfo : UserInputInfo {
         this.textB = textB;
     }
 
-    public override bool CanDialogClose() {
-        if ((string.IsNullOrEmpty(this.TextA) && !this.AllowEmptyTextA) || (string.IsNullOrEmpty(this.TextA) && !this.AllowEmptyTextA))
-            return false;
+    static DoubleUserInputInfo() {
+        TextAParameter.ValueChanged += (p, o) => ((DoubleUserInputInfo) o).UpdateTextAError();
+        TextBParameter.ValueChanged += (p, o) => ((DoubleUserInputInfo) o).UpdateTextBError();
+    }
 
-        return this.Validate == null || this.Validate(this.TextA, this.TextB);
+    private void UpdateTextAError() {
+        if (string.IsNullOrEmpty(this.TextA) && !this.AllowEmptyTextA) {
+            this.TextErrorA = "Text cannot be an empty string";
+        }
+        else {
+            this.TextErrorA = this.ValidatorA?.Invoke(this.TextA);
+        }
+    }
+
+    private void UpdateTextBError() {
+        if (string.IsNullOrEmpty(this.TextB) && !this.AllowEmptyTextB) {
+            this.TextErrorB = "Text cannot be an empty string";
+        }
+        else {
+            this.TextErrorB = this.ValidatorB?.Invoke(this.TextB);
+        }
+    }
+
+    public override bool HasErrors() => this.textErrorA != null || this.textErrorB != null;
+
+    public override void UpdateAllErrors() {
+        this.UpdateTextAError();
+        this.UpdateTextBError();
     }
 }

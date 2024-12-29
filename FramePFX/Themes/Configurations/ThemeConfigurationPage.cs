@@ -37,14 +37,20 @@ public class ThemeConfigurationPage : ConfigurationPage {
     public ThemeConfigEntryGroup Root { get; }
 
     /// <summary>
-    /// Gets or sets the theme that we want to edit
+    /// Gets or sets the theme that we want to edit. This is set to the application's
+    /// active theme when the page is loaded
     /// </summary>
     public Theme? TargetTheme {
         get => this.targetTheme;
         set {
             Theme? oldTargetTheme = this.targetTheme;
-            if (oldTargetTheme == value)
+            if (oldTargetTheme == value) {
                 return;
+            }
+
+            if (this.originalBrushes != null && this.originalBrushes.Count > 0) {
+                throw new InvalidOperationException("un-applied changes");
+            }
 
             this.targetTheme = value;
             this.TargetThemeChanged?.Invoke(this, oldTargetTheme, value);
@@ -116,15 +122,50 @@ public class ThemeConfigurationPage : ConfigurationPage {
     }
 
     public override ValueTask RevertLiveChanges(List<ApplyChangesFailureEntry>? errors) {
+        if (this.targetTheme == null) {
+            throw new InvalidOperationException("TargetTheme is not set");
+        }
+
+        this.ReverseChanges(this.targetTheme);
+
+        return ValueTask.CompletedTask;
+    }
+
+    /// <summary>
+    /// Applies our changes to a new theme and reverts them in a previous theme (used when creating a copy of a theme)
+    /// </summary>
+    /// <param name="revert">The theme to revert the changes of</param>
+    /// <param name="apply">The theme to apply changes to</param>
+    /// <exception cref="InvalidOperationException"></exception>
+    public void ApplyAndRevertChanges(Theme revert, Theme apply) {
+        if (this.targetTheme == null)
+            throw new InvalidOperationException("This page has no target theme");
+        
         if (this.originalBrushes != null && this.originalBrushes.Count > 0) {
             foreach (KeyValuePair<string, ISavedThemeEntry> brush in this.originalBrushes) {
-                ThemeManager.Instance.ActiveTheme.RestoreThemeEntry(brush.Key, brush.Value);
+                // Get current theme entry and apply to the new theme
+                apply.ApplyThemeEntry(brush.Key, revert.SaveThemeEntry(brush.Key));
+                
+                // Revert the entry back to the old one
+                revert.ApplyThemeEntry(brush.Key, brush.Value);
             }
 
             this.originalBrushes = null;
         }
+    }
+    
+    public void ReverseChanges(Theme? target) {
+        target ??= this.targetTheme;
+        if (target == null)
+            throw new InvalidOperationException("The target theme is null and this page has no target theme");
+        
+        if (this.originalBrushes != null && this.originalBrushes.Count > 0) {
+            foreach (KeyValuePair<string, ISavedThemeEntry> brush in this.originalBrushes) {
+                target.ApplyThemeEntry(brush.Key, brush.Value);
+            }
 
-        return ValueTask.CompletedTask;
+            this.originalBrushes = null;
+        }
     }
 
     public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {

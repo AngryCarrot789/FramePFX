@@ -38,7 +38,11 @@ public class ColourUserInputInfo : UserInputInfo {
         this.colour = ColourParameter.GetDefaultValue(this);
     }
 
-    public override bool CanDialogClose() {
-        return true;
+    public override bool HasErrors() {
+        return false;
+    }
+
+    public override void UpdateAllErrors() {
+        
     }
 }

@@ -40,7 +40,7 @@ public partial class KeyStrokeUserInputControl : UserControl, IUserInputContent 
         CanUpdateModel = false
     };
 
-    private IUserInputDialog? myDialog;
+    private UserInputDialog? myDialog;
 
     public KeyStrokeUserInputControl() {
         this.InitializeComponent();
@@ -54,13 +54,13 @@ public partial class KeyStrokeUserInputControl : UserControl, IUserInputContent 
 
         KeyStroke s = this.InputInfo!.KeyStroke ?? default;
         this.InputInfo!.KeyStroke = new KeyStroke(s.KeyCode, s.Modifiers, this.IsKeyReleaseCheckBox.IsChecked ?? false);
-        this.myDialog!.InvalidateConfirmButton();
+        this.myDialog!.UpdateAllErrors();
     }
 
     private void InputBox_KeyDown(object? sender, KeyEventArgs e) {
         if (ShortcutUtils.GetKeyStrokeForEvent(e, out KeyStroke stroke, this.IsKeyReleaseCheckBox.IsChecked ?? false)) {
             this.InputInfo!.KeyStroke = stroke;
-            this.myDialog!.InvalidateConfirmButton();
+            this.myDialog!.UpdateAllErrors();
             e.Handled = true;
         }
     }

@@ -79,6 +79,8 @@
                                 <StackPanel Orientation="Horizontal" Grid.Column="0">
                                     <Button Content="Expand All" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.ExpandThemeConfigTree"/>
                                     <Button Content="Collapse All" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.CollapseThemeConfigTree"/>
+                                    <Separator Theme="{StaticResource VerticalSeparatorTheme}"/>
+                                    <Button Content="Create copy" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.CreateTheme"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Grid.Column="2">
                                     <TextBox Width="200" Text="Search..."/>

@@ -32,7 +32,6 @@ using FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems;
 using FramePFX.Avalonia.Editing.Toolbars;
 using FramePFX.Avalonia.Exporting;
 using FramePFX.Avalonia.Services.Startups;
-using FramePFX.Avalonia.Themes;
 using FramePFX.BaseFrontEnd;
 using FramePFX.BaseFrontEnd.Configurations;
 using FramePFX.BaseFrontEnd.Icons;
@@ -43,6 +42,7 @@ using FramePFX.BaseFrontEnd.Services.Colours;
 using FramePFX.BaseFrontEnd.Services.Files;
 using FramePFX.BaseFrontEnd.Shortcuts.Avalonia;
 using FramePFX.BaseFrontEnd.Shortcuts.Dialogs;
+using FramePFX.BaseFrontEnd.Themes;
 using FramePFX.BaseFrontEnd.Themes.BrushFactories;
 using FramePFX.Configurations;
 using FramePFX.Editing.Exporting;
@@ -74,6 +74,11 @@ public class ApplicationImpl : Application, IFrontEndApplication {
     /// Gets the avalonia application
     /// </summary>
     public App App { get; }
+
+    public ApplicationStartupPhase StartupPhaseImpl {
+        get => this.StartupPhase;
+        set => this.StartupPhase = value;
+    }
 
     public ApplicationImpl(App app) {
         this.App = app ?? throw new ArgumentNullException(nameof(app));
@@ -186,8 +191,6 @@ public class ApplicationImpl : Application, IFrontEndApplication {
                 throw new Exception("Native engine functionality failed");
             }
         }
-        
-        this.StartupPhase = ApplicationStartupPhase.FullyInitialized;
     }
 
     protected override Task OnFullyInitialised() {

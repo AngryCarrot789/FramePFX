@@ -177,12 +177,8 @@ public partial class ExportDialog : WindowEx {
         this.Close();
     }
 
-    protected override void OnClosing(WindowClosingEventArgs e) {
-        if (this.IsExporting) {
-            e.Cancel = true;
-        }
-
-        base.OnClosing(e);
+    protected override Task<bool> OnClosingAsync(WindowCloseReason reason) {
+        return Task.FromResult(this.IsExporting);
     }
 
     protected override void OnClosed(EventArgs e) {

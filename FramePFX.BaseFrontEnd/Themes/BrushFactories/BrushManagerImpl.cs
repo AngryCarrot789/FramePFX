@@ -18,39 +18,38 @@
 // 
 
 using Avalonia.Media;
-using FramePFX.Avalonia.Themes;
 using FramePFX.Themes;
 using SkiaSharp;
 
 namespace FramePFX.BaseFrontEnd.Themes.BrushFactories;
 
 public class BrushManagerImpl : BrushManager {
-    private Dictionary<string, DynamicResourceAvaloniaColourBrush>? cachedBrushes;
+    private Dictionary<string, DynamicAvaloniaColourBrush>? cachedBrushes;
     
     public override ConstantAvaloniaColourBrush CreateConstant(SKColor colour) {
         // Not really any point to caching an immutable brush
         return new ConstantAvaloniaColourBrush(colour);
     }
 
-    public override DynamicResourceAvaloniaColourBrush GetDynamicThemeBrush(string themeKey) {
+    public override DynamicAvaloniaColourBrush GetDynamicThemeBrush(string themeKey) {
         if (this.cachedBrushes == null) {
-            this.cachedBrushes = new Dictionary<string, DynamicResourceAvaloniaColourBrush>();
+            this.cachedBrushes = new Dictionary<string, DynamicAvaloniaColourBrush>();
         }
-        else if (this.cachedBrushes.TryGetValue(themeKey, out DynamicResourceAvaloniaColourBrush? existingBrush)) {
+        else if (this.cachedBrushes.TryGetValue(themeKey, out DynamicAvaloniaColourBrush? existingBrush)) {
             return existingBrush;
         }
         
         // Since these brushes can be quite expensive to listen for changes, we want to try and always cache them
-        DynamicResourceAvaloniaColourBrush brush = new DynamicResourceAvaloniaColourBrush(themeKey);
+        DynamicAvaloniaColourBrush brush = new DynamicAvaloniaColourBrush(themeKey);
         this.cachedBrushes[themeKey] = brush;
         return brush;
     }
 
     public override IStaticColourBrush GetStaticThemeBrush(string themeKey) {
-        if (ThemeManagerImpl.TryFindBrush(themeKey, out IBrush? brush)) {
-            return new StaticResourceAvaloniaColourBrush(themeKey, brush.ToImmutable());
+        if (ThemeManagerImpl.TryFindBrushInApplicationResources(themeKey, out IBrush? brush)) {
+            return new StaticAvaloniaColourBrush(themeKey, brush.ToImmutable());
         }
         
-        return new StaticResourceAvaloniaColourBrush(themeKey, null);
+        return new StaticAvaloniaColourBrush(themeKey, null);
     }
 }

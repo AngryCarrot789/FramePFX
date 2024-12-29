@@ -35,17 +35,17 @@ using FramePFX.Utils;
 
 namespace FramePFX.BaseFrontEnd.Services.UserInputs;
 
-public partial class UserInputDialog : WindowEx, IUserInputDialog {
+public partial class UserInputDialog : WindowEx {
     public static readonly SingleUserInputInfo DummySingleInput = new SingleUserInputInfo("Text Input Here") { Message = "A primary message here", ConfirmText = "Confirm", CancelText = "Cancel", Caption = "The caption here", Label = "The label here" };
     public static readonly DoubleUserInputInfo DummyDoubleInput = new DoubleUserInputInfo("Text A Here", "Text B Here") { Message = "A primary message here", ConfirmText = "Confirm", CancelText = "Cancel", Caption = "The caption here", LabelA = "Label A Here:", LabelB = "Label B Here:" };
 
     public static readonly ModelControlRegistry<UserInputInfo, Control> Registry;
 
-    public static readonly StyledProperty<UserInputInfo?> UserInputDataProperty = AvaloniaProperty.Register<UserInputDialog, UserInputInfo?>("UserInputData");
+    public static readonly StyledProperty<UserInputInfo?> UserInputInfoProperty = AvaloniaProperty.Register<UserInputDialog, UserInputInfo?>("UserInputInfo");
 
-    public UserInputInfo? UserInputData {
-        get => this.GetValue(UserInputDataProperty);
-        set => this.SetValue(UserInputDataProperty, value);
+    public UserInputInfo? UserInputInfo {
+        get => this.GetValue(UserInputInfoProperty);
+        set => this.SetValue(UserInputInfoProperty, value);
     }
 
     /// <summary>
@@ -70,13 +70,6 @@ public partial class UserInputDialog : WindowEx, IUserInputDialog {
         this.PART_CancelButton.Click += this.OnCancelButtonClicked;
     }
 
-    protected override void OnKeyDown(KeyEventArgs e) {
-        base.OnKeyDown(e);
-        if (!e.Handled && e.Key == Key.Escape) {
-            this.TryCloseDialog(false);
-        }
-    }
-
     static UserInputDialog() {
         Registry = new ModelControlRegistry<UserInputInfo, Control>();
         Registry.RegisterType<SingleUserInputInfo>(() => new SingleUserInputControl());
@@ -85,7 +78,14 @@ public partial class UserInputDialog : WindowEx, IUserInputDialog {
         Registry.RegisterType<KeyStrokeUserInputInfo>(() => new KeyStrokeUserInputControl());
         Registry.RegisterType<MouseStrokeUserInputInfo>(() => new MouseStrokeUserInputControl());
 
-        UserInputDataProperty.Changed.AddClassHandler<UserInputDialog, UserInputInfo?>((o, e) => o.OnUserInputDataChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+        UserInputInfoProperty.Changed.AddClassHandler<UserInputDialog, UserInputInfo?>((o, e) => o.OnUserInputDataChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+    }
+    
+    protected override void OnKeyDown(KeyEventArgs e) {
+        base.OnKeyDown(e);
+        if (!e.Handled && e.Key == Key.Escape) {
+            this.TryCloseDialog(false);
+        }
     }
 
     private void OnMessageTextBlockPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e) {
@@ -114,6 +114,8 @@ public partial class UserInputDialog : WindowEx, IUserInputDialog {
     private void OnUserInputDataChanged(UserInputInfo? oldData, UserInputInfo? newData) {
         if (oldData != null) {
             (this.PART_InputFieldContent.Content as IUserInputContent)?.Disconnect();
+            this.PART_InputFieldContent.Content = null;
+            oldData.HasErrorsChanged -= this.OnHasErrorsChanged;
         }
 
         // Create this first just in case there's a problem with no registrations
@@ -124,18 +126,20 @@ public partial class UserInputDialog : WindowEx, IUserInputDialog {
         this.confirmTextBinder.SwitchModel(newData);
         this.cancelTextBinder.SwitchModel(newData);
         if (control != null) {
+            newData!.HasErrorsChanged += this.OnHasErrorsChanged;
             this.PART_InputFieldContent.Content = control;
-            control.InvalidateMeasure();
-            (control as IUserInputContent)?.Connect(this, newData!);
+            control.ApplyStyling();
+            control.ApplyTemplate();
+            (control as IUserInputContent)?.Connect(this, newData);
         }
 
-        this.InvalidateConfirmButton();
+        this.UpdateAllErrors();
         Dispatcher.UIThread.InvokeAsync(() => {
             if ((this.PART_InputFieldContent.Content as IUserInputContent)?.FocusPrimaryInput() == true) {
                 return;
             }
 
-            if (this.UserInputData?.DefaultButton is bool boolean) {
+            if (this.UserInputInfo?.DefaultButton is bool boolean) {
                 if (boolean) {
                     this.PART_ConfirmButton.Focus();
                 }
@@ -146,11 +150,22 @@ public partial class UserInputDialog : WindowEx, IUserInputDialog {
         }, DispatcherPriority.Loaded);
     }
 
+    private void OnHasErrorsChanged(UserInputInfo info) {
+        this.PART_ConfirmButton.IsEnabled = !info.HasErrors();
+    }
+
     /// <summary>
-    /// Updates the confirm button's enabled state
+    /// Invokes the <see cref="UserInputInfo.UpdateAllErrors"/> on our user input info to forcefully
+    /// update all errors, and then updates our confirm button
     /// </summary>
-    public void InvalidateConfirmButton() {
-        this.PART_ConfirmButton.IsEnabled = this.UserInputData?.CanDialogClose() ?? false;
+    public void UpdateAllErrors() {
+        if (this.UserInputInfo is UserInputInfo info) {
+            info.UpdateAllErrors();
+            this.PART_ConfirmButton.IsEnabled = !info.HasErrors();
+        }
+        else {
+            this.PART_ConfirmButton.IsEnabled = false;
+        }
     }
 
     /// <summary>
@@ -163,8 +178,8 @@ public partial class UserInputDialog : WindowEx, IUserInputDialog {
     /// </returns>
     public bool TryCloseDialog(bool result) {
         if (result) {
-            UserInputInfo? data = this.UserInputData;
-            if (data == null || !data.CanDialogClose()) {
+            UserInputInfo? data = this.UserInputInfo;
+            if (data == null || data.HasErrors()) {
                 return false;
             }
 
@@ -187,7 +202,7 @@ public partial class UserInputDialog : WindowEx, IUserInputDialog {
 
         if (IFrontEndApplication.Instance.TryGetActiveWindow(out Window? window)) {
             UserInputDialog dialog = new UserInputDialog {
-                UserInputData = info
+                UserInputInfo = info
             };
 
             bool? result = await dialog.ShowDialog<bool?>(window);

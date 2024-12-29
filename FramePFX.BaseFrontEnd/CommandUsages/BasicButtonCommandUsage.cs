@@ -24,7 +24,8 @@ namespace FramePFX.BaseFrontEnd.CommandUsages;
 
 public class BasicButtonCommandUsage : CommandUsage {
     private ClickableControlHelper? button;
-
+    private bool hasExecutedCommand;
+    
     public BasicButtonCommandUsage(string commandId) : base(commandId) { }
 
     protected override void OnConnected() {
@@ -39,12 +40,21 @@ public class BasicButtonCommandUsage : CommandUsage {
     }
 
     protected virtual void OnButtonClick() {
-        this.UpdateCanExecute();
-        CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control!));
+        if (!CommandManager.Instance.TryGetCommandById(this.CommandId, out Command? command)) {
+            return;
+        }
 
-        // If the command does things in the background (e.g. async command),
-        // then it may not be executable anymore, so update the UI
+        CommandManager.Instance.Execute(this.CommandId, command, DataManager.GetFullContextData(this.Control!));
+        if (command is AsyncCommand cmd && !cmd.AllowMultipleExecutions && cmd.IsExecuting) {
+            cmd.ExecutingChanged += this.OnIsExecutingChanged;
+        }
+        
         this.UpdateCanExecute();
+    }
+    
+    private void OnIsExecutingChanged(AsyncCommand theCmd) {
+        this.UpdateCanExecute();
+        theCmd.ExecutingChanged -= this.OnIsExecutingChanged;
     }
 
     protected override void OnUpdateForCanExecuteState(Executability state) {

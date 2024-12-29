@@ -58,9 +58,8 @@
                 <ams:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
                                     ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>
             </MenuItem>
-            <MenuItem Header="Theme">
-                <MenuItem Header="Dark" Tag="Dark" Click="SetTheme_Click"/>
-                <MenuItem Header="Light" Tag="Light" Click="SetTheme_Click"/>
+            <MenuItem Header="Theme" x:Name="PART_ThemesMenuItem">
+                
             </MenuItem>
         </ams:ContextCapturingMenu>
         <Grid Grid.Row="1">

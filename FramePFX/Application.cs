@@ -26,6 +26,7 @@ using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Commands;
+using FramePFX.Logging;
 using FramePFX.Natives;
 using FramePFX.Persistence;
 using FramePFX.Plugins;
@@ -33,6 +34,7 @@ using FramePFX.Plugins.Exceptions;
 using FramePFX.Services;
 using FramePFX.Services.Messaging;
 using FramePFX.Tasks;
+using FramePFX.Themes.Commands;
 
 namespace FramePFX;
 
@@ -41,6 +43,7 @@ namespace FramePFX;
 /// </summary>
 public abstract class Application : IServiceable {
     private static Application? instance;
+    private ApplicationStartupPhase startupPhase;
 
     public static Application Instance {
         get {
@@ -103,12 +106,20 @@ public abstract class Application : IServiceable {
     /// <summary>
     /// Gets the current application state
     /// </summary>
-    public ApplicationStartupPhase StartupPhase { get; set; }
+    public ApplicationStartupPhase StartupPhase {
+        get => this.startupPhase;
+        protected set {
+            if (this.startupPhase == value)
+                throw new InvalidOperationException("Already at phase: " + value);
+            
+            this.startupPhase = value;
+            AppLogger.Instance.WriteLine($"Transitioned to startup phase: {value}");
+        }
+    }
 
     protected Application() {
         this.ServiceManager = new ServiceManager(this);
         this.PluginLoader = new PluginLoader();
-        this.StartupPhase = ApplicationStartupPhase.Default;
     }
 
     protected abstract Task<bool> LoadKeyMapAsync();
@@ -127,6 +138,7 @@ public abstract class Application : IServiceable {
         manager.RegisterConstant(new ResourceDropOnTimelineService());
         manager.RegisterConstant(new TimelineDropManager());
         manager.RegisterConstant(new ExporterRegistry());
+        manager.RegisterConstant(new CommandManager());
         manager.RegisterConstant(ApplicationConfigurationManager.Instance);
     }
 
@@ -204,6 +216,7 @@ public abstract class Application : IServiceable {
         manager.Register("commands.config.keymap.CollapseShortcutTree", new CollapseShortcutTreeCommand());
         manager.Register("commands.config.themeconfig.ExpandThemeConfigTree", new ExpandThemeConfigTreeCommand());
         manager.Register("commands.config.themeconfig.CollapseThemeConfigTree", new CollapseThemeConfigTreeCommand());
+        manager.Register("commands.config.themeconfig.CreateTheme", new CreateThemeCommand());
 
         progress.CompletionState.SetProgress(1.0);
     }

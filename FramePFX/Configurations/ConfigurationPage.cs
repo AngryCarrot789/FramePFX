@@ -57,6 +57,9 @@ public abstract class ConfigurationPage {
     /// For example, the theme manager page modifies the colours of the UI in real time,
     /// but uses this to reset the colours back to their original state, but if you click apply and then
     /// make changes again, this method will only revert those changes after <see cref="Apply"/>
+    /// <para>
+    /// This is invoked when the Cancel button is clicked in the UI
+    /// </para>
     /// </summary>
     /// <param name="errors">
     /// A list of errors encountered while applying changes (e.g. bugs or conflicting

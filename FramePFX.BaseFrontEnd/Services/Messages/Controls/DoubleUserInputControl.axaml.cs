@@ -31,7 +31,8 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
     private readonly DataParameterPropertyBinder<DoubleUserInputInfo> labelBBinder = new DataParameterPropertyBinder<DoubleUserInputInfo>(TextBlock.TextProperty, DoubleUserInputInfo.LabelBParameter);
     private readonly DataParameterPropertyBinder<DoubleUserInputInfo> textABinder = new DataParameterPropertyBinder<DoubleUserInputInfo>(TextBox.TextProperty, DoubleUserInputInfo.TextAParameter);
     private readonly DataParameterPropertyBinder<DoubleUserInputInfo> textBBinder = new DataParameterPropertyBinder<DoubleUserInputInfo>(TextBox.TextProperty, DoubleUserInputInfo.TextBParameter);
-    private IUserInputDialog? myDialog;
+    private readonly DataParameterPropertyBinder<DoubleUserInputInfo> footerBinder = new DataParameterPropertyBinder<DoubleUserInputInfo>(TextBlock.TextProperty, BaseTextUserInputInfo.FooterParameter);
+    private UserInputDialog? myDialog;
     private DoubleUserInputInfo? myData;
 
     public DoubleUserInputControl() {
@@ -40,6 +41,7 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
         this.labelBBinder.AttachControl(this.PART_LabelB);
         this.textABinder.AttachControl(this.PART_TextBoxA);
         this.textBBinder.AttachControl(this.PART_TextBoxB);
+        this.footerBinder.AttachControl(this.PART_FooterTextBlock);
 
         this.PART_TextBoxA.KeyDown += this.OnAnyTextFieldKeyDown;
         this.PART_TextBoxB.KeyDown += this.OnAnyTextFieldKeyDown;
@@ -58,13 +60,13 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
         this.labelBBinder.AttachModel(this.myData);
         this.textABinder.AttachModel(this.myData);
         this.textBBinder.AttachModel(this.myData);
-        DataParameter.AddMultipleHandlers(this.OnAnyTextChanged, DoubleUserInputInfo.TextAParameter, DoubleUserInputInfo.TextBParameter);
+        this.footerBinder.AttachModel(this.myData);
         DoubleUserInputInfo.LabelAParameter.AddValueChangedHandler(this.myData!, this.OnLabelAChanged);
         DoubleUserInputInfo.LabelBParameter.AddValueChangedHandler(this.myData!, this.OnLabelBChanged);
-        this.myData.AllowEmptyTextAChanged += this.OnAllowEmptyTextChanged;
-        this.myData.AllowEmptyTextBChanged += this.OnAllowEmptyTextChanged;
+        BaseTextUserInputInfo.FooterParameter.AddValueChangedHandler(this.myData!, this.OnFooterChanged);
         this.UpdateLabelAVisibility();
         this.UpdateLabelBVisibility();
+        this.UpdateFooterVisibility();
     }
 
     public void Disconnect() {
@@ -72,11 +74,10 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
         this.labelBBinder.DetachModel();
         this.textABinder.DetachModel();
         this.textBBinder.DetachModel();
-        DataParameter.AddMultipleHandlers(this.OnAnyTextChanged, DoubleUserInputInfo.TextAParameter, DoubleUserInputInfo.TextBParameter);
+        this.footerBinder.DetachModel();
         DoubleUserInputInfo.LabelAParameter.RemoveValueChangedHandler(this.myData!, this.OnLabelAChanged);
         DoubleUserInputInfo.LabelBParameter.RemoveValueChangedHandler(this.myData!, this.OnLabelBChanged);
-        this.myData!.AllowEmptyTextAChanged -= this.OnAllowEmptyTextChanged;
-        this.myData!.AllowEmptyTextBChanged -= this.OnAllowEmptyTextChanged;
+        BaseTextUserInputInfo.FooterParameter.RemoveValueChangedHandler(this.myData!, this.OnFooterChanged);
 
         this.myDialog = null;
         this.myData = null;
@@ -89,12 +90,10 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
     }
 
     private void UpdateLabelAVisibility() => this.PART_LabelA.IsVisible = !string.IsNullOrWhiteSpace(this.myData!.LabelA);
-
     private void UpdateLabelBVisibility() => this.PART_LabelA.IsVisible = !string.IsNullOrWhiteSpace(this.myData!.LabelA);
+    private void UpdateFooterVisibility() => this.PART_FooterTextBlock.IsVisible = !string.IsNullOrWhiteSpace(this.myData!.Footer);
 
     private void OnLabelAChanged(DataParameter dataParameter, ITransferableData owner) => this.UpdateLabelAVisibility();
     private void OnLabelBChanged(DataParameter dataParameter, ITransferableData owner) => this.UpdateLabelBVisibility();
-
-    private void OnAllowEmptyTextChanged(DoubleUserInputInfo sender) => this.myDialog!.InvalidateConfirmButton();
-    private void OnAnyTextChanged(DataParameter dataParameter, ITransferableData owner) => this.myDialog!.InvalidateConfirmButton();
+    private void OnFooterChanged(DataParameter dataParameter, ITransferableData owner) => this.UpdateFooterVisibility();
 }

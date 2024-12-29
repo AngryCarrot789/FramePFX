@@ -29,8 +29,8 @@ namespace FramePFX.BaseFrontEnd.Services.Colours;
 
 public partial class ColourUserInputControl : UserControl, IUserInputContent {
     private readonly DataParameterPropertyBinder<ColourUserInputInfo> colourBinder;
-    private IUserInputDialog myDialog;
-    private ColourUserInputInfo myData;
+    private UserInputDialog? myDialog;
+    private ColourUserInputInfo? myData;
 
     public ColourUserInputControl() {
         this.InitializeComponent();

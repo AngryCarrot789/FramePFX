@@ -19,6 +19,7 @@
 
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using FramePFX.Logging;
 using FramePFX.Tasks;
 
 namespace FramePFX.Avalonia;
@@ -56,6 +57,13 @@ public partial class AppSplashScreen : Window, IApplicationStartupProgress {
             this.ActionText = action;
         if (newProgress.HasValue)
             this.CompletionState.SetProgress(newProgress.Value);
+
+        if (!string.IsNullOrWhiteSpace(action)) {
+            double total = this.CompletionState.TotalCompletion;
+            string comp = (total * 100.0).ToString("F1").PadRight(5, '0');
+            AppLogger.Instance.WriteLine($"[{comp}%] {action}");
+        }
+
         return this.SynchroniseAsync();
     }
 

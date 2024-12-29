@@ -18,7 +18,7 @@
 // 
 
 using FramePFX.Themes.Configurations;
-using SkiaSharp;
+using FramePFX.Utils.Collections.Observable;
 
 namespace FramePFX.Themes;
 
@@ -28,7 +28,7 @@ public abstract class ThemeManager {
     /// <summary>
     /// Gets the themes that currently exist
     /// </summary>
-    public abstract IEnumerable<Theme> Themes { get; }
+    public abstract ReadOnlyObservableList<Theme> Themes { get; }
 
     /// <summary>
     /// Gets the theme that is currently active
@@ -36,11 +36,6 @@ public abstract class ThemeManager {
     public abstract Theme ActiveTheme { get; }
 
     public ThemeConfigurationPage ThemeConfigurationPage { get; }
-    
-    /// <summary>
-    /// An event fired when a colour changes in the active theme
-    /// </summary>
-    public event ThemeColourChangedEventHandler? ActiveThemeColourChanged;
 
     protected ThemeManager() {
         this.ThemeConfigurationPage = new ThemeConfigurationPage();
@@ -161,6 +156,10 @@ public abstract class ThemeManager {
     /// </summary>
     /// <param name="themeName"></param>
     public abstract void SetTheme(Theme theme);
+    
+    public Theme? GetTheme(string name) {
+        return this.Themes.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+    }
 
     /// <summary>
     /// Creates a new theme that is based on the given theme
@@ -169,6 +168,4 @@ public abstract class ThemeManager {
     /// <param name="basedOn">A theme whose colours are copied into the new one</param>
     /// <returns></returns>
     public abstract Theme RegisterTheme(string name, Theme basedOn);
-    
-    protected void OnActiveThemeColourChanged(Theme theme, string key, SKColor newColour) => this.ActiveThemeColourChanged?.Invoke(theme, key, newColour);
 }

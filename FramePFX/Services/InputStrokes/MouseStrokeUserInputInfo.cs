@@ -43,7 +43,10 @@ public class MouseStrokeUserInputInfo : UserInputInfo {
         this.mouseStroke = MouseStrokeParameter.GetDefaultValue(this);
     }
 
-    public override bool CanDialogClose() {
-        return this.mouseStroke.HasValue && this.mouseStroke.Value != default;
+    public override bool HasErrors() {
+        return !this.mouseStroke.HasValue;
+    }
+
+    public override void UpdateAllErrors() {
     }
 }

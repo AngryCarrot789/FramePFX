@@ -70,5 +70,5 @@ public interface IVideoEditorWindow {
     /// Closes this video editor window
     /// </summary>
     /// <returns></returns>
-    Task CloseEditor();
+    void Close();
 }

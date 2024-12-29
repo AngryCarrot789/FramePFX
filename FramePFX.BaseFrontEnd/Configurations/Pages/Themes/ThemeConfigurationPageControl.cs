@@ -24,10 +24,10 @@ using Avalonia.Media;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Themes.BrushFactories;
 using FramePFX.BaseFrontEnd.Utils;
-using FramePFX.Configurations.UI;
 using FramePFX.Themes;
 using FramePFX.Themes.Configurations;
 using SkiaSharp;
+using IThemeConfigurationTreeElement = FramePFX.Configurations.UI.IThemeConfigurationTreeElement;
 
 namespace FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
 
@@ -42,7 +42,7 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
 
     private bool ignoreSpectrumColourChange;
     private string? activeThemeKey;
-    private DynamicResourceAvaloniaColourBrush? myActiveBrush;
+    private DynamicAvaloniaColourBrush? myActiveBrush;
     private IDisposable? disposeMyActiveBrush;
 
     public ThemeConfigurationPageControl() {
@@ -64,12 +64,12 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
         if (this.ignoreSpectrumColourChange) {
             return;
         }
-
-        if (this.activeThemeKey != null) {
+        
+        if (this.activeThemeKey != null && this.Page!.TargetTheme is Theme theme) {
             this.Page!.OnChangingThemeColour(this.activeThemeKey);
             
             Color c = e.NewColor;
-            ThemeManager.Instance.ActiveTheme.SetThemeColour(this.activeThemeKey, new SKColor(c.R, c.G, c.B, c.A));
+            theme.SetThemeColour(this.activeThemeKey, new SKColor(c.R, c.G, c.B, c.A));
         }
     }
     

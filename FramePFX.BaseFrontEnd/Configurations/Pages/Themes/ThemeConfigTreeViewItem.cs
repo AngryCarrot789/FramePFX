@@ -68,7 +68,9 @@ public class ThemeConfigTreeViewItem : TreeViewItemEx, IThemeConfigEntryTreeOrNo
     
     private void GenerateHeader() {
         if (this.Entry is ThemeConfigEntry shortcut) {
-            if (ThemeManager.Instance.ActiveTheme.IsThemeKeyValid(shortcut.ThemeKey)) {
+            // theme should not really be null
+            Theme? theme = this.ThemeConfigTree?.ThemeConfigurationPage?.TargetTheme;
+            if (theme == null || theme.IsThemeKeyValid(shortcut.ThemeKey)) {
                 this.Header = this.Entry!.DisplayName;
             }
             else {

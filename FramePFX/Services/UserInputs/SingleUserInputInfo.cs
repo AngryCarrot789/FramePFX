@@ -24,13 +24,14 @@ namespace FramePFX.Services.UserInputs;
 
 public delegate void SingleUserInputDataEventHandler(SingleUserInputInfo sender);
 
-public class SingleUserInputInfo : UserInputInfo {
+public class SingleUserInputInfo : BaseTextUserInputInfo {
     public static readonly DataParameterString TextParameter = DataParameter.Register(new DataParameterString(typeof(SingleUserInputInfo), nameof(Text), null, ValueAccessors.Reflective<string?>(typeof(SingleUserInputInfo), nameof(text))));
     public static readonly DataParameterString LabelParameter = DataParameter.Register(new DataParameterString(typeof(SingleUserInputInfo), nameof(Label), null, ValueAccessors.Reflective<string?>(typeof(SingleUserInputInfo), nameof(label))));
 
-    private string? text = TextParameter.DefaultValue;
+    private string? text;
     private string? label = LabelParameter.DefaultValue;
     private bool allowEmptyText;
+    private string? textError;
 
     /// <summary>
     /// Gets the value the user have typed into the text field
@@ -61,18 +62,32 @@ public class SingleUserInputInfo : UserInputInfo {
 
             this.allowEmptyText = value;
             this.AllowEmptyTextChanged?.Invoke(this);
+            this.UpdateTextError();
         }
     }
 
     public event SingleUserInputDataEventHandler? AllowEmptyTextChanged;
 
     /// <summary>
-    /// A validation predicate that is invoked when our text changes, and is used to determine if the dialog can close successfully
+    /// A validation predicate that is invoked when our text changes, and is used to get an error message from
+    /// the text to determine if the dialog can close successfully. This function should return a non-null value
+    /// when there's an error (preventing the dialog from closing), and return null when there's no error
     /// </summary>
-    public Predicate<string?>? Validate { get; set; }
+    public Func<string?, string?>? Validator { get; set; }
+    
+    public string? TextError {
+        get => this.textError;
+        private set {
+            if (this.textError == value)
+                return;
 
-    public SingleUserInputInfo() {
+            this.textError = value;
+            this.TextErrorChanged?.Invoke(this);
+            this.RaiseHasErrorsChanged();
+        }
     }
+
+    public event SingleUserInputDataEventHandler? TextErrorChanged;
 
     public SingleUserInputInfo(string? defaultText) {
         this.text = defaultText;
@@ -88,10 +103,22 @@ public class SingleUserInputInfo : UserInputInfo {
         this.text = defaultText;
     }
 
-    public override bool CanDialogClose() {
-        if (string.IsNullOrEmpty(this.Text) && !this.AllowEmptyText)
-            return false;
+    static SingleUserInputInfo() {
+        TextParameter.ValueChanged += (p, o) => ((SingleUserInputInfo) o).UpdateTextError();
+    }
 
-        return this.Validate == null || this.Validate(this.Text);
+    private void UpdateTextError() {
+        if (string.IsNullOrEmpty(this.Text) && !this.AllowEmptyText) {
+            this.TextError = "Text cannot be an empty string";
+        }
+        else {
+            this.TextError = this.Validator?.Invoke(this.Text);
+        }
+    }
+
+    public override bool HasErrors() => this.TextError != null;
+    
+    public override void UpdateAllErrors() {
+        this.UpdateTextError();
     }
 }

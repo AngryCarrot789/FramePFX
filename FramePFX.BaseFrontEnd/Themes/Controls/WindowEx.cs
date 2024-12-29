@@ -23,6 +23,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using FramePFX.BaseFrontEnd.Utils;
 
 namespace FramePFX.BaseFrontEnd.Themes.Controls;
@@ -37,6 +38,8 @@ public class WindowEx : Window {
 
     // Override it here so that any window using WindowEx gets the automatic WindowEx style
     protected override Type StyleKeyOverride => typeof(WindowEx);
+
+    private bool isAwaitingClose, closeOnFinish, isCloseCancelled;
 
     public WindowEx() {
         if (AvCore.TryGetService(out Win32PlatformOptions options)) {
@@ -54,7 +57,61 @@ public class WindowEx : Window {
     }
 
     static WindowEx() {
-        // Window.ShowActivatedProperty
+    }
+
+    protected sealed override void OnClosing(WindowClosingEventArgs e) {
+        base.OnClosing(e);
+        if (e.Cancel) {
+            return;
+        }
+
+        if (!this.closeOnFinish) {
+            if (this.isAwaitingClose) {
+                // Someone tried to close the window during OnClosingAsync.
+                e.Cancel = true;
+            }
+            else {
+                this.OnClosingAsyncImpl(e.CloseReason);
+
+                // If OnClosingAsync is still running, then we cancel the
+                // close event, and we set a flag to close on task completed
+                if (this.isAwaitingClose) {
+                    this.closeOnFinish = true;
+                    e.Cancel = true;
+                }
+            }
+        }
+
+        this.isCloseCancelled = false;
+    }
+
+    private async void OnClosingAsyncImpl(WindowCloseReason reason) {
+        this.isAwaitingClose = true;
+        try {
+            this.isCloseCancelled = await this.OnClosingAsync(reason);
+        }
+        catch (Exception e) {
+            Dispatcher.UIThread.Post(() => throw e);
+        }
+        finally {
+            this.isAwaitingClose = false;
+        }
+
+        if (this.closeOnFinish && !this.isCloseCancelled) {
+            Dispatcher.UIThread.Post(this.Close);
+        }
+
+        this.closeOnFinish = default;
+        this.isCloseCancelled = default;
+    }
+
+    /// <summary>
+    /// Invoked when this window tries to close. This method supports full async
+    /// </summary>
+    /// <param name="reason">The close reason</param>
+    /// <returns>True to cancel closing (do not close). False to allow the window to close (default value)</returns>
+    protected virtual Task<bool> OnClosingAsync(WindowCloseReason reason) {
+        return Task.FromResult(false);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {

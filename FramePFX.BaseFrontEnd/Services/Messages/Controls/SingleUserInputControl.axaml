@@ -9,5 +9,6 @@
         <TextBox x:Name="PART_TextBox" Padding="5,5" VerticalContentAlignment="Center"
                  Background="{DynamicResource ABrush.Tone2.Border.Static}"
                  Text="Text Here"/>
+        <TextBlock x:Name="PART_FooterTextBlock" FontSize="11" Padding="5,5" Foreground="{DynamicResource ABrush.Foreground.Disabled}"/>
     </StackPanel>
 </UserControl>

@@ -43,7 +43,10 @@ public class KeyStrokeUserInputInfo : UserInputInfo {
         this.keyStroke = KeyStrokeParameter.GetDefaultValue(this);
     }
 
-    public override bool CanDialogClose() {
-        return this.keyStroke.HasValue && this.keyStroke.Value != default;
+    public override bool HasErrors() {
+        return !this.keyStroke.HasValue || this.keyStroke.Value == default;
+    }
+
+    public override void UpdateAllErrors() {
     }
 }

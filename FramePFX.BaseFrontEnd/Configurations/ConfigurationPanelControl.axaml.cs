@@ -55,6 +55,8 @@ public partial class ConfigurationPanelControl : UserControl {
             this.ActiveContextChanged?.Invoke(this, oldActiveContext, value);
         }
     }
+    
+    public bool IsConfigurationManagerChanging { get; private set; }
 
     public event ConfigurationPanelEditorActiveContextChangedEventHandler? ActiveContextChanged;
 
@@ -70,14 +72,20 @@ public partial class ConfigurationPanelControl : UserControl {
     }
 
     private void OnTreeSelectionChanged(object? sender, SelectionChangedEventArgs e) {
-        if (this.ActiveContext == null)
-            return;
-
-        this.UpdateSelection();
+        if (this.ActiveContext != null) {
+            this.OnSelectionChanged();
+        }
     }
 
-    private void UpdateSelection() {
-        if (this.PART_ConfigurationTree.SelectedItem is ConfigurationTreeViewItem item && item.Entry != null) {
+    private void ClearSelection() {
+        this.PART_ConfigurationTree.UnselectAll();
+    }
+
+    private void OnSelectionChanged() {
+        if (this.activeContext == null) {
+            Debug.Assert(this.PART_PagePresenter.Content != null, "Expected page to be disconnected with no active context");
+        }
+        else if (this.PART_ConfigurationTree.SelectedItem is ConfigurationTreeViewItem item && item.Entry != null) {
             if (this.connectedEntry == item.Entry) {
                 return;
             }
@@ -185,13 +193,15 @@ public partial class ConfigurationPanelControl : UserControl {
         this.ActiveContext!.SetViewPage(configPage);
     }
 
+    // ReSharper disable once AsyncVoidMethod -- we try-catch the parts that might throw
     private async void OnConfigurationManagerChanged(ConfigurationManager? oldValue, ConfigurationManager? newValue) {
         this.SetLoadingState(true);
-        await Application.Instance.Dispatcher.InvokeAsync(() => Task.CompletedTask, DispatchPriority.Loaded);
+        await Application.Instance.Dispatcher.Process(DispatchPriority.Loaded);
 
         try {
             if (oldValue != null) {
                 Debug.Assert(this.ActiveContext != null, "Context could not be null if we have an old value");
+                this.ClearSelection();
                 await ConfigurationManager.InternalUnloadContext(oldValue, this.ActiveContext);
             }
         }
@@ -218,14 +228,15 @@ public partial class ConfigurationPanelControl : UserControl {
             this.PART_ConfigurationTree.RootConfigurationEntry = newValue.RootEntry;
         }
 
-        await Application.Instance.Dispatcher.InvokeAsync(() => Task.CompletedTask, DispatchPriority.Loaded);
+        await Application.Instance.Dispatcher.Process(DispatchPriority.Loaded);
         Application.Instance.Dispatcher.Post(() => {
             this.SetLoadingState(false);
-            this.UpdateSelection();
+            this.OnSelectionChanged();
         }, DispatchPriority.INTERNAL_AfterRender);
     }
 
     private void SetLoadingState(bool isLoading) {
+        this.IsConfigurationManagerChanging = isLoading;
         if (isLoading) {
             this.PART_CoreContentGrid.Opacity = 0.5;
             this.PART_LoadingBorder.IsVisible = true;

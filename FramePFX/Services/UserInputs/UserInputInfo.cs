@@ -22,6 +22,8 @@ using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Services.UserInputs;
 
+public delegate void UserInputInfoEventHandler(UserInputInfo info);
+
 /// <summary>
 /// The base class for a user input dialog's model, which contains generic
 /// properties suitable across any type of two-buttoned titlebar and message dialog
@@ -79,6 +81,12 @@ public abstract class UserInputInfo : ITransferableData {
     /// </summary>
     public bool? DefaultButton { get; init; }
 
+    /// <summary>
+    /// Fired when one or more errors change in this user input info. This is listened to by
+    /// the GUI to invoke <see cref="HasErrors"/> and update the confirm button
+    /// </summary>
+    public event UserInputInfoEventHandler? HasErrorsChanged;
+    
     public UserInputInfo() {
         this.TransferableData = new TransferableData(this);
     }
@@ -88,5 +96,20 @@ public abstract class UserInputInfo : ITransferableData {
         this.message = message;
     }
 
-    public abstract bool CanDialogClose();
+    /// <summary>
+    /// Raises the <see cref="HasErrorsChanged"/> event
+    /// </summary>
+    public void RaiseHasErrorsChanged() => this.HasErrorsChanged?.Invoke(this);
+
+    /// <summary>
+    /// Checks if there are no errors present. This is used to enable or disable the confirm button
+    /// </summary>
+    public abstract bool HasErrors();
+    
+    /// <summary>
+    /// Forces any errors to be re-calculated. This is because this object will be in its
+    /// initialised state and only just connected to the UI, so this method should set any
+    /// errors forcefully to update the UI and therefore the <see cref="HasErrors"/> state
+    /// </summary>
+    public abstract void UpdateAllErrors();
 }

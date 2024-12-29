@@ -18,6 +18,7 @@
 // 
 
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Themes.Configurations;
 
 namespace FramePFX.Configurations.UI;
 
@@ -26,6 +27,11 @@ namespace FramePFX.Configurations.UI;
 /// </summary>
 public interface IThemeConfigurationTreeElement {
     public static DataKey<IThemeConfigurationTreeElement> TreeElementKey { get; } = DataKey<IThemeConfigurationTreeElement>.Create("ThemeConfigurationTreeElement");
+
+    /// <summary>
+    /// Gets the theme configuration page. This value is null when the page is not being viewed/edited
+    /// </summary>
+    ThemeConfigurationPage? ThemeConfigurationPage { get; }
 
     /// <summary>
     /// Expands the entire tree

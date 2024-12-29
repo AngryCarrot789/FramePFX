@@ -29,7 +29,9 @@ public delegate void FocusChangedEventHandler(CommandManager manager, IContextDa
 /// A class which manages registered commands and the execution of commands.
 /// Commands are registered at application startup, before any primary UI is loaded
 /// </summary>
-public class CommandManager {
+public sealed class CommandManager {
+    public static CommandManager Instance => Application.Instance.ServiceManager.GetService<CommandManager>();
+    
     // using this just in case I soon add more data associated with commands
     private class CommandEntry {
         public readonly Command Command;
@@ -38,8 +40,6 @@ public class CommandManager {
             this.Command = command;
         }
     }
-
-    public static CommandManager Instance { get; } = new CommandManager();
 
     /// <summary>
     /// Gets the number of commands registered
@@ -99,7 +99,7 @@ public class CommandManager {
     /// <summary>
     /// Gets a command with the given ID
     /// </summary>
-    public virtual Command? GetCommandById(string? id) {
+    public Command? GetCommandById(string? id) {
         return !string.IsNullOrEmpty(id) && this.commands.TryGetValue(id, out CommandEntry? command) ? command.Command : null;
     }
 
@@ -136,6 +136,7 @@ public class CommandManager {
         ValidateId(commandId);
         if (contextProvider == null)
             throw new ArgumentNullException(nameof(contextProvider), "Data context provider cannot be null");
+        
         if (!this.commands.TryGetValue(commandId, out CommandEntry? command))
             return false;
 
@@ -192,7 +193,7 @@ public class CommandManager {
         return Executability.Invalid;
     }
 
-    public virtual Executability CanExecute(Command command, IContextData context, bool isUserInitiated = true) {
+    public Executability CanExecute(Command command, IContextData context, bool isUserInitiated = true) {
         ValidateContext(context);
         return command.CanExecute(new CommandEventArgs(this, context, isUserInitiated));
     }

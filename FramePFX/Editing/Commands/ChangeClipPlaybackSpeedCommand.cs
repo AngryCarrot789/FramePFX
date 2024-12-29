@@ -67,7 +67,15 @@ public class ChangeClipPlaybackSpeedCommand : AsyncCommand {
         }
 
         SingleUserInputInfo info = new SingleUserInputInfo("Change playback speed", "Change the playback rate of this clip. 1.0 is the default", "Playback Multiplier:", videoClip.PlaybackSpeed.ToString("F5")) {
-            Validate = (x) => double.TryParse(x, out double v) && Maths.IsBetween(v, VideoClip.MinimumSpeed, VideoClip.MaximumSpeed),
+            Validator = x => {
+                if (!double.TryParse(x, out double val))
+                    return "Not a number";
+
+                if (DoubleUtils.LessThan(val, VideoClip.MinimumSpeed))
+                    return "Too slow";
+                
+                return DoubleUtils.GreaterThan(val, VideoClip.MaximumSpeed) ? "Too fast" : null;
+            },
             DefaultButton = true
         };
 

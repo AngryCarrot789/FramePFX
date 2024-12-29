@@ -165,4 +165,19 @@ public sealed class ObservableItemProcessorIndexing<T> : IDisposable {
         this.list.ItemReplaced -= this.ItemReplaced;
         this.list.ItemMoved -= this.ItemMoved;
     }
+
+    /// <summary>
+    /// Invokes our item add handler(s) on all items for the list
+    /// </summary>
+    /// <returns></returns>
+    public ObservableItemProcessorIndexing<T> InitialiseCurrentItems() {
+        ObservableItemProcessorItemEventHandler<T>? handler = this.OnItemAdded;
+        if (handler != null) {
+            int i = -1;
+            foreach (T item in this.list)
+                handler(this, ++i, item);
+        }
+
+        return this;
+    }
 }

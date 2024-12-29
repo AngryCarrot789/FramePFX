@@ -18,10 +18,13 @@
 // 
 
 using System.Diagnostics;
+using FramePFX.Logging;
 using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem;
+
+public delegate void AsyncCommandEventHandler(AsyncCommand command);
 
 /// <summary>
 /// A command that has an async execute method, and tracks the completion of the task returned and
@@ -29,8 +32,17 @@ namespace FramePFX.CommandSystem;
 /// </summary>
 public abstract class AsyncCommand : Command {
     protected readonly bool allowMultipleExecutions;
-    private bool isExecuting;
+    private bool isExecuting, isInExecutingFrame;
 
+    /// <summary>
+    /// An event fired when this command's executing state changes. This is fired on the main thread
+    /// </summary>
+    public event AsyncCommandEventHandler? ExecutingChanged;
+    
+    public bool IsExecuting => this.isExecuting;
+    
+    public bool AllowMultipleExecutions => this.allowMultipleExecutions;
+    
     /// <summary>
     /// Constructor for the async command
     /// </summary>
@@ -57,26 +69,70 @@ public abstract class AsyncCommand : Command {
         return Executability.Valid;
     }
 
-    protected sealed override void Execute(CommandEventArgs e) => this.ExecuteAsyncImpl(e);
+    protected sealed override void Execute(CommandEventArgs e) {
+        this.isInExecutingFrame = true;
+        try {
+            this.ExecuteAsyncImpl(e);
+        }
+        finally {
+            this.isInExecutingFrame = false;
+        }
+    }
 
     private async void ExecuteAsyncImpl(CommandEventArgs args) {
-        try {
-            if (!this.allowMultipleExecutions && this.isExecuting) {
+        // we need to handle exceptions here, because otherwise the application
+        // would never catch it, and therefore the exception would be lost forever
+        
+        if (!this.allowMultipleExecutions && this.isExecuting) {
+            try {
                 await this.OnAlreadyExecuting(args);
-                return;
             }
-
-            this.isExecuting = true;
+            catch {
+                AppLogger.Instance.WriteLine($"Exception invoking {nameof(this.OnAlreadyExecuting)}");
+            }
+            
+            return;
+        }
+        
+        this.isExecuting = true;
+        
+        try {
+            this.ExecutingChanged?.Invoke(this);
+        }
+        catch {
+            AppLogger.Instance.WriteLine($"Exception raising {nameof(this.ExecutingChanged)}");
+        }
+        
+        try {
             await (this.ExecuteAsync(args) ?? Task.CompletedTask);
         }
         catch (Exception e) when (!Debugger.IsAttached) {
-            // we need to handle the exception here, because otherwise the application
-            // would never catch it, and therefore the exception would be lost forever
-            await this.OnExecutionException(args, e);
+            try {
+                await this.OnExecutionException(args, e);
+            }
+            catch {
+                AppLogger.Instance.WriteLine($"Exception invoking {nameof(this.OnExecutionException)}");
+            }
         }
-        finally {
-            this.isExecuting = false;
+
+        if (this.isInExecutingFrame) {
+            try {
+                this.SetIsExecuting(false);
+            }
+            catch {
+                AppLogger.Instance.WriteLine($"Exception raising {nameof(this.ExecutingChanged)}");
+            }
         }
+        else {
+            Application.Instance.Dispatcher.Post(() => {
+                this.SetIsExecuting(false);
+            });
+        }
+    }
+
+    private void SetIsExecuting(bool isExecuting) {
+        this.isExecuting = isExecuting;
+        this.ExecutingChanged?.Invoke(this);
     }
 
     protected abstract Task ExecuteAsync(CommandEventArgs e);

@@ -29,13 +29,15 @@ namespace FramePFX.BaseFrontEnd.Services.Messages.Controls;
 public partial class SingleUserInputControl : UserControl, IUserInputContent {
     private readonly DataParameterPropertyBinder<SingleUserInputInfo> labelBinder = new DataParameterPropertyBinder<SingleUserInputInfo>(TextBlock.TextProperty, SingleUserInputInfo.LabelParameter);
     private readonly DataParameterPropertyBinder<SingleUserInputInfo> textBinder = new DataParameterPropertyBinder<SingleUserInputInfo>(TextBox.TextProperty, SingleUserInputInfo.TextParameter);
-    private IUserInputDialog? myDialog;
+    private readonly DataParameterPropertyBinder<SingleUserInputInfo> footerBinder = new DataParameterPropertyBinder<SingleUserInputInfo>(TextBlock.TextProperty, BaseTextUserInputInfo.FooterParameter);
+    private UserInputDialog? myDialog;
     private SingleUserInputInfo? myData;
 
     public SingleUserInputControl() {
         this.InitializeComponent();
         this.labelBinder.AttachControl(this.PART_Label);
         this.textBinder.AttachControl(this.PART_TextBox);
+        this.footerBinder.AttachControl(this.PART_FooterTextBlock);
 
         this.PART_TextBox.KeyDown += this.OnTextFieldKeyDown;
     }
@@ -51,22 +53,32 @@ public partial class SingleUserInputControl : UserControl, IUserInputContent {
         this.myData = (SingleUserInputInfo) info;
         this.labelBinder.AttachModel(this.myData);
         this.textBinder.AttachModel(this.myData);
-        SingleUserInputInfo.TextParameter.AddValueChangedHandler(info, this.OnTextChanged);
+        this.footerBinder.AttachModel(this.myData);
         SingleUserInputInfo.LabelParameter.AddValueChangedHandler(info, this.OnLabelChanged);
-
-        this.myData.AllowEmptyTextChanged += this.OnAllowEmptyTextChanged;
+        BaseTextUserInputInfo.FooterParameter.AddValueChangedHandler(this.myData!, this.OnFooterChanged);
+        this.myData.TextErrorChanged += this.OnTextErrorChanged;
         this.UpdateLabelVisibility();
+        this.UpdateFooterVisibility();
     }
 
     public void Disconnect() {
         this.labelBinder.DetachModel();
         this.textBinder.DetachModel();
-        SingleUserInputInfo.TextParameter.RemoveValueChangedHandler(this.myData!, this.OnTextChanged);
+        this.footerBinder.DetachModel();
         SingleUserInputInfo.LabelParameter.RemoveValueChangedHandler(this.myData!, this.OnLabelChanged);
-
-        this.myData!.AllowEmptyTextChanged -= this.OnAllowEmptyTextChanged;
+        BaseTextUserInputInfo.FooterParameter.RemoveValueChangedHandler(this.myData!, this.OnFooterChanged);
+        this.myData!.TextErrorChanged -= this.OnTextErrorChanged;
         this.myDialog = null;
         this.myData = null;
+    }
+
+    private void OnTextErrorChanged(SingleUserInputInfo sender) {
+        if (sender.TextError != null) {
+            DataValidationErrors.SetErrors(this.PART_TextBox, [sender.TextError]);
+        }
+        else {
+            DataValidationErrors.ClearErrors(this.PART_TextBox);
+        }
     }
 
     public bool FocusPrimaryInput() {
@@ -76,10 +88,8 @@ public partial class SingleUserInputControl : UserControl, IUserInputContent {
     }
 
     private void UpdateLabelVisibility() => this.PART_Label.IsVisible = !string.IsNullOrWhiteSpace(this.myData!.Label);
+    private void UpdateFooterVisibility() => this.PART_FooterTextBlock.IsVisible = !string.IsNullOrWhiteSpace(this.myData!.Footer);
 
     private void OnLabelChanged(DataParameter parameter, ITransferableData owner) => this.UpdateLabelVisibility();
-
-    private void OnAllowEmptyTextChanged(SingleUserInputInfo sender) => this.myDialog!.InvalidateConfirmButton();
-
-    private void OnTextChanged(DataParameter parameter, ITransferableData owner) => this.myDialog!.InvalidateConfirmButton();
+    private void OnFooterChanged(DataParameter dataParameter, ITransferableData owner) => this.UpdateFooterVisibility();
 }

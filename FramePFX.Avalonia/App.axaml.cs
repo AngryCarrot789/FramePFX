@@ -146,12 +146,15 @@ public partial class App : global::Avalonia.Application {
         await Application.Instance.PluginLoader.OnApplicationLoaded();
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             (progress as AppSplashScreen)?.Close();
+            await progress.ProgressAndSynchroniseAsync("Startup completed", 1.0);
             await StartupManager.Instance.OnApplicationStartupWithArgs(envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
             desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;
         }
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
+        ((ApplicationImpl) Application.Instance).StartupPhaseImpl = ApplicationStartupPhase.Stopping;
+        
         PersistentStorageManager manager = Application.Instance.PersistentStorageManager;
 
         // Should be inactive at this point realistically, but just in case, clear it all since we're exiting
@@ -164,5 +167,7 @@ public partial class App : global::Avalonia.Application {
         manager.SaveAll();
         Application.Instance.PluginLoader.OnApplicationExiting();
         ApplicationImpl.InternalOnExited(e.ApplicationExitCode);
+        
+        ((ApplicationImpl) Application.Instance).StartupPhaseImpl = ApplicationStartupPhase.Stopped;
     }
 }

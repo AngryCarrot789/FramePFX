@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FramePFX.BaseFrontEnd.Themes.Controls;
 using FramePFX.Configurations;
@@ -77,6 +78,12 @@ public partial class ConfigurationDialog : WindowEx {
         
         this.PART_EditorPanel.ActiveContextChanged += this.OnEditorContextChanged;
         this.PART_EditorPanel.ConfigurationManager = manager;
+    }
+
+    protected override async Task<bool> OnClosingAsync(WindowCloseReason reason) {
+        await this.configManager.RevertLiveChangesInHierarchyAsync(null);
+        this.PART_EditorPanel.ConfigurationManager = null;
+        return false;
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {

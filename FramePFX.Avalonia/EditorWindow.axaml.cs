@@ -24,7 +24,6 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
-using Avalonia.Styling;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Interactivity.Contexts;
 using FramePFX.BaseFrontEnd.Themes.Controls;
@@ -39,7 +38,9 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.Persistence;
 using FramePFX.PropertyEditing;
 using FramePFX.Tasks;
+using FramePFX.Themes;
 using FramePFX.Utils;
+using FramePFX.Utils.Collections.Observable;
 using FramePFX.Utils.RDA;
 using SkiaSharp;
 
@@ -51,6 +52,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     public VideoEditorPropertyEditor PropertyEditor { get; }
     
     public bool IsClosing { get; private set; }
+    
     public bool IsClosed { get; private set; }
 
     ITimelineElement IVideoEditorWindow.TimelineElement => this.TheTimeline;
@@ -61,6 +63,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     private ActivityTask? primaryActivity;
     private RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
     private Project? activeProject;
+    private ObservableItemProcessorIndexing<Theme>? themeListHandler;
 
     public EditorWindow(VideoEditor videoEditor) {
         this.VideoEditor = videoEditor;
@@ -117,16 +120,36 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
         EditorConfigurationOptions.Instance.TitleBarPrefixChanged += this.OnApplicationTitleBarPrefixChanged;
         EditorConfigurationOptions.Instance.TitleBarBrushChanged += this.OnApplicationTitleBarBrushChanged;
+        
+        // 
+        this.themeListHandler = ObservableItemProcessor.MakeIndexable(ThemeManager.Instance.Themes, (sender, index, item) => {
+            MenuItem menuItem = new MenuItem() { Header = item.Name, Tag = item };
+            menuItem.Click += this.OnSetThemeMenuItemClicked;
+            this.PART_ThemesMenuItem.Items.Add(menuItem);
+        }, (sender, index, item) => {
+            this.PART_ThemesMenuItem.Items.RemoveAt(index);
+        }, (sender, oldIndex, newIndex, item) => {
+            CollectionUtils.MoveItem(this.PART_ThemesMenuItem.Items, oldIndex, newIndex);
+        }).InitialiseCurrentItems();
+    }
+
+    private void OnSetThemeMenuItemClicked(object? sender, RoutedEventArgs e) {
+        Theme theme = (Theme) ((MenuItem) sender!).Tag!;
+        theme.ThemeManager.SetTheme(theme);
     }
 
     protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
 
+        this.themeListHandler?.Dispose();
+        this.themeListHandler = null;
+        this.PART_ThemesMenuItem.Items.Clear();
+        
         // Prevent semantic memory leak
         EditorConfigurationOptions.Instance.TitleBarPrefixChanged -= this.OnApplicationTitleBarPrefixChanged;
         EditorConfigurationOptions.Instance.TitleBarBrushChanged -= this.OnApplicationTitleBarBrushChanged;
     }
-
+    
     private void OnApplicationTitleBarPrefixChanged(PersistentConfiguration config, PersistentProperty<string> property, string oldValue, string newValue) {
         this.UpdateWindowTitle(this.VideoEditor.Project);
     }
@@ -318,11 +341,9 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         Application.Instance.Dispatcher.InvokeAsync(() => this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter(), DispatchPriority.Background);
     }
 
-    protected override void OnClosing(WindowClosingEventArgs e) {
-        base.OnClosing(e);
-        if (!e.Cancel) {
-            this.IsClosing = true;
-        }
+    protected override Task<bool> OnClosingAsync(WindowCloseReason reason) {
+        this.IsClosing = true;
+        return base.OnClosingAsync(reason);
     }
 
     protected override void OnClosed(EventArgs e) {
@@ -334,17 +355,5 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
         this.VideoEditor.Destroy();
         base.OnClosed(e);
-    }
-    
-    public Task CloseEditor() {
-        this.IsClosing = true;
-        this.Close();
-        return Task.CompletedTask;
-    }
-
-    private void SetTheme_Click(object? sender, RoutedEventArgs e) {
-        if ((sender as MenuItem)?.Tag is object theme) {
-            global::Avalonia.Application.Current!.RequestedThemeVariant = new ThemeVariant(theme, null);
-        }
     }
 }

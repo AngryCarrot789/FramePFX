@@ -29,6 +29,10 @@ To cancel the render you just click Cancel on the dialog behind the export progr
 The grey panel below "Exporter: FFmpeg" is encoder-specific details
 ![](FramePFX-DesktopUI_2024-12-07_00.13.06.png)
 
+### Customisable GUI!
+Themes can be customised to your linking (still WIP, cannot be saved as of now, but it can assist in making hard coded XAML themes)
+![](FramePFX-DesktopUI_2024-12-29_08.30.49.png)
+
 # Building
 FramePFX assumes everything is 64 bit --- x86/32-bit/AnyCPU won't work properly!
 

@@ -73,7 +73,7 @@
                             <Run Text="The theme configuration tree groups the UI's theme elements" BaselineAlignment="Center"/>
                         </TextBlock>
                     </Grid>
-                    <c:GroupBox Grid.Row="2" Header="Keymap" Margin="5,0,5,5">
+                    <c:GroupBox Grid.Row="2" Header="Theme" Margin="5,0,5,5">
                         <Grid Margin="0" RowDefinitions="Auto,*,40">
                             <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
                                 <StackPanel Orientation="Horizontal" Grid.Column="0">

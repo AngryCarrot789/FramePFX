@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2024-2024 REghZy
+// Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,12 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Configurations;
+namespace FramePFX.Themes.Configurations;
 
-public class ApplyChangesFailureEntry {
-    public string Message { get; }
-
-    public ApplyChangesFailureEntry(string message) {
-        this.Message = message;
-    }
+public interface IThemeTreeEntry {
+    /// <summary>
+    /// Gets the display name for this tree entry
+    /// </summary>
+    string DisplayName { get; }
 }

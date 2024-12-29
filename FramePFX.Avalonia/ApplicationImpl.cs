@@ -33,6 +33,7 @@ using FramePFX.Avalonia.Editing.Toolbars;
 using FramePFX.Avalonia.Exporting;
 using FramePFX.Avalonia.Services;
 using FramePFX.Avalonia.Services.Startups;
+using FramePFX.Avalonia.Themes;
 using FramePFX.BaseFrontEnd;
 using FramePFX.BaseFrontEnd.Configurations;
 using FramePFX.BaseFrontEnd.Icons;
@@ -86,15 +87,15 @@ public class ApplicationImpl : Application, IFrontEndApplication {
     }
 
     private void OnDispatcherShuttingDown(object? sender, EventArgs e) {
-        this.IsShuttingDown = true;
+        this.StartupPhase = ApplicationStartupPhase.Stopping;
     }
     
     private void OnDispatcherShutDown(object? sender, EventArgs e) {
-        this.IsShuttingDown = false;
-        this.IsRunning = false;
+        this.StartupPhase = ApplicationStartupPhase.Stopped;
     }
 
     protected override void RegisterServices(ServiceManager manager) {
+        manager.RegisterConstant<ThemeManager>(new ThemeManagerImpl(this.App));
         manager.RegisterConstant<IconManager>(new IconManagerImpl());
         manager.RegisterConstant<ShortcutManager>(new AvaloniaShortcutManager());
         manager.RegisterConstant<StartupManager>(new StartupManagerImpl());
@@ -109,7 +110,7 @@ public class ApplicationImpl : Application, IFrontEndApplication {
         manager.RegisterConstant<IInputStrokeQueryDialogService>(new InputStrokeDialogsImpl());
         manager.RegisterConstant<IVideoEditorService>(new VideoEditorServiceImpl());
         manager.RegisterConstant<TimelineToolBarManager>(new TimelineToolBarManagerImpl());
-        manager.RegisterConstant<BrushFactory>(new BrushFactoryImpl());
+        manager.RegisterConstant<BrushManager>(new BrushManagerImpl());
     }
 
     protected override async Task<bool> LoadKeyMapAsync() {
@@ -131,13 +132,20 @@ public class ApplicationImpl : Application, IFrontEndApplication {
         return false;
     }
 
-    protected override async Task OnInitialised(IApplicationStartupProgress progress) {
+    protected override async Task Initialise(IApplicationStartupProgress progress) {
         // Since we're calling a base method which will complete to 100%,
         // we need to push a completion range for our custom code
+        this.StartupPhase = ApplicationStartupPhase.Initializing;
         using (progress.CompletionState.PushCompletionRange(0.0, 0.25)) {
-            await base.OnInitialised(progress);
+            await base.Initialise(progress);
         }
+        
+        await progress.ProgressAndSynchroniseAsync("Loading keymap...");
+        await this.LoadKeyMapAsync();
 
+        await progress.ProgressAndSynchroniseAsync("Loading themes...");
+        ((ThemeManagerImpl) this.ServiceManager.GetService<ThemeManager>()).SetupBuiltInThemes();
+        
         await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.5);
 
         try {
@@ -178,6 +186,8 @@ public class ApplicationImpl : Application, IFrontEndApplication {
                 throw new Exception("Native engine functionality failed");
             }
         }
+        
+        this.StartupPhase = ApplicationStartupPhase.FullyInitialized;
     }
 
     protected override Task OnFullyInitialised() {

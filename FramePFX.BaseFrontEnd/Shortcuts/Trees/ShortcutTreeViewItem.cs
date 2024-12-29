@@ -37,7 +37,7 @@ using FramePFX.Shortcuts.Inputs;
 namespace FramePFX.BaseFrontEnd.Shortcuts.Trees;
 
 public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode {
-    public ShortcutTreeView? ResourceTree { get; private set; }
+    public ShortcutTreeView? ShortcutTree { get; private set; }
 
     public ShortcutTreeViewItem? ParentNode { get; private set; }
 
@@ -72,7 +72,7 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode {
     #region Model Connection
 
     public virtual void OnAdding(ShortcutTreeView tree, ShortcutTreeViewItem? parentNode, IKeyMapEntry resource) {
-        this.ResourceTree = tree;
+        this.ShortcutTree = tree;
         this.ParentNode = parentNode;
         this.Entry = resource;
         if (resource is ShortcutEntry entry)
@@ -169,7 +169,7 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode {
     }
 
     public virtual void OnRemoved() {
-        this.ResourceTree = null;
+        this.ShortcutTree = null;
         this.ParentNode = null;
         this.Entry = null;
         DataManager.ClearContextData(this);
@@ -210,7 +210,7 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode {
     }
 
     public void InsertNodeInternal(IKeyMapEntry layer, int index) {
-        ShortcutTreeView? tree = this.ResourceTree;
+        ShortcutTreeView? tree = this.ShortcutTree;
         if (tree == null)
             throw new InvalidOperationException("Cannot add children when we have no resource tree associated");
 
@@ -225,7 +225,7 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode {
     }
 
     public void RemoveNodeInternal(int index, bool canCache = true) {
-        ShortcutTreeView? tree = this.ResourceTree;
+        ShortcutTreeView? tree = this.ShortcutTree;
         if (tree == null)
             throw new InvalidOperationException("Cannot remove children when we have no resource tree associated");
 
@@ -261,7 +261,7 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode {
         }
         else if ((this.IsFocused || this.Focus())) {
             e.Pointer.Capture(this);
-            this.ResourceTree?.SetSelection(this);
+            this.ShortcutTree?.SetSelection(this);
             e.Handled = true;
         }
     }

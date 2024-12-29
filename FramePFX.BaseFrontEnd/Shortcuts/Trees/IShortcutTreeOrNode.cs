@@ -28,7 +28,7 @@ public interface IShortcutTreeOrNode {
     /// <summary>
     /// Gets the configuration tree view associated with this node, or returns the current instance
     /// </summary>
-    ShortcutTreeView? ResourceTree { get; }
+    ShortcutTreeView? ShortcutTree { get; }
 
     /// <summary>
     /// Gets the parent node, or null if we are a root node or a tree

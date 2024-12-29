@@ -18,6 +18,7 @@
 // 
 
 using System.Diagnostics;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using FramePFX.Themes;
@@ -85,6 +86,7 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
             Debug.Assert(onBrushChanged != null ? this.handlers?.Count == 1 : (this.handlers == null || this.handlers.Count < 1));
             
             Avalonia.Application.Current!.ActualThemeVariantChanged += this.OnApplicationThemeChanged;
+            Avalonia.Application.Current.ResourcesChanged += this.CurrentOnResourcesChanged;
             this.FindBrush(invokeHandlerImmediately);
         }
         else if (invokeHandlerImmediately && onBrushChanged != null && this.CurrentBrush != null) {
@@ -116,8 +118,11 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
             Debug.Assert(this.handlers == null || this.handlers.Count < 1);
             
             Avalonia.Application.Current!.ActualThemeVariantChanged -= this.OnApplicationThemeChanged;
+            Avalonia.Application.Current.ResourcesChanged -= this.CurrentOnResourcesChanged;
         }
     }
+
+    private void CurrentOnResourcesChanged(object? sender, ResourcesChangedEventArgs e) => this.FindBrush();
 
     private void FindBrush(bool notifyHandlers = true) {
         if (Avalonia.Application.Current!.TryGetResource(this.ThemeKey, Avalonia.Application.Current.ActualThemeVariant, out object? value)) {

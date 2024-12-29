@@ -50,7 +50,7 @@ public partial class App : global::Avalonia.Application {
     public override async void OnFrameworkInitializationCompleted() {
         base.OnFrameworkInitializationCompleted();
         AvCore.OnFrameworkInitialised();
-
+        
         IApplicationStartupProgress progress;
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop1) {
             desktop1.Exit += this.OnExit;
@@ -105,7 +105,6 @@ public partial class App : global::Avalonia.Application {
             await psm.LoadAllAsync(null, false);
         }
 
-        await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
         List<(Plugin, string)> list = new List<(Plugin, string)>();
         Application.Instance.PluginLoader.CollectInjectedXamlResources(list);
         if (list.Count > 0) {
@@ -145,6 +144,7 @@ public partial class App : global::Avalonia.Application {
             }
         }
         
+        await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
         await ApplicationImpl.InternalOnFullyInitialised();
         await Application.Instance.PluginLoader.OnApplicationLoaded();
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {

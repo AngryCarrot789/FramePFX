@@ -18,10 +18,12 @@
 // 
 
 using FramePFX.BaseFrontEnd.Configurations.Pages.Basic;
+using FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
 using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Configurations;
 using FramePFX.Configurations.Basic;
 using FramePFX.Configurations.Shortcuts;
+using FramePFX.Themes.Configurations;
 
 namespace FramePFX.BaseFrontEnd.Configurations.Pages;
 
@@ -33,5 +35,6 @@ public static class ConfigurationPageRegistry {
         Registry.RegisterType<EditorWindowConfigurationPage>(() => new BasicEditorWindowConfigurationPageControl());
         Registry.RegisterType<PropertyEditorConfigurationPage>(() => new PropertyEditorConfigurationPageControl());
         Registry.RegisterType<ShortcutEditorConfigurationPage>(() => new ShortcutEditorConfigurationPageControl());
+        Registry.RegisterType<ThemeConfigurationPage>(() => new ThemeConfigurationPageControl());
     }
 }

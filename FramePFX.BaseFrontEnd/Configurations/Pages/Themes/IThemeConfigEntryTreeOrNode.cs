@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2024-2024 REghZy
+// Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,12 +17,22 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Configurations;
+using FramePFX.Themes.Configurations;
 
-public class ApplyChangesFailureEntry {
-    public string Message { get; }
+namespace FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
 
-    public ApplyChangesFailureEntry(string message) {
-        this.Message = message;
-    }
+public interface IThemeConfigEntryTreeOrNode {
+    ThemeConfigTreeView? ThemeConfigTree { get; }
+
+    ThemeConfigTreeViewItem? ParentNode { get; }
+
+    IThemeTreeEntry? Entry { get; }
+    
+    void InsertGroup(ThemeConfigEntryGroup entry, int index);
+
+    void InsertEntry(ThemeConfigEntry entry, int index);
+
+    void RemoveGroup(int index, bool canCache = true);
+
+    void RemoveEntry(int index, bool canCache = true);
 }

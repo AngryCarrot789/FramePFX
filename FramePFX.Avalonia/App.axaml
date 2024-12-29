@@ -37,6 +37,7 @@
                 <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Configurations/Trees/ConfigurationTreeThemes.axaml"/>
                 <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Configurations/Pages/Basic/BaseConfigurationPageThemes.axaml"/>
                 <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/ResourceManaging/Autoloading/InvalidResourceEntryThemes.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Configurations/Pages/Themes/ThemeConfigTreeThemes.axaml"/>
 
                 <MergeResourceInclude Source="/Editing/Playheads/PlayHeadThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/Automation/AutomationSequenceEditorThemes.axaml"/>

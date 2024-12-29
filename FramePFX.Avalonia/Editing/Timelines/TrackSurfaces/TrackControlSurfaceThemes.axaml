@@ -214,7 +214,7 @@
                                     <Ellipse Width="7" Height="7" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
                                 </Button>
                                 <ToggleButton Content="O" BorderBrush="Black" Height="20" Width="18"
-                                              ToolTip.Tip="Toggles the parameter override state for this track. This is used to enable or disable automation for the parameter"
+                                              ToolTip.Tip="Toggles the parameter override state. This is used to enable or disable automation for the parameter"
                                               x:Name="PART_OverrideButton"/>
                             </StackPanel>
                         </Grid>

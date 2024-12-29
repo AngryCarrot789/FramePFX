@@ -20,9 +20,11 @@
                                 ToolTip.Tip="Insert a key frame at the current play head">
                             <Ellipse Width="8" Height="8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
                         </Button>
-                        <ToggleButton x:Name="PART_ToggleOverride" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                        <ToggleButton x:Name="PART_ToggleOverride" 
+                                      Background="{TemplateBinding Background}" 
+                                      BorderBrush="{TemplateBinding BorderBrush}"
                                       Height="20" Width="20" CornerRadius="2" IsThreeState="False"
-                                      ToolTip.Tip="Toggles the parameter override state for this track. This is used to enable or disable automation for the parameter">
+                                      ToolTip.Tip="Toggles the parameter override state. This is used to enable or disable automation for the parameter">
                             <TextBlock Text="O" Margin="0,1,0,0"/>
                         </ToggleButton>
                         <Button x:Name="PART_ResetValue" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"

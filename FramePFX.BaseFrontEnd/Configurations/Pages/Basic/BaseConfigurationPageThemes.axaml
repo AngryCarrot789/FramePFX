@@ -5,7 +5,9 @@
                     xmlns:pages="clr-namespace:FramePFX.BaseFrontEnd.Configurations.Pages"
                     xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing"
                     xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls"
-                    xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages">
+                    xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages"
+                    xmlns:themes="clr-namespace:FramePFX.BaseFrontEnd.Configurations.Pages.Themes"
+                    xmlns:converters="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml">
     <ControlTheme x:Key="{x:Type b:BasicEditorWindowConfigurationPageControl}" TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
@@ -28,6 +30,7 @@
             </ControlTemplate>
         </Setter>
     </ControlTheme>
+    
     <ControlTheme x:Key="{x:Type b:ShortcutEditorConfigurationPageControl}" TargetType="{x:Type b:ShortcutEditorConfigurationPageControl}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type b:ShortcutEditorConfigurationPageControl}">
@@ -60,4 +63,50 @@
             </ControlTemplate>
         </Setter>
     </ControlTheme>
+    
+    <ControlTheme x:Key="{x:Type themes:ThemeConfigurationPageControl}" TargetType="{x:Type themes:ThemeConfigurationPageControl}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type themes:ThemeConfigurationPageControl}">
+                <Grid Margin="0,2" RowDefinitions="Auto,5,*">
+                    <Grid Grid.Row="0">
+                        <TextBlock Padding="10" TextWrapping="Wrap">
+                            <Run Text="The theme configuration tree groups the UI's theme elements" BaselineAlignment="Center"/>
+                        </TextBlock>
+                    </Grid>
+                    <c:GroupBox Grid.Row="2" Header="Keymap" Margin="5,0,5,5">
+                        <Grid Margin="0" RowDefinitions="Auto,*,200">
+                            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                                <StackPanel Orientation="Horizontal" Grid.Column="0">
+                                    <Button Content="Expand All" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.ExpandThemeConfigTree"/>
+                                    <Button Content="Collapse All" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.CollapseThemeConfigTree"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Grid.Column="2">
+                                    <TextBox Width="200" Text="Search..."/>
+                                </StackPanel>
+                            </Grid>
+                            <themes:ThemeConfigTreeView x:Name="PART_ThemeConfigTree" Grid.Row="1"/>
+                            <Grid ColumnDefinitions="120,5,*,5,100" RowDefinitions="Auto,*" Grid.Row="2" x:Name="PART_SelectedItemGrid" Margin="5">
+                                <TextBlock Grid.Column="0" Grid.Row="0" Text="Theme Key"/>
+                                <TextBox   Grid.Column="2" Grid.Row="0" x:Name="PART_ThemeKeyTextBox" IsReadOnly="True" Padding="3,5" 
+                                           ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                                
+                                <ColorPicker Grid.Column="4" Grid.RowSpan="2" x:Name="PART_ColorPicker" 
+                                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                            </Grid>
+                        </Grid>
+                    </c:GroupBox>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+    <Design.PreviewWith>
+        <Grid Width="400" Height="400">
+            <Grid.Resources>
+                <converters:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
+            </Grid.Resources>
+            <Border x:Name="PART_Border" Background="{Binding ElementName=PART_Spec, Path=Color, Converter={StaticResource ColorToBrushConverter}}">
+                <ColorPicker x:Name="PART_Spec"/>
+            </Border>
+        </Grid>
+    </Design.PreviewWith>
 </ResourceDictionary>

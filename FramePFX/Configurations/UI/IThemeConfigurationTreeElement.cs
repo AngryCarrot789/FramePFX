@@ -17,27 +17,23 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using SkiaSharp;
+using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Themes;
+namespace FramePFX.Configurations.UI;
 
 /// <summary>
-/// A factory used to create brushes
+/// A theme configuration tree UI control
 /// </summary>
-public abstract class BrushFactory {
-    public static BrushFactory Instance => Application.Instance.ServiceManager.GetService<BrushFactory>();
-    
-    /// <summary>
-    /// Creates a brush whose underlying colour does not change
-    /// </summary>
-    /// <param name="colour">The colour</param>
-    /// <returns>The brush</returns>
-    public abstract IColourBrush CreateConstant(SKColor colour);
+public interface IThemeConfigurationTreeElement {
+    public static DataKey<IThemeConfigurationTreeElement> TreeElementKey { get; } = DataKey<IThemeConfigurationTreeElement>.Create("ThemeConfigurationTreeElement");
 
     /// <summary>
-    /// Creates a dynamic brush from a known theme key
+    /// Expands the entire tree
     /// </summary>
-    /// <param name="themeKey">The key</param>
-    /// <returns>The brush</returns>
-    public abstract IDynamicColourBrush CreateDynamic(string themeKey);
+    void ExpandAll();
+    
+    /// <summary>
+    /// Collapses the entire tree
+    /// </summary>
+    void CollapseAll();
 }

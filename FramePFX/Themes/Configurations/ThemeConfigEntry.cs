@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2024-2024 REghZy
+// Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,12 +17,27 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Configurations;
+using FramePFX.DataTransfer;
+using FramePFX.Utils;
 
-public class ApplyChangesFailureEntry {
-    public string Message { get; }
+namespace FramePFX.Themes.Configurations;
 
-    public ApplyChangesFailureEntry(string message) {
-        this.Message = message;
+/// <summary>
+/// An entry for a colour in a theme
+/// </summary>
+public class ThemeConfigEntry : IThemeTreeEntry, ITransferableData {
+    public string DisplayName { get; }
+
+    public string ThemeKey { get; }
+
+    public TransferableData TransferableData { get; }
+
+    public ThemeConfigEntry(string displayName, string themeKey) {
+        Validate.NotNullOrWhiteSpaces(displayName);
+        Validate.NotNullOrWhiteSpaces(themeKey);
+
+        this.TransferableData = new TransferableData(this);
+        this.ThemeKey = themeKey;
+        this.DisplayName = displayName;
     }
 }

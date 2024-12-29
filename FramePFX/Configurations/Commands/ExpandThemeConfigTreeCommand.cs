@@ -17,12 +17,19 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Configurations;
+using FramePFX.CommandSystem;
+using FramePFX.Configurations.UI;
 
-public class ApplyChangesFailureEntry {
-    public string Message { get; }
+namespace FramePFX.Configurations.Commands;
 
-    public ApplyChangesFailureEntry(string message) {
-        this.Message = message;
+public class ExpandThemeConfigTreeCommand : Command {
+    public override Executability CanExecute(CommandEventArgs e) {
+        return IThemeConfigurationTreeElement.TreeElementKey.GetExecutabilityForPresence(e.ContextData);
+    }
+    
+    protected override void Execute(CommandEventArgs e) {
+        if (IThemeConfigurationTreeElement.TreeElementKey.TryGetContext(e.ContextData, out IThemeConfigurationTreeElement? tree)) {
+            tree.ExpandAll();
+        }
     }
 }

@@ -25,6 +25,7 @@ using FramePFX.Editing;
 using FramePFX.PropertyEditing.DataTransfer;
 using FramePFX.PropertyEditing.DataTransfer.Enums;
 using FramePFX.Shortcuts;
+using FramePFX.Themes;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
@@ -55,6 +56,10 @@ public class ApplicationConfigurationManager : ConfigurationManager {
 
         this.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Keymap", Id = "config.keymap", Page = new ShortcutEditorConfigurationPage(ShortcutManager.Instance)
+        });
+        
+        this.RootEntry.AddEntry(new ConfigurationEntry() {
+            DisplayName = "Themes", Id = "config.themes", Page = ThemeManager.Instance.ThemeConfigurationPage
         });
         
         this.RootEntry.AddEntry(this.StartupConfigurationEntry = new ConfigurationEntry() {

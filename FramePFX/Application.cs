@@ -89,22 +89,26 @@ public abstract class Application : IServiceable {
     /// Gets the application's plugin loader
     /// </summary>
     public PluginLoader PluginLoader { get; }
-    
+
     /// <summary>
     /// Gets whether the application is in the process of shutting down
     /// </summary>
-    public bool IsShuttingDown { get; protected set; }
+    public bool IsShuttingDown => this.StartupPhase == ApplicationStartupPhase.Stopping;
     
     /// <summary>
     /// Gets whether the application is actually running. False after exited
     /// </summary>
-    public bool IsRunning { get; protected set; }
+    public bool IsRunning => this.StartupPhase == ApplicationStartupPhase.Running;
+
+    /// <summary>
+    /// Gets the current application state
+    /// </summary>
+    public ApplicationStartupPhase StartupPhase { get; set; }
 
     protected Application() {
         this.ServiceManager = new ServiceManager(this);
         this.PluginLoader = new PluginLoader();
-        this.IsRunning = true;
-        this.IsShuttingDown = false;
+        this.StartupPhase = ApplicationStartupPhase.Default;
     }
 
     protected abstract Task<bool> LoadKeyMapAsync();
@@ -114,7 +118,7 @@ public abstract class Application : IServiceable {
     /// </summary>
     /// <param name="progress"></param>
     /// <returns></returns>
-    protected virtual Task OnInitialised(IApplicationStartupProgress progress) {
+    protected virtual Task Initialise(IApplicationStartupProgress progress) {
         return Task.CompletedTask;
     }
 
@@ -198,6 +202,8 @@ public abstract class Application : IServiceable {
         manager.Register("commands.shortcuts.AddMouseStrokeToShortcut", new AddMouseStrokeToShortcutUsingDialogCommand());
         manager.Register("commands.config.keymap.ExpandShortcutTree", new ExpandShortcutTreeCommand());
         manager.Register("commands.config.keymap.CollapseShortcutTree", new CollapseShortcutTreeCommand());
+        manager.Register("commands.config.themeconfig.ExpandThemeConfigTree", new ExpandThemeConfigTreeCommand());
+        manager.Register("commands.config.themeconfig.CollapseThemeConfigTree", new CollapseThemeConfigTreeCommand());
 
         progress.CompletionState.SetProgress(1.0);
     }
@@ -223,8 +229,9 @@ public abstract class Application : IServiceable {
     protected static async Task InternalInitialise(IApplicationStartupProgress progress) {
         if (instance == null)
             throw new InvalidOperationException("Application has not been pre-initialised yet");
-
+        
         using (progress.CompletionState.PushCompletionRange(0, 1)) {
+            instance.StartupPhase = ApplicationStartupPhase.PreInitialization;
             await progress.ProgressAndSynchroniseAsync("Initialising services");
             using (progress.CompletionState.PushCompletionRange(0.0, 0.25)) {
                 instance.RegisterServices(instance.ServiceManager);
@@ -238,15 +245,12 @@ public abstract class Application : IServiceable {
                 instance.RegisterCommands(progress, CommandManager.Instance);
             }
 
-            await progress.ProgressAndSynchroniseAsync("Loading keymap...");
-            await instance.LoadKeyMapAsync();
-
             await progress.ProgressAndSynchroniseAsync(null, 0.75);
             using (progress.CompletionState.PushCompletionRange(0.75, 1.0)) {
-                await instance.OnInitialised(progress);
+                await instance.Initialise(progress);
             }
         }
-
+        
         await progress.SynchroniseAsync();
     }
 
@@ -279,5 +283,21 @@ public abstract class Application : IServiceable {
 
     protected static void InternalOnExit(int exitCode) => instance!.OnExit(exitCode);
 
-    protected static Task InternalOnFullyInitialisedImpl() => instance!.OnFullyInitialised();
+    protected static Task InternalOnFullyInitialisedImpl() {
+        instance!.StartupPhase = ApplicationStartupPhase.FullyInitialized;
+        return instance.OnFullyInitialised();
+    }
+
+    public void EnsureBeforePhase(ApplicationStartupPhase phase) {
+        if (this.StartupPhase >= phase)
+            throw new InvalidOperationException($"Application startup phase has passed '{phase}'");
+    }
+    
+    public void EnsureAtPhase(ApplicationStartupPhase phase) {
+        if (this.StartupPhase < phase)
+            throw new InvalidOperationException($"Application has not reached the startup phase '{phase}' yet.");
+        
+        if (this.StartupPhase > phase)
+            throw new InvalidOperationException($"Application has already passed the startup phase '{phase}' yet.");
+    }
 }

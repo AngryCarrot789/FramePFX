@@ -22,19 +22,19 @@ using SkiaSharp;
 
 namespace FramePFX.BaseFrontEnd.Themes.BrushFactories;
 
-public class BrushFactoryImpl : BrushFactory {
+public class BrushManagerImpl : BrushManager {
     private Dictionary<string, DynamicResourceAvaloniaColourBrush>? cachedBrushes;
     
-    public override IColourBrush CreateConstant(SKColor colour) {
+    public override ImmutableAvaloniaColourBrush CreateConstant(SKColor colour) {
         // Not really any point to caching an immutable brush
         return new ImmutableAvaloniaColourBrush(colour);
     }
 
-    public override IDynamicColourBrush CreateDynamic(string themeKey) {
+    public override DynamicResourceAvaloniaColourBrush GetThemeBrush(string themeKey) {
         if (this.cachedBrushes == null) {
             this.cachedBrushes = new Dictionary<string, DynamicResourceAvaloniaColourBrush>();
         }
-        else if (this.cachedBrushes.TryGetValue(themeKey, out var existingBrush)) {
+        else if (this.cachedBrushes.TryGetValue(themeKey, out DynamicResourceAvaloniaColourBrush? existingBrush)) {
             return existingBrush;
         }
         

@@ -1,8 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:trees="clr-namespace:FramePFX.BaseFrontEnd.Configurations.Trees">
-    <ControlTheme x:Key="{x:Type trees:ConfigurationTreeView}" TargetType="{x:Type trees:ConfigurationTreeView}" BasedOn="{StaticResource {x:Type TreeView}}">
+                    xmlns:isc="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Trees.InputStrokeControls"
+                    xmlns:trees="clr-namespace:FramePFX.BaseFrontEnd.Configurations.Pages.Themes">
+    <ControlTheme x:Key="{x:Type trees:ThemeConfigTreeView}" TargetType="{x:Type trees:ThemeConfigTreeView}" BasedOn="{StaticResource {x:Type TreeView}}">
         <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone2.Border.Static}"/>
@@ -34,7 +35,7 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type trees:ConfigurationTreeViewItem}" TargetType="{x:Type trees:ConfigurationTreeViewItem}">
+    <ControlTheme x:Key="{x:Type trees:ThemeConfigTreeViewItem}" TargetType="{x:Type trees:ThemeConfigTreeViewItem}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone4.Border.Static}"/>
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
@@ -71,8 +72,9 @@
                                        Margin="{TemplateBinding Padding}"
                                        Focusable="False">
                                     <StackPanel Orientation="Horizontal" Spacing="3">
+                                        <ContentPresenter x:Name="PART_IconPresenter" IsVisible="False"/>
                                         <Panel VerticalAlignment="Center">
-                                            <TextBlock x:Name="PART_HeaderTextBlock" Text="{TemplateBinding Header}" Margin="0,-1,0,0"/>
+                                            <TextBlock Text="{TemplateBinding Header}" Margin="0,-1,0,0"/>
                                         </Panel>
                                     </StackPanel>
                                 </Panel>
@@ -103,5 +105,23 @@
         <Style Selector="^:empty /template/ ToggleButton#PART_ExpandCollapseChevron">
             <Setter Property="IsVisible" Value="False"/>
         </Style>
+    </ControlTheme>
+    <ControlTheme x:Key="{x:Type isc:KeyStrokeControl}" TargetType="{x:Type isc:KeyStrokeControl}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type isc:KeyStrokeControl}">
+                <Border Background="#FFFFE53E" CornerRadius="2" Padding="2,0" Margin="1">
+                    <TextBlock x:Name="PART_TextBlock" Padding="1" Foreground="Black"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+    <ControlTheme x:Key="{x:Type isc:MouseStrokeControl}" TargetType="{x:Type isc:MouseStrokeControl}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type isc:MouseStrokeControl}">
+                <Border Background="#FFFFE53E" CornerRadius="2" Padding="2,0" Margin="1">
+                    <TextBlock x:Name="PART_TextBlock" Padding="1" Foreground="Black"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
     </ControlTheme>
 </ResourceDictionary>

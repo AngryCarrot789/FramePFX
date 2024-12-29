@@ -35,8 +35,8 @@
 
     <ControlTheme x:Key="{x:Type trees:ResourceTreeView}" TargetType="{x:Type trees:ResourceTreeView}" BasedOn="{StaticResource {x:Type TreeView}}">
         <Setter Property="SelectionMode" Value="Multiple"/>
-        <Setter Property="Background" Value="{DynamicResource AColour.Tone2.Background.Static}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AColour.Tone2.Border.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone2.Border.Static}"/>
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="0"/>
@@ -48,7 +48,7 @@
 
     <ControlTheme x:Key="{x:Type trees:ResourceTreeViewItem}" TargetType="{x:Type trees:ResourceTreeViewItem}">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AColour.Tone4.Border.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone4.Border.Static}"/>
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="avalonia:UIInputManager.FocusPath" Value="EditorWindow/ResourceManager/TreeItem"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>

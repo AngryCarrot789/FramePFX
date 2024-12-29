@@ -41,7 +41,7 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode, IShortcutTreeElem
 
     public IModelControlDictionary<IKeyMapEntry, ShortcutTreeViewItem> ItemMap => this.itemMap;
 
-    ShortcutTreeView? IShortcutTreeOrNode.ResourceTree => this;
+    ShortcutTreeView? IShortcutTreeOrNode.ShortcutTree => this;
 
     ShortcutTreeViewItem? IShortcutTreeOrNode.ParentNode => null;
 

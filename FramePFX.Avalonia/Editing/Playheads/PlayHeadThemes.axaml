@@ -49,8 +49,8 @@
                                  HorizontalAlignment="Left" Width="15">
                             <Polygon.Fill>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                    <GradientStop Color="{DynamicResource AColour.Glyph.Static}" Offset="0"/>
-                                    <GradientStop Color="{DynamicResource AColour.Glyph.Disabled}" Offset="1"/>
+                                    <GradientStop Color="{DynamicResource ABrush.Glyph.Static.Color}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource ABrush.Glyph.Disabled.Color}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Polygon.Fill>
                         </Polygon>

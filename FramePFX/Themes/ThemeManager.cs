@@ -44,7 +44,7 @@ public abstract class ThemeManager {
 
     protected ThemeManager() {
         this.ThemeConfigurationPage = new ThemeConfigurationPage();
-        // Standard theme options across all application based on this framework
+        // Standard theme options since 2020 when WPFDarkTheme was made
         this.ThemeConfigurationPage.AssignMapping("Standard2020/Foreground (Static)",                         "ABrush.Foreground.Static");
         this.ThemeConfigurationPage.AssignMapping("Standard2020/Foreground (Deeper)",                         "ABrush.Foreground.Deeper");
         this.ThemeConfigurationPage.AssignMapping("Standard2020/Foreground (Disabled)",                       "ABrush.Foreground.Disabled");
@@ -136,24 +136,24 @@ public abstract class ThemeManager {
         this.ThemeConfigurationPage.AssignMapping("Standard2020/Panels/Tone8 Border (Disabled)",              "ABrush.Tone8.Border.Disabled");
         
         // FramePFX specific
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Status Bar Background",                                          "ABrush.PFX.Editor.StatusBar.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Background (Static)",                                   "ABrush.PFX.Editor.Timeline.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Gap Between Tracks",                                    "ABrush.PFX.Editor.Timeline.GapBetweenTracks");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Timestamp Background",                                  "ABrush.PFX.Editor.Timeline.TimestampBoard.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Toolbar Background",                                    "ABrush.PFX.Editor.Timeline.ToolBar.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Ruler Background",                                      "ABrush.PFX.Editor.Timeline.Ruler.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Header Background",                                     "ABrush.PFX.Editor.Timeline.Header.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Track/Background (Static)",                             "ABrush.PFX.Editor.Timeline.Track.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Track/Background (Selected)",                           "ABrush.PFX.Editor.Timeline.Track.Background.Selected");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Background (Static)",                   "ABrush.PFX.Editor.Timeline.ControlSurface.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Item Background (Static)",              "ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Item Background (Mouse Over)",          "ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.MouseOver");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Item Background (Selected, Focused)",   "ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.SelectedFocused");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Item Background (Selected, Unfocused)", "ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.SelectedUnfocused");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Resource Manager/Tab Strip Background",                          "ABrush.PFX.Editor.ResourceManager.TabStrip.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Resource Manager/Tab Item Background",                           "ABrush.PFX.Editor.ResourceManager.TabItem.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Resource Manager/List Background",                               "ABrush.PFX.Editor.ResourceManager.List.Background");
-        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Resource Manager/Tree Background",                               "ABrush.PFX.Editor.ResourceManager.Tree.Background");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Status Bar Background",                                          "ABrush.PFX.Editor.StatusBar.Background",                                      "The background of the status bar (at the very bottom of the editor window)");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Background (Static)",                                   "ABrush.PFX.Editor.Timeline.Background",                                       "The background of the bottom part of the timeline (below tracks)");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Gap Between Tracks",                                    "ABrush.PFX.Editor.Timeline.GapBetweenTracks",                                 "The colour of the gap between each track (and also the bottom border of the last track)");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Timestamp Background",                                  "ABrush.PFX.Editor.Timeline.TimestampBoard.Background",                        "The background of the panel where the timestamp indicator is (as in, what shows the current frame time among other info)");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Toolbar Background",                                    "ABrush.PFX.Editor.Timeline.ToolBar.Background",                               "The background of the toolbars at the bottom of the timeline and control surface list");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Ruler Background",                                      "ABrush.PFX.Editor.Timeline.Ruler.Background",                                 "The background of the timeline ruler");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Header Background",                                     "ABrush.PFX.Editor.Timeline.Header.Background",                                "The background of the timeline's group box header (which contains the timeline name and a close button)");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Track/Background (Static)",                             "ABrush.PFX.Editor.Timeline.Track.Background",                                 "The background of tracks when not selected");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Track/Background (Selected)",                           "ABrush.PFX.Editor.Timeline.Track.Background.Selected",                        "The background of tracks when selected");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Background (Static)",                   "ABrush.PFX.Editor.Timeline.ControlSurface.Background",                        "The background of the track control surface list box");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Item Background (Static)",              "ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background",                    "The background of a track control surface item");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Item Background (Mouse Over)",          "ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.MouseOver",          "The background of the item when the mouse is over it");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Item Background (Selected, Focused)",   "ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.SelectedFocused",    "The background of the item when it's selected and has UI focus");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Timeline/Control Surface/Item Background (Selected, Unfocused)", "ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.SelectedUnfocused",  "The background of the item when it's selected but does not have UI focus");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Resource Manager/Tab Strip Background",                          "ABrush.PFX.Editor.ResourceManager.TabStrip.Background",                       "The background of the resource manager's tab strip (aka tab item panel, at the top)");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Resource Manager/Tab Item Background",                           "ABrush.PFX.Editor.ResourceManager.TabItem.Background",                        "The background of tab items");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Resource Manager/List Background",                               "ABrush.PFX.Editor.ResourceManager.List.Background",                           "The background of the list panel");
+        this.ThemeConfigurationPage.AssignMapping("VideoEditor/Resource Manager/Tree Background",                               "ABrush.PFX.Editor.ResourceManager.Tree.Background",                           "The background of the tree panel");
     }
 
     /// <summary>

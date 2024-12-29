@@ -1,3 +1,6 @@
+// 
+// Copyright (c) 2023-2024 REghZy
+// 
 // This file is part of FramePFX.
 // 
 // FramePFX is free software; you can redistribute it and/or
@@ -16,22 +19,12 @@
 
 namespace FramePFX.Themes;
 
-public delegate void DynamicColourBrushChangedEventHandler(IDynamicColourBrush brush);
-
-public interface IDynamicColourBrush : IColourBrush {
+/// <summary>
+/// A theme entry that is immutable and can be restored at any time
+/// </summary>
+public interface ISavedThemeEntry {
     /// <summary>
-    /// Gets the key that locates the "brush" contents
+    /// Gets the theme that this entry was created from
     /// </summary>
-    string ThemeKey { get; }
-
-    /// <summary>
-    /// Gets the number of references using this dynamic colour brush.
-    /// </summary>
-    int ReferenceCount { get; }
-
-    /// <summary>
-    /// An event fired when the "brush" contents of this colour brush change (typically caused
-    /// by the application theme changing, or maybe the user modified the specific brush)
-    /// </summary>
-    event DynamicColourBrushChangedEventHandler? BrushChanged;
+    Theme Theme { get; }
 }

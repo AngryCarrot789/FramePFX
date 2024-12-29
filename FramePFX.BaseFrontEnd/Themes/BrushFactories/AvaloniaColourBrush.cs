@@ -36,11 +36,22 @@ public abstract class AvaloniaColourBrush : IColourBrush {
     public abstract IBrush? Brush { get; }
 }
 
-public sealed class ImmutableAvaloniaColourBrush : AvaloniaColourBrush {
+public sealed class ConstantAvaloniaColourBrush : AvaloniaColourBrush, IStaticColourBrush {
     public override ImmutableSolidColorBrush Brush { get; }
 
-    public ImmutableAvaloniaColourBrush(SKColor colour) {
+    public ConstantAvaloniaColourBrush(SKColor colour) {
         this.Brush = new ImmutableSolidColorBrush(new Color(colour.Alpha, colour.Red, colour.Green, colour.Blue));
+    }
+}
+
+public class StaticResourceAvaloniaColourBrush : AvaloniaColourBrush, IStaticColourBrush {
+    public string ThemeKey { get; }
+
+    public override IImmutableBrush? Brush { get; }
+    
+    public StaticResourceAvaloniaColourBrush(string themeKey, IImmutableBrush? brush) {
+        this.ThemeKey = themeKey;
+        this.Brush = brush;
     }
 }
 
@@ -54,6 +65,8 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
 
     public override IBrush? Brush => this.CurrentBrush;
 
+    public int ReferenceCount => this.usageCounter;
+    
     private int usageCounter;
     private List<Action<IBrush?>>? handlers;
     
@@ -62,7 +75,7 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
     public DynamicResourceAvaloniaColourBrush(string themeKey) {
         this.ThemeKey = themeKey;
     }
-
+    
     /// <summary>
     /// Subscribe to this brush using the given brush handler. This is more like
     /// an "IncrementReferences" method, with an optional brush change handler.
@@ -85,8 +98,8 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
             // We expect the handler list to be empty due to the logic in Unsubscribe
             Debug.Assert(onBrushChanged != null ? this.handlers?.Count == 1 : (this.handlers == null || this.handlers.Count < 1));
             
-            Avalonia.Application.Current!.ActualThemeVariantChanged += this.OnApplicationThemeChanged;
-            Avalonia.Application.Current.ResourcesChanged += this.CurrentOnResourcesChanged;
+            global::Avalonia.Application.Current!.ActualThemeVariantChanged += this.OnApplicationThemeChanged;
+            global::Avalonia.Application.Current.ResourcesChanged += this.CurrentOnResourcesChanged;
             this.FindBrush();
         }
         else if (invokeHandlerImmediately && onBrushChanged != null && this.CurrentBrush != null) {
@@ -117,8 +130,8 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
             // it should be impossible for it to not get removed
             Debug.Assert(this.handlers == null || this.handlers.Count < 1);
             
-            Avalonia.Application.Current!.ActualThemeVariantChanged -= this.OnApplicationThemeChanged;
-            Avalonia.Application.Current.ResourcesChanged -= this.CurrentOnResourcesChanged;
+            global::Avalonia.Application.Current!.ActualThemeVariantChanged -= this.OnApplicationThemeChanged;
+            global::Avalonia.Application.Current.ResourcesChanged -= this.CurrentOnResourcesChanged;
 
             if (this.CurrentBrush != null) {
                 this.CurrentBrush = null;
@@ -130,7 +143,7 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
     private void CurrentOnResourcesChanged(object? sender, ResourcesChangedEventArgs e) => this.FindBrush();
 
     private void FindBrush() {
-        if (Avalonia.Application.Current!.TryGetResource(this.ThemeKey, Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
+        if (global::Avalonia.Application.Current!.TryGetResource(this.ThemeKey, global::Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
             if (value is IBrush brush) {
                 if (!ReferenceEquals(this.CurrentBrush, brush)) {
                     this.CurrentBrush = brush;

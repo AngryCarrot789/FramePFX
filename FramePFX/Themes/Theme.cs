@@ -51,9 +51,32 @@ public abstract class Theme {
     public abstract void SetThemeColour(string key, SKColor colour);
 
     /// <summary>
+    /// Sets a theme colour to the given brush. This method may trigger UI rendering if
+    /// the theme key is in use. Using this method is not recommended since the brush may
+    /// not have any solid colour associated with it, though this might be fine for the specific key
+    /// </summary>
+    /// <param name="key">The key</param>
+    /// <param name="colour">The new brush</param>
+    public abstract void SetThemeBrush(string key, IColourBrush brush);
+    
+    /// <summary>
     /// Returns true if the theme key is a real key that would return a colour
     /// </summary>
     /// <param name="themeKey">The key</param>
     /// <returns>See above</returns>
     public abstract bool IsThemeKeyValid(string themeKey);
+
+    /// <summary>
+    /// Creates a saved theme entry that stores the current state of the colour
+    /// </summary>
+    /// <param name="themeKey">The key</param>
+    /// <returns>A saved theme entry</returns>
+    public abstract ISavedThemeEntry SaveThemeEntry(string themeKey);
+    
+    /// <summary>
+    /// Applies a saved theme entry into this theme 
+    /// </summary>
+    /// <param name="themeKey">The key</param>
+    /// <param name="entry">The entry</param>
+    public abstract void RestoreThemeEntry(string themeKey, ISavedThemeEntry entry);
 }

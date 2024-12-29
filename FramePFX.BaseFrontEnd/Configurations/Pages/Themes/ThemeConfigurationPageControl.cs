@@ -57,7 +57,6 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
         DataManager.GetContextData(this).Set(IThemeConfigurationTreeElement.TreeElementKey, this.PART_ThemeConfigTree);
         
         this.PART_ThemeConfigTree.SelectionChanged += this.OnSelectionChanged;
-        
         this.PART_ColorPicker.ColorChanged += this.OnColourChanged;
     }
 
@@ -67,6 +66,8 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
         }
 
         if (this.activeThemeKey != null) {
+            this.Page!.OnChangingThemeColour(this.activeThemeKey);
+            
             Color c = e.NewColor;
             ThemeManager.Instance.ActiveTheme.SetThemeColour(this.activeThemeKey, new SKColor(c.R, c.G, c.B, c.A));
         }
@@ -119,18 +120,18 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
 
         if (themeKey != null) {
             this.activeThemeKey = themeKey;
-            this.myActiveBrush = ((BrushManagerImpl) BrushManager.Instance).GetThemeBrush(themeKey);
+            this.myActiveBrush = ((BrushManagerImpl) BrushManager.Instance).GetDynamicThemeBrush(themeKey);
             this.disposeMyActiveBrush = this.myActiveBrush.Subscribe(this.OnColourChangedInTheme);
         }
     }
 
     public override void OnConnected() {
         base.OnConnected();
-        this.PART_ThemeConfigTree!.RootEntry = this.Page!.Root;
+        this.PART_ThemeConfigTree!.ThemeConfigurationPage = this.Page!;
     }
 
     public override void OnDisconnected() {
         base.OnDisconnected();
-        this.PART_ThemeConfigTree!.RootEntry = null;
+        this.PART_ThemeConfigTree!.ThemeConfigurationPage = null;
     }
 }

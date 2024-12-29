@@ -26,15 +26,28 @@ namespace FramePFX.Themes.Configurations;
 /// An entry for a colour in a theme
 /// </summary>
 public class ThemeConfigEntry : IThemeTreeEntry, ITransferableData {
+    /// <summary>
+    /// Gets the name of this entry. Cannot contain the '/' character
+    /// </summary>
     public string DisplayName { get; }
 
+    /// <summary>
+    /// Gets the application theme key for this entry. This is what the UI uses to query a colour
+    /// </summary>
     public string ThemeKey { get; }
+    
+    /// <summary>
+    /// Gets a description of what the <see cref="ThemeKey"/> is used for
+    /// </summary>
+    public string? Description { get; internal set; }
 
     public TransferableData TransferableData { get; }
 
     public ThemeConfigEntry(string displayName, string themeKey) {
         Validate.NotNullOrWhiteSpaces(displayName);
         Validate.NotNullOrWhiteSpaces(themeKey);
+        if (displayName.Contains('/'))
+            throw new ArgumentException("Display name cannot contain a forward slash");
 
         this.TransferableData = new TransferableData(this);
         this.ThemeKey = themeKey;

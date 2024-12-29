@@ -23,6 +23,9 @@ using FramePFX.Utils;
 
 namespace FramePFX.BaseFrontEnd.Configurations.Pages;
 
+/// <summary>
+/// The base class for a page control
+/// </summary>
 public class BaseConfigurationPageControl : TemplatedControl {
     public ConfigurationPage? Page { get; private set; }
 

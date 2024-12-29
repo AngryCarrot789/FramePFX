@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Avalonia.Controls;
@@ -50,7 +51,7 @@ public partial class App : global::Avalonia.Application {
     public override async void OnFrameworkInitializationCompleted() {
         base.OnFrameworkInitializationCompleted();
         AvCore.OnFrameworkInitialised();
-        
+
         IApplicationStartupProgress progress;
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop1) {
             desktop1.Exit += this.OnExit;
@@ -74,18 +75,14 @@ public partial class App : global::Avalonia.Application {
         await progress.ProgressAndSynchroniseAsync("Setup", 0.01);
         using (progress.CompletionState.PushCompletionRange(0.0, 0.7)) {
             // Let the app crash in debug mode so that the IDE can spot the exception
-#if !DEBUG
             try {
-#endif
-            await ApplicationImpl.InternalInitialiseImpl(progress);
-#if !DEBUG
+                await ApplicationImpl.InternalInitialiseImpl(progress);
             }
-            catch (Exception ex) {
-                await (new FramePFX.Avalonia.Services.MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.ToString()));
+            catch (Exception ex) when (!Debugger.IsAttached) {
+                await new FramePFX.BaseFrontEnd.Services.MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.ToString());
                 global::Avalonia.Threading.Dispatcher.UIThread.InvokeShutdown();
                 return;
             }
-#endif
         }
 
         await progress.ProgressAndSynchroniseAsync("Loading plugins", 0.7);
@@ -96,10 +93,10 @@ public partial class App : global::Avalonia.Application {
         {
             await progress.ProgressAndSynchroniseAsync("Loading configurations...", 0.8);
             PersistentStorageManager psm = Application.Instance.PersistentStorageManager;
-            
+
             psm.Register(new EditorConfigurationOptions(), "editor", "window");
             psm.Register(new StartupConfigurationOptions(), null, "startup");
-            
+
             Application.Instance.PluginLoader.RegisterConfigurations(psm);
 
             await psm.LoadAllAsync(null, false);
@@ -112,7 +109,7 @@ public partial class App : global::Avalonia.Application {
             List<string> errorLines = new List<string>();
             foreach ((Plugin plugin, string path) in list) {
                 try {
-                    includes.Add(new ResourceInclude((Uri?) null) {Source = new Uri(path)});
+                    includes.Add(new ResourceInclude((Uri?) null) { Source = new Uri(path) });
                 }
                 catch {
                     errorLines.Add(plugin.Name + ": " + plugin);
@@ -138,12 +135,12 @@ public partial class App : global::Avalonia.Application {
             // for (int i = 0; i < includes.Count; i++) {
             //     resources.Insert(indexOfLastResourceInclude + i, includes[i]);
             // }
-            
+
             foreach (ResourceInclude t in includes) {
                 resources.Add(t);
             }
         }
-        
+
         await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
         await ApplicationImpl.InternalOnFullyInitialised();
         await Application.Instance.PluginLoader.OnApplicationLoaded();
@@ -156,7 +153,7 @@ public partial class App : global::Avalonia.Application {
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
         PersistentStorageManager manager = Application.Instance.PersistentStorageManager;
-        
+
         // Should be inactive at this point realistically, but just in case, clear it all since we're exiting
         while (manager.IsSaveStackActive) {
             if (manager.EndSavingStack()) {

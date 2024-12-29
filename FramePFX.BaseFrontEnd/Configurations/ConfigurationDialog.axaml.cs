@@ -28,6 +28,7 @@ public partial class ConfigurationDialog : WindowEx {
     private readonly ConfigurationManager configManager;
     private readonly AsyncRelayCommand ApplyCommand;
     private readonly AsyncRelayCommand ApplyThenCloseCommand;
+    private readonly AsyncRelayCommand CancelCommand;
 
     public ConfigurationDialog(ConfigurationManager manager) {
         this.InitializeComponent();
@@ -56,14 +57,23 @@ public partial class ConfigurationDialog : WindowEx {
             this.PART_CancelButton.IsEnabled = false;
             this.PART_EditorPanel.IsEnabled = false;
             
-            // TODO: 'failure to apply' system; a list of FailedApplyConfigurationEntry which gets presented to the user?
             await this.configManager.ApplyChangesInHierarchyAsync(null);
             this.Close(true);
+        });
+        
+        this.CancelCommand = new AsyncRelayCommand(async () => {
+            this.PART_ApplyButton.IsEnabled = false;
+            this.PART_ConfirmButton.IsEnabled = false;
+            this.PART_CancelButton.IsEnabled = false;
+            this.PART_EditorPanel.IsEnabled = false;
+            
+            await this.configManager.RevertLiveChangesInHierarchyAsync(null);
+            this.Close(false);
         });
 
         this.PART_ApplyButton.Command = this.ApplyCommand;
         this.PART_ConfirmButton.Command = this.ApplyThenCloseCommand;
-        this.PART_CancelButton.Click += this.OnCancelButtonClicked;
+        this.PART_CancelButton.Command = this.CancelCommand;
         
         this.PART_EditorPanel.ActiveContextChanged += this.OnEditorContextChanged;
         this.PART_EditorPanel.ConfigurationManager = manager;
@@ -94,6 +104,4 @@ public partial class ConfigurationDialog : WindowEx {
         ConfigurationContext? ctx = this.PART_EditorPanel.ActiveContext;
         this.PART_ConfirmButton.IsEnabled = ctx != null && ctx.ModifiedPages.Any();
     }
-
-    private void OnCancelButtonClicked(object? sender, RoutedEventArgs e) => this.Close(false);
 }

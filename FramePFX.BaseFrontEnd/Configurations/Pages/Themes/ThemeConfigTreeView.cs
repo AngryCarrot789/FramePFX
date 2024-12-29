@@ -26,14 +26,14 @@ using FramePFX.Themes.Configurations;
 namespace FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
 
 public class ThemeConfigTreeView : TreeView, IThemeConfigEntryTreeOrNode, IThemeConfigurationTreeElement {
-    public static readonly StyledProperty<ThemeConfigEntryGroup?> RootEntryProperty = AvaloniaProperty.Register<ThemeConfigTreeView, ThemeConfigEntryGroup?>(nameof(RootEntry));
+    public static readonly StyledProperty<ThemeConfigurationPage?> ThemeConfigurationPageProperty = AvaloniaProperty.Register<ThemeConfigTreeView, ThemeConfigurationPage?>(nameof(ThemeConfigurationPage));
 
     /// <summary>
-    /// Gets or sets our root configuration entry. Setting this will clear and reload all the child nodes
+    /// Gets or sets our configuration. Setting this will clear and reload all the child nodes
     /// </summary>
-    public ThemeConfigEntryGroup? RootEntry {
-        get => this.GetValue(RootEntryProperty);
-        set => this.SetValue(RootEntryProperty, value);
+    public ThemeConfigurationPage? ThemeConfigurationPage {
+        get => this.GetValue(ThemeConfigurationPageProperty);
+        set => this.SetValue(ThemeConfigurationPageProperty, value);
     }
 
     private readonly ModelControlDictionary<IThemeTreeEntry, ThemeConfigTreeViewItem> itemMap = new ModelControlDictionary<IThemeTreeEntry, ThemeConfigTreeViewItem>();
@@ -45,7 +45,7 @@ public class ThemeConfigTreeView : TreeView, IThemeConfigEntryTreeOrNode, ITheme
 
     ThemeConfigTreeViewItem? IThemeConfigEntryTreeOrNode.ParentNode => null;
 
-    IThemeTreeEntry IThemeConfigEntryTreeOrNode.Entry => this.RootEntry ?? throw new InvalidOperationException("Invalid usage of the interface");
+    IThemeTreeEntry IThemeConfigEntryTreeOrNode.Entry => this.ThemeConfigurationPage?.Root ?? throw new InvalidOperationException("Invalid usage of the interface");
 
     public int GroupCounter { get; private set; }
 
@@ -56,23 +56,23 @@ public class ThemeConfigTreeView : TreeView, IThemeConfigEntryTreeOrNode, ITheme
     }
 
     static ThemeConfigTreeView() {
-        RootEntryProperty.Changed.AddClassHandler<ThemeConfigTreeView, ThemeConfigEntryGroup?>((d, e) => d.OnRootEntryChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+        ThemeConfigurationPageProperty.Changed.AddClassHandler<ThemeConfigTreeView, ThemeConfigurationPage?>((d, e) => d.OnThemeConfigurationPageChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
-
-    private void OnRootEntryChanged(ThemeConfigEntryGroup? oldEntry, ThemeConfigEntryGroup? newEntry) {
-        if (oldEntry != null) {
+    
+    private void OnThemeConfigurationPageChanged(ThemeConfigurationPage? oldPage, ThemeConfigurationPage? newPage) {
+        if (oldPage != null) {
             for (int i = this.Items.Count - 1; i >= 0; i--)
                 this.RemoveNodeInternal(i);
         }
 
-        if (newEntry != null) {
+        if (newPage != null) {
             int i = 0;
-            foreach (ThemeConfigEntryGroup entry in newEntry.Groups) {
+            foreach (ThemeConfigEntryGroup entry in newPage.Root.Groups) {
                 this.InsertGroup(entry, i++);
             }
 
             i = 0;
-            foreach (ThemeConfigEntry entry in newEntry.Entries) {
+            foreach (ThemeConfigEntry entry in newPage.Root.Entries) {
                 this.InsertEntry(entry, i++);
             }
         }

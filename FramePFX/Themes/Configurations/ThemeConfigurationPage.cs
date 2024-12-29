@@ -18,17 +18,40 @@
 // 
 
 using FramePFX.Configurations;
+using FramePFX.Utils;
 
 namespace FramePFX.Themes.Configurations;
+
+public delegate void ThemeConfigurationPageTargetThemeChangedEventHandler(ThemeConfigurationPage sender, Theme? oldTargetTheme, Theme? newTargetTheme);
 
 /// <summary>
 /// A folder/entry hierarchy for a theme for 
 /// </summary>
 public class ThemeConfigurationPage : ConfigurationPage {
+    private Dictionary<string, ISavedThemeEntry>? originalBrushes;
+    private Theme? targetTheme;
+
     /// <summary>
     /// Gets our root entry group
     /// </summary>
     public ThemeConfigEntryGroup Root { get; }
+
+    /// <summary>
+    /// Gets or sets the theme that we want to edit
+    /// </summary>
+    public Theme? TargetTheme {
+        get => this.targetTheme;
+        set {
+            Theme? oldTargetTheme = this.targetTheme;
+            if (oldTargetTheme == value)
+                return;
+
+            this.targetTheme = value;
+            this.TargetThemeChanged?.Invoke(this, oldTargetTheme, value);
+        }
+    }
+
+    public event ThemeConfigurationPageTargetThemeChangedEventHandler? TargetThemeChanged;
 
     public ThemeConfigurationPage() {
         this.Root = new ThemeConfigEntryGroup("<root>");
@@ -39,14 +62,52 @@ public class ThemeConfigurationPage : ConfigurationPage {
     /// </summary>
     /// <param name="fullPath">The full path of the configuration entry</param>
     /// <param name="themeKey">The theme key</param>
-    public ThemeConfigEntry AssignMapping(string fullPath, string themeKey) {
-        ThemeConfigEntryGroup parentGroup = this.Root;
-        string[] parts = fullPath.Split('/');
-        for (int i = 0, end = parts.Length - 1; i < end; i++) {
-            parentGroup = parentGroup.GetOrCreateGroupByName(parts[i]);
+    /// <param name="description">An optional description of what this theme key is used for</param>
+    public ThemeConfigEntry AssignMapping(string fullPath, string themeKey, string? description = null) {
+        Validate.NotNullOrWhiteSpaces(fullPath);
+        Validate.NotNullOrWhiteSpaces(themeKey);
+        Application.Instance.EnsureBeforePhase(ApplicationStartupPhase.Running);
+
+        ThemeConfigEntryGroup parent = this.Root;
+        int i, j = 0; // i = index, j = last index
+        while ((i = fullPath.IndexOf('/', j)) != -1) {
+            if (i == j)
+                throw new ArgumentException("Full path contained a double forward slash");
+
+            parent = parent.GetOrCreateGroupByName(fullPath.JSubstring(j, i));
+            j = i + 1;
         }
 
-        return parentGroup.CreateEntry(parts[parts.Length - 1], themeKey);
+        ThemeConfigEntry entry = parent.CreateEntry(fullPath.Substring(j), themeKey);
+        if (!string.IsNullOrWhiteSpace(description))
+            entry.Description = description;
+
+        return entry;
+    }
+
+    public void OnChangingThemeColour(string themeKey) {
+        if (this.targetTheme == null) {
+            throw new InvalidOperationException("TargetTheme is not set");
+        }
+        
+        if (this.originalBrushes == null) {
+            this.originalBrushes = new Dictionary<string, ISavedThemeEntry>();
+        }
+        else if (this.originalBrushes.ContainsKey(themeKey)) {
+            return;
+        }
+        
+        this.originalBrushes.Add(themeKey, this.targetTheme.SaveThemeEntry(themeKey));
+    }
+
+    public override ValueTask OnContextCreated(ConfigurationContext context) {
+        this.TargetTheme = ThemeManager.Instance.ActiveTheme;
+        return base.OnContextCreated(context);
+    }
+
+    public override ValueTask OnContextDestroyed(ConfigurationContext context) {
+        this.TargetTheme = null;
+        return base.OnContextDestroyed(context);
     }
 
     protected override void OnActiveContextChanged(ConfigurationContext? oldContext, ConfigurationContext? newContext) {
@@ -54,7 +115,22 @@ public class ThemeConfigurationPage : ConfigurationPage {
         this.MarkModified();
     }
 
+    public override ValueTask RevertLiveChanges(List<ApplyChangesFailureEntry>? errors) {
+        if (this.originalBrushes != null && this.originalBrushes.Count > 0) {
+            foreach (KeyValuePair<string, ISavedThemeEntry> brush in this.originalBrushes) {
+                ThemeManager.Instance.ActiveTheme.RestoreThemeEntry(brush.Key, brush.Value);
+            }
+
+            this.originalBrushes = null;
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
     public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
+        this.originalBrushes = null;
+
+        // TODO: save theme
         return ValueTask.CompletedTask;
     }
 }

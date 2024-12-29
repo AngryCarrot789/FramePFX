@@ -17,12 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using Avalonia.Input;
+
 namespace FramePFX.BaseFrontEnd.Utils;
 
 public static class KeyUtils {
-    public static Avalonia.Input.Key ParseKey(string input) {
+    public static Key ParseKey(string input) {
         if (string.IsNullOrEmpty(input)) {
-            return Avalonia.Input.Key.None;
+            return Key.None;
         }
 
         // 'A' == 65 | 'Z' == 90
@@ -32,75 +34,75 @@ public static class KeyUtils {
         if (input.Length == 1) {
             // Parse 0-9
             if (first >= '0' && first <= '9')
-                return (Avalonia.Input.Key) (first - '0' + (int) Avalonia.Input.Key.D0);
+                return (Key) (first - '0' + (int) Key.D0);
 
             // Parse a-z
             if (first >= 'a' && first <= 'z')
-                return (Avalonia.Input.Key) (first - 'a' + (int) Avalonia.Input.Key.A);
+                return (Key) (first - 'a' + (int) Key.A);
 
             // Parse A-Z
             if (first >= 'A' && first <= 'Z')
-                return (Avalonia.Input.Key) (first - 'A' + (int) Avalonia.Input.Key.A);
+                return (Key) (first - 'A' + (int) Key.A);
 
             if (first == ' ')
-                return Avalonia.Input.Key.Space;
+                return Key.Space;
         }
 
         // Parse D0-D9
         if (input.Length == 2 && (first == 'D' || first == 'd') && input[1] >= '0' && input[1] <= '9') {
-            return (Avalonia.Input.Key) (input[1] - '0' + (int) Avalonia.Input.Key.D0);
+            return (Key) (input[1] - '0' + (int) Key.D0);
         }
 
         // Try parse F1-F24
         if (first == 'F' && input.Length <= 3 && int.TryParse(input.AsSpan(1), out int value) && value > 0 && value < 25) {
-            return Avalonia.Input.Key.F1 + (value - 1);
+            return Key.F1 + (value - 1);
         }
 
         switch (input.ToLower()) {
-            case "del": return Avalonia.Input.Key.Delete;
-            case "esc": return Avalonia.Input.Key.Escape;
+            case "del": return Key.Delete;
+            case "esc": return Key.Escape;
             case "ret":
             case "return":
             case "enter":
-                return Avalonia.Input.Key.Return;
+                return Key.Return;
             case "left":
             case "leftarrow":
             case "arrowleft":
-                return Avalonia.Input.Key.Left;
+                return Key.Left;
             case "right":
             case "rightarrow":
             case "arrowright":
-                return Avalonia.Input.Key.Right;
+                return Key.Right;
             case "up":
             case "uparrow":
             case "arrowup":
-                return Avalonia.Input.Key.Up;
+                return Key.Up;
             case "down":
             case "downarrow":
             case "arrowdown":
-                return Avalonia.Input.Key.Down;
+                return Key.Down;
         }
 
         // worst case:
-        return Enum.TryParse(input, out Avalonia.Input.Key key) ? key : Avalonia.Input.Key.None;
+        return Enum.TryParse(input, out Key key) ? key : Key.None;
     }
 
-    public static string KeyToString(Avalonia.Input.Key key) {
-        if (key >= Avalonia.Input.Key.A && key <= Avalonia.Input.Key.Z) {
-            return ((char) ('a' + (key - Avalonia.Input.Key.A))).ToString();
+    public static string KeyToString(Key key) {
+        if (key >= Key.A && key <= Key.Z) {
+            return ((char) ('a' + (key - Key.A))).ToString();
         }
 
         switch (key) {
-            case Avalonia.Input.Key.D0: return "0";
-            case Avalonia.Input.Key.D1: return "1";
-            case Avalonia.Input.Key.D2: return "2";
-            case Avalonia.Input.Key.D3: return "3";
-            case Avalonia.Input.Key.D4: return "4";
-            case Avalonia.Input.Key.D5: return "5";
-            case Avalonia.Input.Key.D6: return "6";
-            case Avalonia.Input.Key.D7: return "7";
-            case Avalonia.Input.Key.D8: return "8";
-            case Avalonia.Input.Key.D9: return "9";
+            case Key.D0: return "0";
+            case Key.D1: return "1";
+            case Key.D2: return "2";
+            case Key.D3: return "3";
+            case Key.D4: return "4";
+            case Key.D5: return "5";
+            case Key.D6: return "6";
+            case Key.D7: return "7";
+            case Key.D8: return "8";
+            case Key.D9: return "9";
         }
 
         return key.ToString();

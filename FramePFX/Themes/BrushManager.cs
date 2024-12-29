@@ -32,12 +32,19 @@ public abstract class BrushManager {
     /// </summary>
     /// <param name="colour">The colour</param>
     /// <returns>The brush</returns>
-    public abstract IColourBrush CreateConstant(SKColor colour);
+    public abstract IStaticColourBrush CreateConstant(SKColor colour);
 
     /// <summary>
-    /// Gets a known theme brush
+    /// Gets a known theme brush that may change at any time
     /// </summary>
     /// <param name="themeKey">The key</param>
     /// <returns>The brush</returns>
-    public abstract IDynamicColourBrush GetThemeBrush(string themeKey);
+    public abstract IDynamicColourBrush GetDynamicThemeBrush(string themeKey);
+    
+    /// <summary>
+    /// Gets a known theme brush as a constant (the returned value's underlying UI brush does not change)
+    /// </summary>
+    /// <param name="themeKey"></param>
+    /// <returns></returns>
+    public abstract IStaticColourBrush GetStaticThemeBrush(string themeKey);
 }

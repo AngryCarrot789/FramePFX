@@ -19,12 +19,12 @@
 
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using FramePFX.BaseFrontEnd.AdvancedMenuService;
+using FramePFX.BaseFrontEnd.AvControls;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.Configurations.Shortcuts;
 using FramePFX.Themes;
@@ -32,7 +32,7 @@ using FramePFX.Themes.Configurations;
 
 namespace FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
 
-public class ThemeConfigTreeViewItem : TreeViewItem, IThemeConfigEntryTreeOrNode {
+public class ThemeConfigTreeViewItem : TreeViewItemEx, IThemeConfigEntryTreeOrNode {
     public ThemeConfigTreeView? ThemeConfigTree { get; private set; }
 
     public ThemeConfigTreeViewItem? ParentNode { get; private set; }
@@ -41,32 +41,31 @@ public class ThemeConfigTreeViewItem : TreeViewItem, IThemeConfigEntryTreeOrNode
 
     public int GroupCounter { get; private set; }
     
-    private bool wasLoadedWithoutEntry;
+    private bool wasSetVisibleWithoutEntry;
 
     public ThemeConfigTreeViewItem() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
-        base.OnApplyTemplate(e);
+    protected override void OnIsReallyVisibleChanged() {
+        base.OnIsReallyVisibleChanged();
+        if (this.Entry != null) {
+            this.GenerateHeader();
+        }
+        else {
+            this.wasSetVisibleWithoutEntry = true;
+        }
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         AdvancedContextMenu.SetContextRegistry(this, ShortcutContextRegistry.Registry);
-        if (this.Entry != null) {
-            this.GenerateHeader();
-        }
-        else {
-            this.wasLoadedWithoutEntry = true;
-        }
     }
 
     protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
-
-
+    
     private void GenerateHeader() {
         if (this.Entry is ThemeConfigEntry shortcut) {
             if (ThemeManager.Instance.ActiveTheme.IsThemeKeyValid(shortcut.ThemeKey)) {
@@ -112,8 +111,12 @@ public class ThemeConfigTreeViewItem : TreeViewItem, IThemeConfigEntryTreeOrNode
             }
         }
 
-        if (this.wasLoadedWithoutEntry) {
-            this.wasLoadedWithoutEntry = false;
+        if (this.Entry is ThemeConfigEntry configEntry && !string.IsNullOrWhiteSpace(configEntry.ThemeKey)) {
+            ToolTip.SetTip(this, configEntry.Description);
+        }
+
+        if (this.wasSetVisibleWithoutEntry) {
+            this.wasSetVisibleWithoutEntry = false;
             this.GenerateHeader();
         }
     }

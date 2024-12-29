@@ -40,6 +40,10 @@ public abstract class ConfigurationManager {
     private const int Flag_None = 0;
     private const int Flag_OnlyIfModified = 1;
 
+    public async Task RevertLiveChangesInHierarchyAsync(List<ApplyChangesFailureEntry>? errors) {
+        await ApplyPagesRecursive(this.RootEntry, (x) => x.RevertLiveChanges(errors), Flag_None);
+    }
+    
     /// <summary>
     /// Applies all changes to our configuration manager's hierarchy (aka recursively apply)
     /// </summary>

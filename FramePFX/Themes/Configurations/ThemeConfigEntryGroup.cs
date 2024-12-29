@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Utils;
+
 namespace FramePFX.Themes.Configurations;
 
 /// <summary>
@@ -56,6 +58,8 @@ public class ThemeConfigEntryGroup : IThemeTreeEntry {
     }
     
     public ThemeConfigEntry CreateEntry(string name, string themeKey) {
+        Validate.NotNullOrWhiteSpaces(name);
+        Validate.NotNullOrWhiteSpaces(themeKey);
         if (this.map.ContainsKey(name)) {
             throw new InvalidOperationException($"Entry already exists with the name '{name}'");
         }

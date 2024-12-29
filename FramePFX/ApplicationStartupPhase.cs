@@ -37,7 +37,7 @@ public enum ApplicationStartupPhase {
     /// </summary>
     FullyInitialized,
     /// <summary>
-    /// The application is in its running state. No windows may be open once this state is reached
+    /// The application is in its running state.
     /// </summary>
     Running,
     /// <summary>

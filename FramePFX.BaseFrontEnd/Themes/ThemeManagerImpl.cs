@@ -17,13 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
+using Avalonia.Skia;
 using Avalonia.Styling;
+using FramePFX.BaseFrontEnd.Themes.BrushFactories;
 using FramePFX.Logging;
 using FramePFX.Themes;
 using SkiaSharp;
@@ -34,7 +34,7 @@ public class ThemeManagerImpl : ThemeManager {
     private readonly List<ThemeImpl> themes;
     private Theme myActiveTheme = null!;
 
-    public App App { get; }
+    public global::Avalonia.Application App { get; }
 
     public ResourceDictionary ApplicationResources => (ResourceDictionary) this.App.Resources;
 
@@ -44,7 +44,7 @@ public class ThemeManagerImpl : ThemeManager {
 
     public override Theme ActiveTheme => this.myActiveTheme;
 
-    public ThemeManagerImpl(App app) {
+    public ThemeManagerImpl(global::Avalonia.Application app) {
         this.App = app;
         this.App.ActualThemeVariantChanged += this.OnActiveVariantChanged;
         this.themes = new List<ThemeImpl>();
@@ -102,7 +102,7 @@ public class ThemeManagerImpl : ThemeManager {
     private void OnColourChanged(string themeKey, SKColor newColour) {
         this.OnActiveThemeColourChanged(this.ActiveTheme, themeKey, newColour);
     }
-
+    
     public static bool TryFindBrush(string themeKey, [NotNullWhen(true)] out IBrush? brush) {
         if (themeKey.EndsWith(ThemeImpl.ColourSuffix)) {
             themeKey = themeKey.Substring(0, themeKey.Length - ThemeImpl.ColourSuffix.Length);
@@ -113,6 +113,22 @@ public class ThemeManagerImpl : ThemeManager {
         }
 
         brush = null;
+        return false;
+    }
+    
+    public static bool TryFindColour(string themeKey, out Color colour) {
+        if (!themeKey.EndsWith(ThemeImpl.ColourSuffix)) {
+            themeKey += ThemeImpl.ColourSuffix;
+        }
+
+        if (global::Avalonia.Application.Current!.TryGetResource(themeKey, global::Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
+            if (value is Color c) {
+                colour = c;
+                return true;
+            }
+        }
+
+        colour = default;
         return false;
     }
 
@@ -145,9 +161,7 @@ public class ThemeManagerImpl : ThemeManager {
             this.registeredKeys = new HashSet<string>(32);
         }
 
-        public override void SetThemeColour(string key, SKColor colour) {
-            // Our theme library creates a colour and brush, because some of the UI may use both
-            string colourKey, brushKey;
+        private static void GetKeys(string key, out string brushKey, out string colourKey) {
             if (key.EndsWith(ColourSuffix)) {
                 colourKey = key;
                 brushKey = key.Substring(0, key.Length - ColourSuffix.Length);
@@ -157,6 +171,11 @@ public class ThemeManagerImpl : ThemeManager {
                 colourKey = key + ColourSuffix;
                 brushKey = key;
             }
+        }
+
+        public override void SetThemeColour(string key, SKColor colour) {
+            // Our theme library creates a colour and brush, because some of the UI may use both
+            GetKeys(key, out string brushKey, out string colourKey);
 
             Color avColour = new Color(colour.Alpha, colour.Red, colour.Green, colour.Blue);
             IBrush avBrush = new ImmutableSolidColorBrush(avColour);
@@ -168,10 +187,72 @@ public class ThemeManagerImpl : ThemeManager {
                 this.ThemeManager.OnColourChanged(brushKey, colour);
         }
 
+        public override void SetThemeBrush(string key, IColourBrush brush) {
+            // Our theme library creates a colour and brush, because some of the UI may use both
+            GetKeys(key, out string brushKey, out string colourKey);
+
+            this.registeredKeys.Add(brushKey);
+            if (brush is ConstantAvaloniaColourBrush i) {
+                SKColor colour = i.Brush.Color.ToSKColor();
+                this.Resources[colourKey] = colour;
+                this.Resources[brushKey] = i.Brush;
+                if (this.ThemeManager.ActiveTheme == this)
+                    this.ThemeManager.OnColourChanged(brushKey, colour);
+            }
+            else if (brush is AvaloniaColourBrush bruh) {
+                if (bruh.Brush is ISolidColorBrush colourBrush) {
+                    this.Resources[colourKey] = colourBrush.Color.ToSKColor();
+                }
+                else {
+                    AppLogger.Instance.WriteLine($"Could not update colour value for theme key '{key}', because the brush was not solid");
+                }
+                
+                this.Resources[brushKey] = bruh.Brush;
+            }
+            else {
+                return;
+            }
+        }
+
         public override bool IsThemeKeyValid(string themeKey) {
             return TryFindBrush(themeKey, out _);
         }
 
+        public override ISavedThemeEntry SaveThemeEntry(string themeKey) {
+            TryFindBrush(themeKey, out IBrush? brush);
+            TryFindColour(themeKey, out Color colour);
+            return new SavedThemeEntryImpl(this, brush?.ToImmutable(), colour);
+        }
+
+        public override void RestoreThemeEntry(string themeKey, ISavedThemeEntry entry) {
+            SavedThemeEntryImpl impl = (SavedThemeEntryImpl) entry;
+            SKColor? colour = impl.Colour?.ToSKColor();
+
+            GetKeys(themeKey, out string brushKey, out string colourKey);
+            
+            if (colour.HasValue)
+                this.Resources[colourKey] = colour.Value;
+            if (impl.Brush != null)
+                this.Resources[brushKey] = impl.Brush;
+            
+            if (this.ThemeManager.ActiveTheme == this && colour.HasValue)
+                this.ThemeManager.OnColourChanged(brushKey, colour.Value);
+        }
+
+        private class SavedThemeEntryImpl : ISavedThemeEntry {
+            public Theme Theme { get; }
+
+            public IImmutableBrush? Brush { get; }
+
+            public Color? Colour { get; }
+
+            public SavedThemeEntryImpl(ThemeImpl theme, IImmutableBrush? brush, Color? colour) {
+                this.Theme = theme;
+                this.Brush = brush;
+                this.Colour = colour;
+            }
+        }
+        
         public void LoadKeysFromDictionary() {
             Application.Instance.EnsureBeforePhase(ApplicationStartupPhase.Running);
             foreach (object key in this.Resources.Keys) {

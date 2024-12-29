@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using Avalonia.Media;
+using FramePFX.Avalonia.Themes;
 using FramePFX.Themes;
 using SkiaSharp;
 
@@ -25,12 +27,12 @@ namespace FramePFX.BaseFrontEnd.Themes.BrushFactories;
 public class BrushManagerImpl : BrushManager {
     private Dictionary<string, DynamicResourceAvaloniaColourBrush>? cachedBrushes;
     
-    public override ImmutableAvaloniaColourBrush CreateConstant(SKColor colour) {
+    public override ConstantAvaloniaColourBrush CreateConstant(SKColor colour) {
         // Not really any point to caching an immutable brush
-        return new ImmutableAvaloniaColourBrush(colour);
+        return new ConstantAvaloniaColourBrush(colour);
     }
 
-    public override DynamicResourceAvaloniaColourBrush GetThemeBrush(string themeKey) {
+    public override DynamicResourceAvaloniaColourBrush GetDynamicThemeBrush(string themeKey) {
         if (this.cachedBrushes == null) {
             this.cachedBrushes = new Dictionary<string, DynamicResourceAvaloniaColourBrush>();
         }
@@ -42,5 +44,13 @@ public class BrushManagerImpl : BrushManager {
         DynamicResourceAvaloniaColourBrush brush = new DynamicResourceAvaloniaColourBrush(themeKey);
         this.cachedBrushes[themeKey] = brush;
         return brush;
+    }
+
+    public override IStaticColourBrush GetStaticThemeBrush(string themeKey) {
+        if (ThemeManagerImpl.TryFindBrush(themeKey, out IBrush? brush)) {
+            return new StaticResourceAvaloniaColourBrush(themeKey, brush.ToImmutable());
+        }
+        
+        return new StaticResourceAvaloniaColourBrush(themeKey, null);
     }
 }

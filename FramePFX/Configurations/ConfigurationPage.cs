@@ -53,6 +53,20 @@ public abstract class ConfigurationPage {
     public abstract ValueTask Apply(List<ApplyChangesFailureEntry>? errors);
 
     /// <summary>
+    /// Reverts any changes this page made to the application outside the standard apply/cancel behaviour.
+    /// For example, the theme manager page modifies the colours of the UI in real time,
+    /// but uses this to reset the colours back to their original state, but if you click apply and then
+    /// make changes again, this method will only revert those changes after <see cref="Apply"/>
+    /// </summary>
+    /// <param name="errors">
+    /// A list of errors encountered while applying changes (e.g. bugs or conflicting
+    /// values, maybe a and b cannot both be true)
+    /// </param>
+    public virtual ValueTask RevertLiveChanges(List<ApplyChangesFailureEntry>? errors) {
+        return ValueTask.CompletedTask;
+    }
+    
+    /// <summary>
     /// Invoked when a new configuration context is created for use with a configuration manager
     /// in which this page exists in. This is typically invoked recursively
     /// <para>

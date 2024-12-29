@@ -199,6 +199,12 @@
         <Shortcut Name="ToggleClipAutomation" CommandId="commands.editor.ToggleClipAutomationCommand">
             <KeyStroke Key="C"/>
         </Shortcut>
+        <Shortcut Name="OpenEditorSettings" CommandId="commands.editor.OpenEditorSettings">
+            <KeyStroke Mods="CTRL+ALT" Key="S"/>
+        </Shortcut>
+        <Shortcut Name="OpenProjectSettings" CommandId="commands.editor.OpenProjectSettings">
+            <KeyStroke Mods="CTRL+ALT+SHIFT" Key="S"/>
+        </Shortcut>
         <!-- ################################################################################################### -->
     </Group>
 </KeyMap>

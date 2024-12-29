@@ -16,11 +16,10 @@
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type t:TrackStoragePanel}" TargetType="{x:Type t:TrackStoragePanel}">
-        <Setter Property="Background" Value="{DynamicResource PanelBorderBrush}"/>
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type t:TimelineTrackControl}" TargetType="{x:Type t:TimelineTrackControl}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.PFX.Editor.Timeline.Track.Background}"/>
         <Setter Property="avalonia:UIInputManager.FocusPath" Value="EditorWindow/Timeline/Sequence/Track"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type t:TimelineTrackControl}">
@@ -34,7 +33,7 @@
             </ControlTemplate>
         </Setter>
         <Style Selector="^[IsSelected=true]">
-            <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
+            <Setter Property="Background" Value="{DynamicResource ABrush.PFX.Editor.Timeline.Track.Background.Selected}"/>
         </Style>
     </ControlTheme>
 
@@ -87,7 +86,7 @@
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type t:TimelineControl}" TargetType="{x:Type t:TimelineControl}">
-        <Setter Property="Background" Value="{DynamicResource PanelBackground0}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.PFX.Editor.Timeline.Background}"/>
         <Setter Property="avalonia:UIInputManager.FocusPath" Value="EditorWindow/Timeline"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type t:TimelineControl}">
@@ -101,7 +100,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Just above Surface List Box area -->
-                    <Border Background="{DynamicResource ABrush.Tone6.Background.Static}" Grid.Column="0" Grid.Row="0">
+                    <Border Background="{DynamicResource ABrush.PFX.Editor.Timeline.TimestampBoard.Background}" Grid.Column="0" Grid.Row="0">
                         <DockPanel LastChildFill="False">
                             <p:PlayheadPositionTextControl x:Name="PART_PlayheadPositionPreviewControl" VerticalAlignment="Center" Margin="8,0,0,0" DockPanel.Dock="Left"/>
                         </DockPanel>
@@ -109,21 +108,18 @@
 
                     <!-- Surface List Box Area -->
                     <ScrollViewer Grid.Column="0" Grid.Row="2"
-                                  Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                                  Background="{DynamicResource ABrush.PFX.Editor.Timeline.ControlSurface.Background}"
                                   HorizontalScrollBarVisibility="Visible"
                                   VerticalScrollBarVisibility="Auto"
                                   x:Name="PART_TrackListScrollViewer"
                                   ap:ScrollBinder.VerticalBindGroup="TimelineVerticalScrollGroup"
                                   avalonia:UIInputManager.FocusPath="EditorWindow/Timeline/ControlSurfaces">
                         <s:TrackControlSurfaceList x:Name="PART_TrackListBox"
-                                                   Padding="0"
                                                    VerticalAlignment="Top"
-                                                   BorderThickness="0,0,0,1"
-                                                   BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}"/>
+                                                   BorderThickness="0,0,0,1"/>
                     </ScrollViewer>
 
                     <!-- Timeline Sequence Area -->
-                    <Border Grid.Row="1" Background="{Binding ElementName=PART_Timeline, Path=Background}"/>
                     <ScrollViewer x:Name="PART_SequenceScrollViewer"
                                   HorizontalScrollBarVisibility="Visible"
                                   VerticalScrollBarVisibility="Auto"
@@ -142,7 +138,7 @@
                                     VerticalAlignment="Top"
                                     HorizontalAlignment="Stretch"
                                     UseLayoutRounding="True">
-                                <t:TrackStoragePanel x:Name="PART_Timeline"/>
+                                <t:TrackStoragePanel x:Name="PART_Timeline" Background="{DynamicResource ABrush.PFX.Editor.Timeline.GapBetweenTracks}"/>
                             </Border>
                             <p:FlatLinePlayHeadControl x:Name="PART_StopHeadControl"
                                                        VerticalAlignment="Stretch"
@@ -164,8 +160,8 @@
                         </t:TimelineScrollableContentGrid>
                     </ScrollViewer>
 
-                    <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone3.Background.Static}"
-                            Grid.Row="0" Grid.Column="2" ClipToBounds="True">
+                    <Border x:Name="PART_RulerBorder" Grid.Row="0" Grid.Column="2" ClipToBounds="True"
+                            Background="{DynamicResource ABrush.PFX.Editor.Timeline.Ruler.Background}">
                         <Panel>
                             <t:TimelineRuler x:Name="PART_Ruler"
                                              UseLayoutRounding="True"
@@ -192,7 +188,9 @@
                     </Border>
 
 
-                    <Border Grid.Row="3" Grid.Column="0" Height="26" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
+                    <Border x:Name="PART_TrackControlSurfaceToolBar" Grid.Row="3" Grid.Column="0" Height="26" 
+                            Background="{DynamicResource ABrush.PFX.Editor.Timeline.ToolBar.Background}" 
+                            BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
                         <Border HorizontalAlignment="Left" Background="{DynamicResource PanelBorderBrush}" BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}" BorderThickness="0,0,1,0">
                             <StackPanel Spacing="1" Orientation="Horizontal">
                                 <Button Content="+V" BorderThickness="0" FontSize="12"
@@ -202,7 +200,10 @@
                             </StackPanel>
                         </Border>
                     </Border>
-                    <Border Grid.Row="3" Grid.Column="2" Height="26" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
+                    
+                    <Border x:Name="PART_TimelineToolBar" Grid.Row="3" Grid.Column="2" Height="26" 
+                            Background="{DynamicResource ABrush.PFX.Editor.Timeline.ToolBar.Background}" 
+                            BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
                         <DockPanel LastChildFill="False">
                             <Border DockPanel.Dock="Left" Background="{DynamicResource PanelBorderBrush}" BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}" BorderThickness="0,0,1,0">
                                 <StackPanel Spacing="1" Orientation="Horizontal">

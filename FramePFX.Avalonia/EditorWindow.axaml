@@ -1,13 +1,13 @@
-<controls:WindowEx xmlns="https://github.com/avaloniaui"
+<c:WindowEx xmlns="https://github.com/avaloniaui"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
             xmlns:c1="clr-namespace:FramePFX.BaseFrontEnd.Editing;assembly=FramePFX.BaseFrontEnd"
-            xmlns:resourceManaging="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
+            xmlns:rm="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
             xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
             xmlns:e="clr-namespace:FramePFX.Avalonia.Editing"
-            xmlns:controls="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
+            xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
             xmlns:ams="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd"
             xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
             xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
@@ -40,7 +40,7 @@
             This is used to implement a kind of "contextual" non-context menu item
         -->
         <ams:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
-                                 Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type controls:WindowEx}, Mode=FindAncestor}}">
+                                 Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type c:WindowEx}, Mode=FindAncestor}}">
             <MenuItem Header="File">
                 <ams:CommandMenuItem Header="New Project" CommandId="commands.editor.NewProject"/>
                 <ams:CommandMenuItem Header="Open Project..." CommandId="commands.editor.OpenProject"/>
@@ -77,10 +77,10 @@
                     <ColumnDefinition Width="1"/>
                     <ColumnDefinition Width="27*"/>
                 </Grid.ColumnDefinitions>
-                <Border Background="{DynamicResource PanelBackground3}">
+                <Border Background="{DynamicResource ABrush.PFX.Editor.ResourceManager.TabStrip.Background}">
                     <TabControl BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0" Margin="0">
                         <TabItem Header="Resources" avalonia:UIInputManager.FocusPath="EditorWindow/ResourceManager">
-                            <resourceManaging:ResourcePanelControl x:Name="PART_ResourcePanelControl"/>
+                            <rm:ResourcePanelControl x:Name="PART_ResourcePanelControl"/>
                         </TabItem>
                         <!--
                         This is too laggy at the moment
@@ -92,7 +92,7 @@
                         </TabItem>
                     </TabControl>
                 </Border>
-                <controls:GroupBox Grid.Column="2" BorderThickness="0" Header="View Port Preview" BorderBrush="{DynamicResource PanelBorderBrush}"
+                <c:GroupBox Grid.Column="2" BorderThickness="0" Header="View Port Preview" BorderBrush="{DynamicResource PanelBorderBrush}"
                             avalonia:UIInputManager.FocusPath="EditorWindow/ViewPort"
                             Focusable="True">
                     <DockPanel>
@@ -158,41 +158,40 @@
                             </e:VideoEditorViewPortControl>
                         </Grid>
                     </DockPanel>
-                </controls:GroupBox>
-                <controls:GroupBox Grid.Column="4" BorderThickness="0" Header="Property Editor" BorderBrush="{DynamicResource PanelBorderBrush}"
+                </c:GroupBox>
+                <c:GroupBox Grid.Column="4" BorderThickness="0" Header="Property Editor" BorderBrush="{DynamicResource PanelBorderBrush}"
                             avalonia:UIInputManager.FocusPath="EditorWindow/PropertyEditor" Focusable="True">
                     <Border Background="{DynamicResource PanelBackground3}">
                         <propertyEditing:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
                     </Border>
-                </controls:GroupBox>
+                </c:GroupBox>
                 <Border Grid.Column="1" Focusable="False" UseLayoutRounding="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 <GridSplitter Grid.Column="1" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 <Border Grid.Column="3" Focusable="False" UseLayoutRounding="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 <GridSplitter Grid.Column="3" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </Grid>
-            <controls:GroupBox Grid.Row="2"
-                        Grid.ColumnSpan="3"
-                        BorderThickness="0" Background="{DynamicResource ABrush.Tone5.Background.Static}"
+            <c:GroupBox Grid.Row="2" Grid.ColumnSpan="3" BorderThickness="0"
                         Focusable="True" BorderBrush="{DynamicResource PanelBorderBrush}"
+                        HeaderBrush="{DynamicResource ABrush.PFX.Editor.Timeline.Header.Background}"
                         avalonia:UIInputManager.FocusPath="EditorWindow/Timeline"
                         x:Name="PART_TimelinePresenterGroupBox">
-                <controls:GroupBox.Header>
+                <c:GroupBox.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Timeline" x:Name="PART_TimelineName" VerticalAlignment="Center"/>
                         <Separator Theme="{StaticResource VerticalSeparatorTheme}" Margin="5,0"/>
                         <Button x:Name="PART_CloseTimelineButton" Click="CloseTimelineClick" Content="Close Timeline" ToolTip.Tip="Closes the active composition timeline and opens the project timeline" Padding="5,2"/>
                     </StackPanel>
-                </controls:GroupBox.Header>
+                </c:GroupBox.Header>
                 <Border>
                     <tl:TimelineControl VerticalAlignment="Stretch" x:Name="TheTimeline"/>
                 </Border>
-            </controls:GroupBox>
+            </c:GroupBox>
             <Border Grid.Row="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <GridSplitter Grid.Row="1" BorderThickness="0" Background="Transparent" Margin="0,-3,0,-12" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </Grid>
-        <Border Grid.Row="2" Background="{DynamicResource ABrush.Tone5.Background.Static}"
-                BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
-                x:Name="PART_ActivityBarBorder" Height="20">
+        <Border x:Name="PART_StatusBar" Height="20" Grid.Row="2" BorderThickness="0,1,0,0"
+                Background="{DynamicResource ABrush.PFX.Editor.StatusBar.Background}"
+                BorderBrush="{DynamicResource PanelBorderBrush}">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <Separator Theme="{StaticResource VerticalSeparatorTheme}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>
@@ -236,4 +235,4 @@
             </DockPanel>
         </Border>
     </Grid>
-</controls:WindowEx>
+</c:WindowEx>

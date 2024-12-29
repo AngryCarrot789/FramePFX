@@ -49,4 +49,11 @@ public abstract class Theme {
     /// <param name="key">The key</param>
     /// <param name="colour">The new colour</param>
     public abstract void SetThemeColour(string key, SKColor colour);
+
+    /// <summary>
+    /// Returns true if the theme key is a real key that would return a colour
+    /// </summary>
+    /// <param name="themeKey">The key</param>
+    /// <returns>See above</returns>
+    public abstract bool IsThemeKeyValid(string themeKey);
 }

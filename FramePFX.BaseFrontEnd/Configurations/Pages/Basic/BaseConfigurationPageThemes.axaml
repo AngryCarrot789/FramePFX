@@ -74,7 +74,7 @@
                         </TextBlock>
                     </Grid>
                     <c:GroupBox Grid.Row="2" Header="Keymap" Margin="5,0,5,5">
-                        <Grid Margin="0" RowDefinitions="Auto,*,200">
+                        <Grid Margin="0" RowDefinitions="Auto,*,40">
                             <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
                                 <StackPanel Orientation="Horizontal" Grid.Column="0">
                                     <Button Content="Expand All" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.ExpandThemeConfigTree"/>
@@ -85,10 +85,10 @@
                                 </StackPanel>
                             </Grid>
                             <themes:ThemeConfigTreeView x:Name="PART_ThemeConfigTree" Grid.Row="1"/>
-                            <Grid ColumnDefinitions="120,5,*,5,100" RowDefinitions="Auto,*" Grid.Row="2" x:Name="PART_SelectedItemGrid" Margin="5">
-                                <TextBlock Grid.Column="0" Grid.Row="0" Text="Theme Key"/>
-                                <TextBox   Grid.Column="2" Grid.Row="0" x:Name="PART_ThemeKeyTextBox" IsReadOnly="True" Padding="3,5" 
-                                           ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                            <Grid ColumnDefinitions="80,5,*,5,80" RowDefinitions="Auto,*" Grid.Row="2" x:Name="PART_SelectedItemGrid" Margin="5">
+                                <TextBlock Grid.Column="0" Grid.Row="0" Text="Theme Key" VerticalAlignment="Center" Padding="5,1"/>
+                                <TextBox Grid.Column="2" Grid.Row="0" x:Name="PART_ThemeKeyTextBox" VerticalAlignment="Center" IsReadOnly="True" Padding="3,5" 
+                                         ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Hidden"/>
                                 
                                 <ColorPicker Grid.Column="4" Grid.RowSpan="2" x:Name="PART_ColorPicker" 
                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -99,14 +99,4 @@
             </ControlTemplate>
         </Setter>
     </ControlTheme>
-    <Design.PreviewWith>
-        <Grid Width="400" Height="400">
-            <Grid.Resources>
-                <converters:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
-            </Grid.Resources>
-            <Border x:Name="PART_Border" Background="{Binding ElementName=PART_Spec, Path=Color, Converter={StaticResource ColorToBrushConverter}}">
-                <ColorPicker x:Name="PART_Spec"/>
-            </Border>
-        </Grid>
-    </Design.PreviewWith>
 </ResourceDictionary>

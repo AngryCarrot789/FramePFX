@@ -74,7 +74,9 @@
                                     <StackPanel Orientation="Horizontal" Spacing="3">
                                         <ContentPresenter x:Name="PART_IconPresenter" IsVisible="False"/>
                                         <Panel VerticalAlignment="Center">
-                                            <TextBlock Text="{TemplateBinding Header}" Margin="0,-1,0,0"/>
+                                            <ContentPresenter Content="{TemplateBinding Header}" 
+                                                              ContentTemplate="{TemplateBinding HeaderTemplate}" 
+                                                              Margin="0,-1,0,0"/>
                                         </Panel>
                                     </StackPanel>
                                 </Panel>

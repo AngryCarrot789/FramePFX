@@ -20,7 +20,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
-using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Themes.BrushFactories;

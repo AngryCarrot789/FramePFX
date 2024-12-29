@@ -49,6 +49,11 @@ public class ThemeConfigurationPage : ConfigurationPage {
         return parentGroup.CreateEntry(parts[parts.Length - 1], themeKey);
     }
 
+    protected override void OnActiveContextChanged(ConfigurationContext? oldContext, ConfigurationContext? newContext) {
+        base.OnActiveContextChanged(oldContext, newContext);
+        this.MarkModified();
+    }
+
     public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
         return ValueTask.CompletedTask;
     }

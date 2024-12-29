@@ -18,12 +18,16 @@
 // 
 
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using FramePFX.BaseFrontEnd.AdvancedMenuService;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.Configurations.Shortcuts;
+using FramePFX.Themes;
 using FramePFX.Themes.Configurations;
 
 namespace FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
@@ -36,6 +40,8 @@ public class ThemeConfigTreeViewItem : TreeViewItem, IThemeConfigEntryTreeOrNode
     public IThemeTreeEntry? Entry { get; private set; }
 
     public int GroupCounter { get; private set; }
+    
+    private bool wasLoadedWithoutEntry;
 
     public ThemeConfigTreeViewItem() {
     }
@@ -47,11 +53,42 @@ public class ThemeConfigTreeViewItem : TreeViewItem, IThemeConfigEntryTreeOrNode
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         AdvancedContextMenu.SetContextRegistry(this, ShortcutContextRegistry.Registry);
+        if (this.Entry != null) {
+            this.GenerateHeader();
+        }
+        else {
+            this.wasLoadedWithoutEntry = true;
+        }
     }
 
     protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
+    }
+
+
+    private void GenerateHeader() {
+        if (this.Entry is ThemeConfigEntry shortcut) {
+            if (ThemeManager.Instance.ActiveTheme.IsThemeKeyValid(shortcut.ThemeKey)) {
+                this.Header = this.Entry!.DisplayName;
+            }
+            else {
+                TextBlock tb = new TextBlock();
+                tb.Inlines ??= new InlineCollection();
+
+                Run run = new Run(this.Entry!.DisplayName) { TextDecorations = TextDecorations.Strikethrough };
+                if (this.Foreground is ISolidColorBrush brush) {
+                    run.Foreground = new ImmutableSolidColorBrush(brush.Color, 0.7);
+                }
+                
+                tb.Inlines.Add(run);
+                tb.Inlines.Add(" (invalid)");
+                this.Header = tb;
+            }
+        }
+        else {
+            this.Header = this.Entry!.DisplayName;
+        }
     }
 
     #region Model Connection
@@ -74,13 +111,11 @@ public class ThemeConfigTreeViewItem : TreeViewItem, IThemeConfigEntryTreeOrNode
                 this.InsertEntry(entry, i++);
             }
         }
-        else if (this.Entry is ThemeConfigEntry shortcut) {
-            // eeee
-        }
 
-        // rawName should not be <root> because the root object should never be visible technically.
-        // But just in case...
-        this.Header = this.Entry!.DisplayName;
+        if (this.wasLoadedWithoutEntry) {
+            this.wasLoadedWithoutEntry = false;
+            this.GenerateHeader();
+        }
     }
 
     public virtual void OnRemoving() {

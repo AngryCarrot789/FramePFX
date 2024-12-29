@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
@@ -102,6 +103,19 @@ public class ThemeManagerImpl : ThemeManager {
         this.OnActiveThemeColourChanged(this.ActiveTheme, themeKey, newColour);
     }
 
+    public static bool TryFindBrush(string themeKey, [NotNullWhen(true)] out IBrush? brush) {
+        if (themeKey.EndsWith(ThemeImpl.ColourSuffix)) {
+            themeKey = themeKey.Substring(0, themeKey.Length - ThemeImpl.ColourSuffix.Length);
+        }
+
+        if (global::Avalonia.Application.Current!.TryGetResource(themeKey, global::Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
+            return (brush = value as IBrush) != null;
+        }
+
+        brush = null;
+        return false;
+    }
+
     public class ThemeImpl : Theme {
         public const string ColourSuffix = ".Color";
 
@@ -152,6 +166,10 @@ public class ThemeManagerImpl : ThemeManager {
             this.Resources[brushKey] = avBrush;
             if (this.ThemeManager.ActiveTheme == this)
                 this.ThemeManager.OnColourChanged(brushKey, colour);
+        }
+
+        public override bool IsThemeKeyValid(string themeKey) {
+            return TryFindBrush(themeKey, out _);
         }
 
         public void LoadKeysFromDictionary() {

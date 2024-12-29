@@ -80,19 +80,19 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
         
         if (onBrushChanged != null)
             (this.handlers ??= new List<Action<IBrush?>>()).Add(onBrushChanged);
-
+        
         if (this.usageCounter++ == 0) {
             // We expect the handler list to be empty due to the logic in Unsubscribe
             Debug.Assert(onBrushChanged != null ? this.handlers?.Count == 1 : (this.handlers == null || this.handlers.Count < 1));
             
             Avalonia.Application.Current!.ActualThemeVariantChanged += this.OnApplicationThemeChanged;
             Avalonia.Application.Current.ResourcesChanged += this.CurrentOnResourcesChanged;
-            this.FindBrush(invokeHandlerImmediately);
+            this.FindBrush();
         }
         else if (invokeHandlerImmediately && onBrushChanged != null && this.CurrentBrush != null) {
             onBrushChanged(this.CurrentBrush);
         }
-
+        
         return new UsageToken(this, onBrushChanged);
     }
 
@@ -119,18 +119,22 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
             
             Avalonia.Application.Current!.ActualThemeVariantChanged -= this.OnApplicationThemeChanged;
             Avalonia.Application.Current.ResourcesChanged -= this.CurrentOnResourcesChanged;
+
+            if (this.CurrentBrush != null) {
+                this.CurrentBrush = null;
+                this.NotifyHandlersBrushChanged();
+            }
         }
     }
 
     private void CurrentOnResourcesChanged(object? sender, ResourcesChangedEventArgs e) => this.FindBrush();
 
-    private void FindBrush(bool notifyHandlers = true) {
+    private void FindBrush() {
         if (Avalonia.Application.Current!.TryGetResource(this.ThemeKey, Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
             if (value is IBrush brush) {
                 if (!ReferenceEquals(this.CurrentBrush, brush)) {
                     this.CurrentBrush = brush;
-                    if (notifyHandlers)
-                        this.NotifyHandlersBrushChanged();
+                    this.NotifyHandlersBrushChanged();
                 }
 
                 return;
@@ -145,16 +149,14 @@ public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, ID
                     }
 
                     this.CurrentBrush = new ImmutableSolidColorBrush(colour);
-                    if (notifyHandlers)
-                        this.NotifyHandlersBrushChanged();
+                    this.NotifyHandlersBrushChanged();
                 }
             }
         }
 
         if (this.CurrentBrush != null) {
             this.CurrentBrush = null;
-            if (notifyHandlers)
-                this.NotifyHandlersBrushChanged();
+            this.NotifyHandlersBrushChanged();
         }
     }
 

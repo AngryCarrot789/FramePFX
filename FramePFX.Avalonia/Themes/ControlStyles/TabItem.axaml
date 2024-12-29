@@ -11,7 +11,7 @@
     </Design.PreviewWith>
     <ControlTheme x:Key="{x:Type TabItem}" TargetType="{x:Type TabItem}">
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
-        <Setter Property="Background" Value="{DynamicResource TabItem.Static.Background}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.PFX.Editor.ResourceManager.TabItem.Background}"/>
         <Setter Property="BorderBrush" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TabControl}, Path=BorderBrush}"/>
         <Setter Property="Margin" Value="-1,-1,-1,0"/>
         <Setter Property="Padding" Value="8,4,8,4"/>

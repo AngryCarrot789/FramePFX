@@ -68,13 +68,13 @@
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceList}" TargetType="{x:Type s:TrackControlSurfaceList}" BasedOn="{StaticResource {x:Type ListBox}}">
-        <Setter Property="Background" Value="{DynamicResource PanelBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.PFX.Editor.Timeline.GapBetweenTracks}"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="avalonia:UIInputManager.FocusPath" Value="EditorWindow/Timeline/ControlSurfaces"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceList}">
-                <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
+                <Border x:Name="Bd" BorderBrush="{TemplateBinding Background}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         Background="{TemplateBinding Background}">
                     <s:TrackControlSurfacePanel x:Name="PART_TrackPanel" Margin="{TemplateBinding Padding}"/>
@@ -88,7 +88,7 @@
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceItem}" TargetType="{x:Type s:TrackControlSurfaceItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
+        <Setter Property="Background" Value="{DynamicResource ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -113,20 +113,16 @@
                 </Border>
             </ControlTemplate>
         </Setter>
+        <Style Selector="^[IsSelected=True]">
+            <Style Selector="^[IsFocused=True] /template/ Border#Bd">
+                <Setter Property="Background" Value="{DynamicResource ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.SelectedFocused}"/>
+            </Style>
+            <Style Selector="^[IsFocused=False] /template/ Border#Bd">
+                <Setter Property="Background" Value="{DynamicResource ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.SelectedUnfocused}"/>
+            </Style>
+        </Style>
         <Style Selector="^[IsPointerOver=true] /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource Item.MouseOver.Background}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Item.MouseOver.Border}"/>
-        </Style>
-        <Style Selector="^[IsSelected=True][IsFocused=False] /template/ Border#Bd">
-            <Setter Property="Background" Value="{DynamicResource Item.SelectedInactive.Background}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Item.SelectedInactive.Border}"/>
-        </Style>
-        <Style Selector="^[IsSelected=True][IsFocused=True] /template/ Border#Bd">
-            <Setter Property="Background" Value="{DynamicResource Item.SelectedActive.Background}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Item.SelectedActive.Border}"/>
-        </Style>
-        <Style Selector="^[IsSelected=False][IsPointerOver=true] /template/ Border#Bd">
-            <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
+            <Setter Property="Background" Value="{DynamicResource ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.MouseOver}"/>
         </Style>
         <Style Selector="^:disabled /template/ Border#Bd">
             <Setter Property="TextElement.Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>

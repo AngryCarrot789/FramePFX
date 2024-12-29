@@ -96,7 +96,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     public Border? TimelineBorder { get; private set; }
 
-    public Border? TimestampBorder { get; private set; }
+    public Border? RulerBorder { get; private set; }
 
     public FlatLinePlayHeadControl? PlayHeadInSequence { get; private set; }
 
@@ -164,7 +164,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.TimelineScrollViewer = e.NameScope.GetTemplateChild<ScrollViewer>("PART_SequenceScrollViewer");
         this.TrackListScrollViewer = e.NameScope.GetTemplateChild<ScrollViewer>("PART_TrackListScrollViewer");
         this.TimelineBorder = e.NameScope.GetTemplateChild<Border>("PART_TimelineSequenceBorder");
-        this.TimestampBorder = e.NameScope.GetTemplateChild<Border>("PART_TimestampBoard");
+        this.RulerBorder = e.NameScope.GetTemplateChild<Border>("PART_RulerBorder");
         this.PlayHeadInSequence = e.NameScope.GetTemplateChild<FlatLinePlayHeadControl>("PART_PlayHeadControl");
         this.StopHeadInSequence = e.NameScope.GetTemplateChild<FlatLinePlayHeadControl>("PART_StopHeadControl");
         this.PlayHeadInRuler = e.NameScope.GetTemplateChild<GrippedPlayHeadControl>("PART_RulerPlayHead");
@@ -190,11 +190,11 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.TimelineContentGrid.PointerPressed += this.OnTimelineContentGridPointerPressed;
         AdvancedContextMenu.SetContextRegistry(this.TimelineContentGrid, Timeline.ContextRegistry);
 
-        this.TimestampBorder.PointerPressed += (s, ex) => this.MovePlayHeadToMouseCursor(ex.GetPosition(this.TimelineContentGrid).X, true, false, ex);
+        this.RulerBorder.PointerPressed += (s, ex) => this.MovePlayHeadToMouseCursor(ex.GetPosition(this.TimelineContentGrid).X, true, false, ex);
 
         // Has to be a 'preview' handler in WPF speak, since we need to prevent the base scroll viewer scrolling down even if CTRL is held
         this.TimelineScrollViewer.AddHandler(PointerWheelChangedEvent, this.TimelineScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
-        this.TimestampBorder.AddHandler(PointerWheelChangedEvent, this.TimeStampBoardScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
+        this.RulerBorder.AddHandler(PointerWheelChangedEvent, this.TimeStampBoardScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
     }
 
     private void OnIsTrackAutomationVisibilityChanged(bool oldValue, bool newValue) => this.UpdateIsTrackAutomationVisible(newValue, null);

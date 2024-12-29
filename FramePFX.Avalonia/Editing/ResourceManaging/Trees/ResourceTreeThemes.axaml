@@ -35,7 +35,6 @@
 
     <ControlTheme x:Key="{x:Type trees:ResourceTreeView}" TargetType="{x:Type trees:ResourceTreeView}" BasedOn="{StaticResource {x:Type TreeView}}">
         <Setter Property="SelectionMode" Value="Multiple"/>
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone2.Border.Static}"/>
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -347,8 +346,10 @@
                         </Grid.ColumnDefinitions>
                         <trees:StandardResourceTreeView x:Name="PART_ResourceTreeView"
                                                         BorderBrush="Transparent"
-                                                        BorderThickness="0" Grid.Column="0"/>
-                        <lists:ResourceExplorerListBox x:Name="PART_ResourceList" Grid.Column="2"/>
+                                                        BorderThickness="0" Grid.Column="0"
+                                                        Background="{DynamicResource ABrush.PFX.Editor.ResourceManager.Tree.Background}"/>
+                        <lists:ResourceExplorerListBox x:Name="PART_ResourceList" Grid.Column="2"
+                                                       Background="{DynamicResource ABrush.PFX.Editor.ResourceManager.List.Background}"/>
                         <Border Focusable="False" UseLayoutRounding="True" Grid.Column="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                         <GridSplitter Focusable="False" Grid.Column="1" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                     </Grid>

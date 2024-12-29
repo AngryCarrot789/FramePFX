@@ -89,10 +89,16 @@ public class TrackControlSurfaceList : TemplatedControl {
 
     private void OnTrackAdded(Timeline timeline, Track track, int index) {
         this.TrackStorage!.InsertTrack(track, index);
+        if (this.TrackStorage.Children.Count == 1) {
+            this.BorderThickness = new Thickness(0, 0, 0, 1);
+        }
     }
 
     private void OnTrackRemoved(Timeline timeline, Track track, int index) {
         this.TrackStorage!.RemoveTrack(index);
+        if (this.TrackStorage.Children.Count == 0) {
+            this.BorderThickness = default;
+        }
     }
 
     private void OnTrackMoved(Timeline timeline, Track track, int oldindex, int newindex) {

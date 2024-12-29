@@ -17,11 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Threading.Tasks;
 using FramePFX.BaseFrontEnd.Services.UserInputs;
 using FramePFX.Services.UserInputs;
 
-namespace FramePFX.Avalonia.Services;
+namespace FramePFX.BaseFrontEnd.Services;
 
 public class InputDialogServiceImpl : IUserInputDialogService {
     public Task<bool?> ShowInputDialogAsync(SingleUserInputInfo info) {

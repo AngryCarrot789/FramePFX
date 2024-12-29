@@ -17,14 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Threading.Tasks;
 using Avalonia.Controls;
-using FramePFX.BaseFrontEnd;
+using FramePFX.BaseFrontEnd.Services.Messages.Controls;
 using FramePFX.Services.Messaging;
 using FramePFX.Utils;
-using MessageBoxDialog = FramePFX.BaseFrontEnd.Services.Messages.Controls.MessageBoxDialog;
 
-namespace FramePFX.Avalonia.Services;
+namespace FramePFX.BaseFrontEnd.Services;
 
 public class MessageDialogServiceImpl : IMessageDialogService {
     public Task<MessageBoxResult> ShowMessage(string caption, string message, MessageBoxButton buttons = MessageBoxButton.OK) {

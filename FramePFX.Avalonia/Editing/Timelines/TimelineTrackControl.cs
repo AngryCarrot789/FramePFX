@@ -343,7 +343,9 @@ public class TimelineTrackControl : TemplatedControl {
         }
     }
 
-    public void OnClipSpanChanged() => this.ClipStoragePanel?.InvalidateArrange();
+    public void OnClipSpanChanged() {
+        this.ClipStoragePanel?.InvalidateArrange();
+    }
 
     public void OnZoomChanged(double newZoom) {
         // this.InvalidateMeasure();

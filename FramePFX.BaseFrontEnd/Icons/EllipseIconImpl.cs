@@ -19,13 +19,10 @@
 
 using Avalonia;
 using Avalonia.Media;
-using Avalonia.Skia;
 using FramePFX.BaseFrontEnd.Themes.BrushFactories;
 using FramePFX.Icons;
-using FramePFX.Logging;
 using FramePFX.Themes;
 using SkiaSharp;
-using Vector = Avalonia.Vector;
 
 namespace FramePFX.BaseFrontEnd.Icons;
 

@@ -30,6 +30,8 @@ namespace FramePFX.Avalonia.Editing.Playheads;
 public class GrippedPlayHeadControl : BasePlayHeadControl {
     private Thumb? PART_ThumbHead;
     private Thumb? PART_ThumbBody;
+    private long lastFrame;
+    private double lastDeltaX;
 
     public GrippedPlayHeadControl() {
     }
@@ -52,7 +54,8 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
             return;
         }
 
-        long change = (long) Math.Round(e.Vector.X / control.Zoom);
+        // long change = (long) Math.Round(e.Vector.X / control.Zoom);
+        long change = (long) Math.Round(e.Vector.X * control.Zoom);
         if (change != 0) {
             long oldFrame = this.Frame;
             long newFrame = Math.Max(oldFrame + change, 0);
@@ -60,7 +63,10 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
                 newFrame = timeline.MaxDuration - 1;
             }
 
+            this.lastFrame = this.Frame;
+            this.lastDeltaX = e.Vector.X;
             if (newFrame != oldFrame) {
+                // this.Frame = (long) Maths.Clamp(newFrame - (this.lastFrame), 0, timeline.MaxDuration - 1);
                 this.Frame = newFrame;
             }
         }
@@ -69,6 +75,21 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
     protected override void SetPixelMargin(Thickness thickness) {
         thickness = new Thickness(thickness.Left - 7, thickness.Top, thickness.Right, thickness.Bottom);
         base.SetPixelMargin(thickness);
+        // CompositionVisual? compositionVisual = ElementComposition.GetElementVisual(this);
+        // if (compositionVisual != null) {
+        //     Vector3D offset = compositionVisual.Offset;
+        //     compositionVisual.Offset = new Vector3D(thickness.Left, offset.Y, offset.Z);
+        // 
+        //     // Compositor compositor = compositionVisual.Compositor;
+        //     // Vector3DKeyFrameAnimation animation = compositor.CreateVector3DKeyFrameAnimation();
+        //     // animation.InsertKeyFrame(0f, offset);
+        //     // animation.InsertKeyFrame(1f, new Vector3D(thickness.Left, offset.Y, offset.Z));
+        //     // animation.Duration = TimeSpan.FromMilliseconds(1);
+        //     // compositionVisual.StartAnimation("Offset", animation);
+        // }
+        // else {
+        //     base.SetPixelMargin(thickness);
+        // }
     }
 
     protected static readonly FieldInfo LastPointField = typeof(Thumb).GetField("_lastPoint", BindingFlags.NonPublic | BindingFlags.Instance)!;

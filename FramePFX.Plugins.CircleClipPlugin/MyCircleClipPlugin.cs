@@ -63,7 +63,7 @@ public class MyCircleClipPlugin : Plugin {
         // we need abstractions around certain regions of the context registries, especially
         // for inserting new clips (and also resources for those context registries), just to
         // make it a bit friendlier to use. But this works so :/
-        FixedContextGroup addClipGroup = TrackContextRegistry.TimelineTrackContextRegistry.GetFixedGroup("ModifyAddClips");
+        FixedContextGroup addClipGroup = TrackContextRegistry.TimelineTrackContextRegistry.GetFixedGroup("modify.addclips");
         addClipGroup.AddCommand("commands.mycircleclipplugin.editor.AddCircleClip", "Add circle clip (MCCP)", "Add a plugin circlular clip!");
 
         // Listen to when a video editor window is opened so that we can add our radius parameter slot to its property editor

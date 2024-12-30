@@ -35,11 +35,10 @@ public static class TrackContextRegistry {
             modGeneric.AddCommand("commands.editor.SelectClipsInTracks", "Select All", "Select all clips in this track");
             modGeneric.AddDynamicSubGroup(GenerateEnableDisableCommands);
 
-            FixedContextGroup modAdd = TimelineTrackContextRegistry.GetFixedGroup("ModifyAddClips");
+            FixedContextGroup modAdd = TimelineTrackContextRegistry.GetFixedGroup("modify.addclips");
             modAdd.AddHeader("Add new clips");
             modAdd.AddCommand("commands.editor.AddTextClip", "Add Text clip", "Create a new Text clip");
             modAdd.AddCommand("commands.editor.AddTimecodeClip", "Add Timecode clip", "Create a new Timecode clip");
-            modAdd.AddCommand("commands.editor.AddAVMediaClip", "Add Video Media clip", "Create a new media clip for playing videos or most types of media", SimpleIcons.VideoIcon);
             modAdd.AddCommand("commands.editor.AddVideoClipShape", "Add Shape clip", "Create a new Shape clip");
             modAdd.AddCommand("commands.editor.AddImageVideoClip", "Add Image clip", "Create a new Image clip");
             modAdd.AddCommand("commands.editor.AddCompositionVideoClip", "Add Composition clip", "Create a new Composition clip");

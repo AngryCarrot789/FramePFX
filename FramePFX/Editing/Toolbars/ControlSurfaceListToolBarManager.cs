@@ -17,9 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
-using FramePFX.Editing.Timelines;
-using FramePFX.Interactivity.Contexts;
 using FramePFX.Toolbars;
 using FramePFX.Utils.Collections.Observable;
 

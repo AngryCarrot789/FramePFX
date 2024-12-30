@@ -188,7 +188,7 @@ public abstract class BasePlayHeadControl : TemplatedControl {
                 return;
             case PlayHeadType.StopHead:
                 timeline.StopHeadChanged += this.OnPlayHeadValueChanged;
-                this.myFrame = timeline.PlayHeadPosition;
+                this.myFrame = timeline.StopHeadPosition;
                 return;
         }
     }

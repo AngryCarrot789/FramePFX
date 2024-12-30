@@ -133,7 +133,6 @@ public class ResourceContextRegistry {
         static void ApplyNewItemEntries(FixedContextGroup g) {
             g.AddHeader("Create Resources");
             g.AddEntry(new CommandContextEntry("commands.resources.AddResourceImage", "Add Image", "Create a new image resource"));
-            g.AddEntry(new CommandContextEntry("commands.resources.AddResourceAVMedia", "Add Media", "Create a new media resource"));
             g.AddEntry(new CommandContextEntry("commands.resources.AddResourceColour", "Add Colour", "Create a new colour resource"));
             g.AddEntry(new CommandContextEntry("commands.resources.AddResourceComposition", "Add Composition Timeline", "Create a composition timeline new resource"));
         }

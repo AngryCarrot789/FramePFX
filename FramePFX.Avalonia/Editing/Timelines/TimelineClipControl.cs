@@ -106,7 +106,9 @@ public class TimelineClipControl : ContentControl, IClipElement {
                     this.PART_AutomationEditor.FrameDuration = value.Duration;
             }
 
+            // TODO: InvalidateMeasure for moving a clip is laggy. It's not horribly slow, but there's noticeable lag
             this.InvalidateMeasure();
+            
             if (this.IsConnected && this.StoragePanel!.IsConnected)
                 this.StoragePanel.TrackControl!.OnClipSpanChanged();
         }
@@ -599,6 +601,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
                         }
 
                         this.SetClipSpanForDrag(newSpan);
+                        // this.SetClipSpanForDrag(new FrameSpan(Maths.Clamp(TimelineUtils.PixelToFrame(mPos.X, this.TimelineZoom), 0, trackList.Timeline.MaxDuration - oldSpan.Duration), oldSpan.Duration));
                     }
                 }
             }

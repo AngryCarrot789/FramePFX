@@ -203,5 +203,8 @@ private class ShowCompTimlineNameCommand : Command {
 
 Async commands are an extension of `Command`. If you don't need async, then just use `Command` if you want to.
 
+## Brush and Icon API
+To assist with 
+
 ## End
 This documentation is still being updated, there's a few things missing.

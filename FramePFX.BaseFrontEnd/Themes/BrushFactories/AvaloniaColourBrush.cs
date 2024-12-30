@@ -21,6 +21,7 @@ using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
+using FramePFX.Logging;
 using FramePFX.Themes;
 using SkiaSharp;
 
@@ -161,6 +162,7 @@ public sealed class DynamicAvaloniaColourBrush : AvaloniaColourBrush, IDynamicCo
                         return;
                     }
 
+                    AppLogger.Instance.WriteLine($"[{nameof(DynamicAvaloniaColourBrush)}] Found resource with key '{this.ThemeKey}', converted to brush");
                     this.CurrentBrush = new ImmutableSolidColorBrush(colour);
                     this.NotifyHandlersBrushChanged();
                 }
@@ -170,6 +172,7 @@ public sealed class DynamicAvaloniaColourBrush : AvaloniaColourBrush, IDynamicCo
         if (this.CurrentBrush != null) {
             this.CurrentBrush = null;
             this.NotifyHandlersBrushChanged();
+            AppLogger.Instance.WriteLine($"[{nameof(DynamicAvaloniaColourBrush)}] Failed to find brush resource with key '{this.ThemeKey}'");
         }
     }
 

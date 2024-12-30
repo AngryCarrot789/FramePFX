@@ -207,7 +207,7 @@
                                 <Button BorderBrush="Black" Height="20" Width="18"
                                         ToolTip.Tip="Insert a key frame at the current play head"
                                         x:Name="PART_InsertKeyFrameButton">
-                                    <Ellipse Width="7" Height="7" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
+                                    <Ellipse Width="7" Height="7" Fill="{DynamicResource ABrush.PFX.Automation.Active.Fill}"/>
                                 </Button>
                                 <ToggleButton Content="O" BorderBrush="Black" Height="20" Width="18"
                                               ToolTip.Tip="Toggles the parameter override state. This is used to enable or disable automation for the parameter"

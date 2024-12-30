@@ -20,12 +20,14 @@
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using FramePFX.BaseFrontEnd.Icons;
 using FramePFX.Editing;
 using FramePFX.Icons;
+using SkiaSharp;
 
 namespace FramePFX.BaseFrontEnd.AvControls;
 
@@ -34,7 +36,7 @@ namespace FramePFX.BaseFrontEnd.AvControls;
 /// </summary>
 public class IconControl : Control {
     public static readonly StyledProperty<Icon?> IconProperty = AvaloniaProperty.Register<IconControl, Icon?>(nameof(Icon));
-    public static readonly StyledProperty<bool> ScaleIconProperty = AvaloniaProperty.Register<IconControl, bool>(nameof(ScaleIcon));
+    public static readonly StyledProperty<Stretch> StretchProperty = Shape.StretchProperty.AddOwner<IconControl>(new StyledPropertyMetadata<Stretch>(Stretch.Uniform));
 
     /// <summary>
     /// Gets or sets the icon we use for drawing this control
@@ -43,25 +45,23 @@ public class IconControl : Control {
         get => this.GetValue(IconProperty);
         set => this.SetValue(IconProperty, value);
     }
-
-    /// <summary>
-    /// Gets or sets if the icon should be scaled to the bounds of this control
-    /// </summary>
-    public bool ScaleIcon {
-        get => this.GetValue(ScaleIconProperty);
-        set => this.SetValue(ScaleIconProperty, value);
+    
+    public Stretch Stretch {
+        get => this.GetValue(StretchProperty);
+        set => this.SetValue(StretchProperty, value);
     }
 
     private bool isAttachedToVt;
     private AbstractAvaloniaIcon? attachedIcon;
+    private SKMatrix myTransform;
 
     public IconControl() {
     }
 
     static IconControl() {
         IconProperty.Changed.AddClassHandler<IconControl, Icon?>((d, e) => d.OnIconChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
-        AffectsMeasure<IconControl>(IconProperty, ScaleIconProperty);
-        AffectsRender<IconControl>(IconProperty, ScaleIconProperty);
+        AffectsMeasure<IconControl>(IconProperty, StretchProperty);
+        AffectsRender<IconControl>(IconProperty, StretchProperty);
     }
 
     protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e) {
@@ -114,15 +114,18 @@ public class IconControl : Control {
             }
             
             using (renderOptions) {
-                icon.Render(context, this.Bounds, this.ScaleIcon);
+                icon.Render(context, this.Bounds, this.myTransform);
             }
         }
     }
 
     protected override Size MeasureOverride(Size availableSize) {
         if (this.Icon is AbstractAvaloniaIcon icon) {
-            Size size = icon.GetSize();
-            return this.ScaleIcon ? availableSize.Constrain(size) : size;
+            (Size Size, SKMatrix Transform) m = icon.Measure(availableSize, (StretchMode) (int) this.Stretch);
+            this.myTransform = m.Transform;
+            return m.Size;
+            // Size size = icon.GetSize();
+            // return this.ScaleIcon ? availableSize.Constrain(size) : size;
         }
 
         return default;

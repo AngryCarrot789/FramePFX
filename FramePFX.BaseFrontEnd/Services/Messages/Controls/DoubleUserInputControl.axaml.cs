@@ -64,9 +64,13 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
         DoubleUserInputInfo.LabelAParameter.AddValueChangedHandler(this.myData!, this.OnLabelAChanged);
         DoubleUserInputInfo.LabelBParameter.AddValueChangedHandler(this.myData!, this.OnLabelBChanged);
         BaseTextUserInputInfo.FooterParameter.AddValueChangedHandler(this.myData!, this.OnFooterChanged);
+        this.myData.TextErrorsAChanged += this.UpdateTextErrorsA;
+        this.myData.TextErrorsBChanged += this.UpdateTextErrorsB;
         this.UpdateLabelAVisibility();
         this.UpdateLabelBVisibility();
         this.UpdateFooterVisibility();
+        this.UpdateTextErrorsA(this.myData);
+        this.UpdateTextErrorsB(this.myData);
     }
 
     public void Disconnect() {
@@ -78,9 +82,18 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
         DoubleUserInputInfo.LabelAParameter.RemoveValueChangedHandler(this.myData!, this.OnLabelAChanged);
         DoubleUserInputInfo.LabelBParameter.RemoveValueChangedHandler(this.myData!, this.OnLabelBChanged);
         BaseTextUserInputInfo.FooterParameter.RemoveValueChangedHandler(this.myData!, this.OnFooterChanged);
-
+        this.myData!.TextErrorsAChanged -= this.UpdateTextErrorsA;
+        this.myData!.TextErrorsBChanged -= this.UpdateTextErrorsB;
         this.myDialog = null;
         this.myData = null;
+    }
+    
+    private void UpdateTextErrorsA(DoubleUserInputInfo info) {
+        SingleUserInputControl.SetErrorsOrClear(this.PART_TextBoxA, info.TextErrorsA);
+    }
+    
+    private void UpdateTextErrorsB(DoubleUserInputInfo info) {
+        SingleUserInputControl.SetErrorsOrClear(this.PART_TextBoxB, info.TextErrorsB);
     }
 
     public bool FocusPrimaryInput() {

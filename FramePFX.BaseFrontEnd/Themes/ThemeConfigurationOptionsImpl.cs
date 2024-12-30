@@ -41,6 +41,11 @@ public class ThemeConfigurationOptionsImpl : ThemeConfigurationOptions {
     public ThemeConfigurationOptionsImpl() {
         
     }
+    
+    static ThemeConfigurationOptionsImpl() {
+        ThemesProperty.DescriptionLines.Add("WARNING! THEME ORDERING IS ESSENTIAL!");
+        ThemesProperty.DescriptionLines.Add("A 'basedOn' theme must exist before being used");
+    }
 
     public override void OnLoaded() {
         this.LoadModelsIntoThemes(ThemeManager.Instance);

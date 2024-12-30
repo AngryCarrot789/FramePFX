@@ -17,9 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Numerics;
 using Avalonia;
 using Avalonia.Media;
 using FramePFX.Icons;
+using SkiaSharp;
 
 namespace FramePFX.BaseFrontEnd.Icons;
 
@@ -43,12 +45,7 @@ public abstract class AbstractAvaloniaIcon : Icon {
     /// </summary>
     /// <param name="context">The drawing context</param>
     /// <param name="size">The drawing area size</param>
-    /// <param name="scale">True to scale this icon to the given size, false to draw the icon in its original size</param>
-    public abstract void Render(DrawingContext context, Rect size, bool scale);
+    public abstract void Render(DrawingContext context, Rect size, SKMatrix transform);
 
-    /// <summary>
-    /// Gets the size of this icon, in pixels. Typically called by a control's measurement functions
-    /// </summary>
-    /// <returns>The amount of space this icon will take up</returns>
-    public abstract Size GetSize();
+    public abstract (Size Size, SKMatrix Transform) Measure(Size availableSize, StretchMode stretch);
 }

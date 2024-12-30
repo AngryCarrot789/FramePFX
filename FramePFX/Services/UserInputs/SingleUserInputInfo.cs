@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Collections.Immutable;
 using FramePFX.DataTransfer;
 using FramePFX.Utils.Accessing;
 
@@ -25,20 +26,19 @@ namespace FramePFX.Services.UserInputs;
 public delegate void SingleUserInputDataEventHandler(SingleUserInputInfo sender);
 
 public class SingleUserInputInfo : BaseTextUserInputInfo {
-    public static readonly DataParameterString TextParameter = DataParameter.Register(new DataParameterString(typeof(SingleUserInputInfo), nameof(Text), null, ValueAccessors.Reflective<string?>(typeof(SingleUserInputInfo), nameof(text))));
+    public static readonly DataParameterString TextParameter = DataParameter.Register(new DataParameterString(typeof(SingleUserInputInfo), nameof(Text), "", ValueAccessors.Reflective<string?>(typeof(SingleUserInputInfo), nameof(text)), isNullable:false));
     public static readonly DataParameterString LabelParameter = DataParameter.Register(new DataParameterString(typeof(SingleUserInputInfo), nameof(Label), null, ValueAccessors.Reflective<string?>(typeof(SingleUserInputInfo), nameof(label))));
 
-    private string? text;
+    private string text;
     private string? label = LabelParameter.DefaultValue;
-    private bool allowEmptyText;
-    private string? textError;
+    private IImmutableList<string>? textErrors;
 
     /// <summary>
     /// Gets the value the user have typed into the text field
     /// </summary>
-    public string? Text {
+    public string Text {
         get => this.text;
-        set => DataParameter.SetValueHelper(this, TextParameter, ref this.text, value);
+        set => DataParameter.SetValueHelper<string?>(this, TextParameter, ref this.text!, value ?? "");
     }
 
     /// <summary>
@@ -50,75 +50,66 @@ public class SingleUserInputInfo : BaseTextUserInputInfo {
     }
 
     /// <summary>
-    /// Gets or sets if the dialog can close successfully with the text property being an empty
-    /// string. When this is true and the text is empty, the validation predicate is not called.
-    /// However it is called if this value is false
+    /// A validation function that is given the current text and a list. If there's problems
+    /// with the text, then error messages should be added to the list. 
     /// </summary>
-    public bool AllowEmptyText {
-        get => this.allowEmptyText;
-        set {
-            if (this.allowEmptyText == value)
-                return;
-
-            this.allowEmptyText = value;
-            this.AllowEmptyTextChanged?.Invoke(this);
-            this.UpdateTextError();
-        }
-    }
-
-    public event SingleUserInputDataEventHandler? AllowEmptyTextChanged;
-
-    /// <summary>
-    /// A validation predicate that is invoked when our text changes, and is used to get an error message from
-    /// the text to determine if the dialog can close successfully. This function should return a non-null value
-    /// when there's an error (preventing the dialog from closing), and return null when there's no error
-    /// </summary>
-    public Func<string?, string?>? Validator { get; set; }
+    public Action<string, List<string>>? Validate { get; set; }
     
-    public string? TextError {
-        get => this.textError;
+    /// <summary>
+    /// Gets the current list of errors present. This value will either be null, or it will have at least one element
+    /// </summary>
+    public IImmutableList<string>? TextErrors {
+        get => this.textErrors;
         private set {
-            if (this.textError == value)
-                return;
+            if (value?.Count < 1) {
+                value = null; // set empty to null for simplified usage of the property
+            }
 
-            this.textError = value;
-            this.TextErrorChanged?.Invoke(this);
-            this.RaiseHasErrorsChanged();
+            if (!ReferenceEquals(this.textErrors, value)) {
+                this.textErrors = value;
+                this.TextErrorsChanged?.Invoke(this);
+                this.RaiseHasErrorsChanged();
+            }
         }
     }
 
-    public event SingleUserInputDataEventHandler? TextErrorChanged;
+    public event SingleUserInputDataEventHandler? TextErrorsChanged;
 
     public SingleUserInputInfo(string? defaultText) {
-        this.text = defaultText;
+        this.text = defaultText ?? "";
     }
 
     public SingleUserInputInfo(string? caption, string? label, string? defaultText) : base(caption, null) {
         this.label = label;
-        this.text = defaultText;
+        this.text = defaultText ?? "";
     }
 
     public SingleUserInputInfo(string? caption, string? message, string? label, string? defaultText) : base(caption, message) {
         this.label = label;
-        this.text = defaultText;
+        this.text = defaultText ?? "";
     }
 
     static SingleUserInputInfo() {
         TextParameter.ValueChanged += (p, o) => ((SingleUserInputInfo) o).UpdateTextError();
     }
-
+    
     private void UpdateTextError() {
-        if (string.IsNullOrEmpty(this.Text) && !this.AllowEmptyText) {
-            this.TextError = "Text cannot be an empty string";
-        }
-        else {
-            this.TextError = this.Validator?.Invoke(this.Text);
-        }
+        this.TextErrors = GetErrors(this.Text, this.Validate);
     }
 
-    public override bool HasErrors() => this.TextError != null;
+    public override bool HasErrors() => this.TextErrors != null;
     
     public override void UpdateAllErrors() {
         this.UpdateTextError();
+    }
+    
+    public static ImmutableList<string>? GetErrors(string text, Action<string, List<string>>? validate) {
+        if (validate == null) {
+            return null;
+        }
+
+        List<string> list = new List<string>();
+        validate(text, list);
+        return list.Count > 0 ? list.ToImmutableList() : null;
     }
 }

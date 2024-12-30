@@ -11,7 +11,7 @@
                     xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandUsages"
                     xmlns:avc="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
                     xmlns:framePfx="clr-namespace:FramePFX;assembly=FramePFX-core">
-    <converters:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.AutomationActiveColour.Static}"/>
+    <converters:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.PFX.Automation.Active.Fill}"/>
     <ControlTheme x:Key="{x:Type t:TimelineLoopControl}" TargetType="{x:Type t:TimelineLoopControl}">
     </ControlTheme>
 
@@ -92,7 +92,7 @@
             <ControlTemplate TargetType="{x:Type t:TimelineControl}">
                 <Grid VerticalAlignment="Stretch"
                       Background="{DynamicResource PanelBorderBrush}"
-                      x:Name="PART_RootGrid" RowDefinitions="38,1,*,Auto">
+                      x:Name="PART_RootGrid" RowDefinitions="38,1,*,1,Auto">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="225" MinWidth="225"/>
                         <ColumnDefinition Width="1"/>
@@ -100,11 +100,9 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Just above Surface List Box area -->
-                    <Border Background="{DynamicResource ABrush.PFX.Editor.Timeline.TimestampBoard.Background}" Grid.Column="0" Grid.Row="0">
-                        <DockPanel LastChildFill="False">
-                            <p:PlayheadPositionTextControl x:Name="PART_PlayheadPositionPreviewControl" VerticalAlignment="Center" Margin="8,0,0,0" DockPanel.Dock="Left"/>
-                        </DockPanel>
-                    </Border>
+                    <DockPanel LastChildFill="False" Background="{DynamicResource ABrush.PFX.Editor.Timeline.TimestampBoard.Background}" Grid.Column="0" Grid.Row="0">
+                        <p:PlayheadPositionTextControl x:Name="PART_PlayheadPositionPreviewControl" VerticalAlignment="Center" Margin="8,0,0,0" DockPanel.Dock="Left"/>
+                    </DockPanel>
 
                     <!-- Surface List Box Area -->
                     <ScrollViewer Grid.Column="0" Grid.Row="2"
@@ -160,94 +158,73 @@
                         </t:TimelineScrollableContentGrid>
                     </ScrollViewer>
 
-                    <Border x:Name="PART_RulerBorder" Grid.Row="0" Grid.Column="2" ClipToBounds="True"
-                            Background="{DynamicResource ABrush.PFX.Editor.Timeline.Ruler.Background}">
-                        <Panel>
-                            <t:TimelineRuler x:Name="PART_Ruler"
-                                             UseLayoutRounding="True"
-                                             ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}"
-                                             IsHitTestVisible="False"/>
-                            <p:GrippedPlayHeadControl x:Name="PART_RulerPlayHead"
-                                                      VerticalAlignment="Stretch"
-                                                      HorizontalAlignment="Left"
-                                                      UseLayoutRounding="True"
-                                                      ZIndex="10" PlayHeadType="PlayHead"
-                                                      ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}"/>
-                        </Panel>
-                    </Border>
+                    <!-- The ruler panel, at the  -->
+                    <Panel x:Name="PART_RulerBorder" Grid.Row="0" Grid.Column="2" ClipToBounds="True"
+                           Background="{DynamicResource ABrush.PFX.Editor.Timeline.Ruler.Background}">
+                        <t:TimelineRuler x:Name="PART_Ruler"
+                                         UseLayoutRounding="True"
+                                         ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}"
+                                         IsHitTestVisible="False"/>
+                        <p:GrippedPlayHeadControl x:Name="PART_RulerPlayHead"
+                                                  VerticalAlignment="Stretch"
+                                                  HorizontalAlignment="Left"
+                                                  UseLayoutRounding="True"
+                                                  ZIndex="10" PlayHeadType="PlayHead"
+                                                  ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}"/>
+                    </Panel>
 
-                    <!-- Border that spans the sequence VIEW PORT -->
-                    <Border x:Name="PART_SequenceBorderArea" Grid.Row="2" Grid.Column="2"
-                            ClipToBounds="True" IsHitTestVisible="False"
-                            Height="{Binding ElementName=PART_ContentGrid, Path=Bounds.Height}">
-                        <!-- <Panel> -->
-                        <!--     <t:TimelineLoopControl x:Name="PART_LoopControl"  -->
-                        <!--                            ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}" -->
-                        <!--                            IsHitTestVisible="False" Focusable="False"/> -->
-                        <!-- </Panel> -->
-                    </Border>
+                    <!-- Button toolbar below the control surface list box -->
+                    <StackPanel x:Name="PART_TrackControlSurfaceToolBar" Grid.Row="4" Grid.Column="0"
+                                Spacing="1" Orientation="Horizontal" Height="26"
+                                Background="{DynamicResource ABrush.PFX.Editor.Timeline.ToolBar.Background}">
+                        <Button Content="+V" BorderThickness="0" FontSize="12"
+                                Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                x:Name="PART_AddVideoTrackButton" cu:CommandUsageManager.UsageClassType="{x:Type cc:NewVideoTrackCommandUsage}"/>
+                    </StackPanel>
 
-
-                    <Border x:Name="PART_TrackControlSurfaceToolBar" Grid.Row="3" Grid.Column="0" Height="26" 
-                            Background="{DynamicResource ABrush.PFX.Editor.Timeline.ToolBar.Background}" 
-                            BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
-                        <Border HorizontalAlignment="Left" Background="{DynamicResource PanelBorderBrush}" BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}" BorderThickness="0,0,1,0">
-                            <StackPanel Spacing="1" Orientation="Horizontal">
-                                <Button Content="+V" BorderThickness="0" FontSize="12"
-                                        Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
-                                        Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                        x:Name="PART_AddVideoTrackButton" cu:CommandUsageManager.UsageClassType="{x:Type cc:NewVideoTrackCommandUsage}"/>
-                            </StackPanel>
-                        </Border>
-                    </Border>
-                    
-                    <Border x:Name="PART_TimelineToolBar" Grid.Row="3" Grid.Column="2" Height="26" 
-                            Background="{DynamicResource ABrush.PFX.Editor.Timeline.ToolBar.Background}" 
-                            BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
-                        <DockPanel LastChildFill="False">
-                            <Border DockPanel.Dock="Left" Background="{DynamicResource PanelBorderBrush}" BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}" BorderThickness="0,0,1,0">
-                                <StackPanel Spacing="1" Orientation="Horizontal">
-                                    <ap:TogglePlayStateButtonControl Focusable="False"
-                                                              Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
-                                                              Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
-                                                              ToolTip.Tip="Play or pause playback"/>
-                                    <ap:PlayStateButtonControl Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
-                                                        Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
-                                                        PlayState="Play" CommandId="commands.editor.PlaybackPlayCommand"
-                                                        ToolTip.Tip="Start playback"/>
-                                    <ap:PlayStateButtonControl Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
-                                                        Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
-                                                        PlayState="Pause" CommandId="commands.editor.PlaybackPauseCommand"
-                                                        ToolTip.Tip="Pause playback, keeping the play head at the current frame"/>
-                                    <ap:PlayStateButtonControl Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
-                                                        Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
-                                                        PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"
-                                                        ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
-                                    <ToggleButton cu:CommandUsageManager.UsageClassType="{x:Type cc:ToggleLoopCommandUsage}"
-                                                  Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
-                                                  Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                                  BorderThickness="0" Focusable="False"
-                                                  ToolTip.Tip="Toggles if looping is enabled. When enabled and the play head is inside the loop region, the play head returns back to the start of the loop when it reaches the end">
-                                        <avc:IconControl Icon="{x:Static framePfx:SimpleIcons.LoopIcon}" Focusable="False" HorizontalAlignment="Left"/>
-                                    </ToggleButton>
-                                </StackPanel>
-                            </Border>
-                            <Border DockPanel.Dock="Right" Background="{DynamicResource PanelBorderBrush}" BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}" BorderThickness="1,0,0,0">
-                                <StackPanel Spacing="1" Orientation="Horizontal" DockPanel.Dock="Right">
-                                    <ToggleButton Content="A:T" BorderThickness="0" FontSize="12"
-                                                  Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
-                                                  Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                                  ToolTip.Tip="Toggles track automation visibility in the timeline"
-                                                  x:Name="PART_ToggleTrackAutomation"/>
-                                    <ToggleButton Content="A:C" BorderThickness="0" FontSize="12"
-                                                  Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
-                                                  Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                                  ToolTip.Tip="Toggles clip automation visibility in the timeline"
-                                                  x:Name="PART_ToggleClipAutomation"/>
-                                </StackPanel>
-                            </Border>
-                        </DockPanel>
-                    </Border>
+                    <!-- Button toolbar at the bottom of the timeline, spanning the whole width -->
+                    <Grid x:Name="PART_TimelineToolBar" Grid.Row="4" Grid.Column="2" Height="26"
+                          Background="{DynamicResource ABrush.PFX.Editor.Timeline.ToolBar.Background}"
+                          ColumnDefinitions="Auto,*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="0" Orientation="Horizontal">
+                            <ap:TogglePlayStateButtonControl Focusable="False"
+                                                             Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
+                                                             Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                                             ToolTip.Tip="Play or pause playback"/>
+                            <ap:PlayStateButtonControl Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                                       Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
+                                                       PlayState="Play" CommandId="commands.editor.PlaybackPlayCommand"
+                                                       ToolTip.Tip="Start playback"/>
+                            <ap:PlayStateButtonControl Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                                       Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
+                                                       PlayState="Pause" CommandId="commands.editor.PlaybackPauseCommand"
+                                                       ToolTip.Tip="Pause playback, keeping the play head at the current frame"/>
+                            <ap:PlayStateButtonControl Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                                       Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
+                                                       PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"
+                                                       ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
+                            <ToggleButton cu:CommandUsageManager.UsageClassType="{x:Type cc:ToggleLoopCommandUsage}"
+                                          Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                          Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                          BorderThickness="0" Focusable="False" Padding="4"
+                                          ToolTip.Tip="Toggles if looping is enabled. When enabled and the play head is inside the loop region, the play head returns back to the start of the loop when it reaches the end">
+                                <avc:IconControl Icon="{x:Static framePfx:SimpleIcons.LoopIcon}" Focusable="False" HorizontalAlignment="Left"/>
+                            </ToggleButton>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Grid.Column="2">
+                            <ToggleButton Content="A:T" BorderThickness="0" FontSize="12"
+                                          Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                          Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                          ToolTip.Tip="Toggles track automation visibility in the timeline"
+                                          x:Name="PART_ToggleTrackAutomation"/>
+                            <ToggleButton Content="A:C" BorderThickness="0" FontSize="12"
+                                          Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                          Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                          ToolTip.Tip="Toggles clip automation visibility in the timeline"
+                                          x:Name="PART_ToggleClipAutomation"/>
+                        </StackPanel>
+                    </Grid>
                     <GridSplitter Grid.Column="1" Grid.Row="2" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-3,0" Background="Transparent" BorderThickness="0"/>
                 </Grid>
             </ControlTemplate>
@@ -258,6 +235,6 @@
         <!--
         <s:TrackControlSurfaceVideo Height="25"/>
         -->
-        <t:TimelineControl Width="600" Height="150"/>
+        <t:TimelineControl Width="700" Height="250"/>
     </Design.PreviewWith>
 </ResourceDictionary>

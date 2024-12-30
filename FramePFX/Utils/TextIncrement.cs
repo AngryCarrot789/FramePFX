@@ -104,7 +104,7 @@ public class TextIncrement {
     /// <returns>True if the <see cref="accept"/> predicate accepted the output string before the loop counter reached 0</returns>
     /// <exception cref="ArgumentOutOfRangeException">The <see cref="count"/> parameter is zero</exception>
     /// <exception cref="ArgumentException">The <see cref="input"/> parameter is null or empty</exception>
-    public static bool GetIncrementableString(Predicate<string?> accept, string? input, out string? output, ulong count = ulong.MaxValue, bool canAcceptInitialInput = true) {
+    public static bool GetIncrementableString(Predicate<string> accept, string input, [NotNullWhen(true)] out string? output, ulong count = ulong.MaxValue, bool canAcceptInitialInput = true) {
         if (count < 1)
             throw new ArgumentOutOfRangeException(nameof(count), "Count must not be zero");
         if (string.IsNullOrEmpty(input))
@@ -121,10 +121,7 @@ public class TextIncrement {
         // This is probably over-optimised... this is just for concatenating a string and ulong
         // in the most efficient way possible. 23 = 3 (for ' ' + '(' + ')' chars) + 20 (for ulong.MaxValue representation)
         // hello (69) | len = 10, index = 7, j = 9, j+1 = 10 (passed to new string())
-        if (content == null) {
-            content = input;
-        }
-
+        content ??= input;
         int index = content.Length;
         char[] chars = new char[index + 23];
         content.CopyTo(0, chars, 0, index);

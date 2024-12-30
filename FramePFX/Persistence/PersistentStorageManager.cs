@@ -29,8 +29,8 @@ namespace FramePFX.Persistence;
 /// </summary>
 public sealed class PersistentStorageManager {
     private readonly List<PersistentConfiguration> allConfigs;
-    private readonly Dictionary<string, Dictionary<string, PersistentConfiguration>> areaMap;
-    private readonly Dictionary<Type, PersistentConfiguration> typeMap;
+    private readonly Dictionary<string, Dictionary<string, PersistentConfiguration>> myAreas;
+    private readonly Dictionary<Type, PersistentConfiguration> configTypeToInstance;
 
     private int saveStackCount;
     private HashSet<string>? saveAreaStack;
@@ -46,8 +46,8 @@ public sealed class PersistentStorageManager {
         Validate.NotNullOrWhiteSpaces(storageDirectory);
 
         this.allConfigs = new List<PersistentConfiguration>();
-        this.areaMap = new Dictionary<string, Dictionary<string, PersistentConfiguration>>();
-        this.typeMap = new Dictionary<Type, PersistentConfiguration>();
+        this.myAreas = new Dictionary<string, Dictionary<string, PersistentConfiguration>>();
+        this.configTypeToInstance = new Dictionary<Type, PersistentConfiguration>();
         this.StorageDirectory = storageDirectory;
     }
 
@@ -67,7 +67,7 @@ public sealed class PersistentStorageManager {
     }
 
     public T GetConfiguration<T>() where T : PersistentConfiguration {
-        return (T) this.typeMap[typeof(T)];
+        return (T) this.configTypeToInstance[typeof(T)];
     }
 
     /// <summary>
@@ -81,9 +81,15 @@ public sealed class PersistentStorageManager {
     /// <summary>
     /// Registers a persistent configuration with the given area and name
     /// </summary>
-    /// <param name="config">The config</param>
-    /// <param name="area">The name of the area. Set as null to use the application area</param>
-    /// <param name="name">The name of the configuration</param>
+    /// <param name="config">The configuration</param>
+    /// <param name="area">
+    /// The name of the area. Set as null to use the 'application' area.
+    /// Areas are actual files, so each different area is its own file
+    /// </param>
+    /// <param name="name">
+    /// The name of the configuration. There can be multiple configurations in a
+    /// single area, but they must all be uniquely named, relative to the area
+    /// </param>
     public void Register<T>(T config, string? area, string name) where T : PersistentConfiguration => this.Register(typeof(T), config, area, name);
 
     private void Register(Type type, PersistentConfiguration config, string? area, string name) {
@@ -99,8 +105,8 @@ public sealed class PersistentStorageManager {
             throw new InvalidOperationException("storage path cannot start with the root directory character");
         }
 
-        if (!this.areaMap.TryGetValue(area, out Dictionary<string, PersistentConfiguration>? configMap)) {
-            this.areaMap[area] = configMap = new Dictionary<string, PersistentConfiguration>();
+        if (!this.myAreas.TryGetValue(area, out Dictionary<string, PersistentConfiguration>? configMap)) {
+            this.myAreas[area] = configMap = new Dictionary<string, PersistentConfiguration>();
         }
         else if (configMap.TryGetValue(name, out PersistentConfiguration? existingConfig)) {
             throw new InvalidOperationException($"Config already registered in the option set with the name '{name}' of type '{existingConfig.GetType()}'");
@@ -110,7 +116,7 @@ public sealed class PersistentStorageManager {
 
         configMap.Add(name, config);
         this.allConfigs.Add(config);
-        this.typeMap[type] = config;
+        this.configTypeToInstance[type] = config;
         PersistentConfiguration.InternalOnRegistered(config, this, area, name);
     }
 
@@ -122,7 +128,7 @@ public sealed class PersistentStorageManager {
         using ErrorList errors = new ErrorList("Errors occurred while loading all configurations", false, true);
 
         HashSet<PersistentConfiguration>? unloaded = assignDefaultsForUnsavedConfigs ? this.allConfigs.ToHashSet() : null;
-        foreach (KeyValuePair<string, Dictionary<string, PersistentConfiguration>> areaEntry in this.areaMap) {
+        foreach (KeyValuePair<string, Dictionary<string, PersistentConfiguration>> areaEntry in this.myAreas) {
             if (areaEntry.Value.Count < 1) {
                 continue;
             }
@@ -239,7 +245,7 @@ public sealed class PersistentStorageManager {
             throw new InvalidOperationException("Save stack is active");
         }
 
-        foreach (string area in this.areaMap.Keys) {
+        foreach (string area in this.myAreas.Keys) {
             this.SaveArea(area, areaErrors);
         }
     }
@@ -252,7 +258,7 @@ public sealed class PersistentStorageManager {
             return null;
         }
 
-        if (!this.areaMap.TryGetValue(area, out Dictionary<string, PersistentConfiguration>? configSet) || configSet.Count <= 0) {
+        if (!this.myAreas.TryGetValue(area, out Dictionary<string, PersistentConfiguration>? configSet) || configSet.Count <= 0) {
             return false;
         }
 

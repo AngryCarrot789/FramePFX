@@ -23,6 +23,8 @@ using FramePFX.Utils;
 namespace FramePFX.Themes.Configurations;
 
 public delegate void ThemeConfigurationPageTargetThemeChangedEventHandler(ThemeConfigurationPage sender, Theme? oldTargetTheme, Theme? newTargetTheme);
+public delegate void ThemeConfigurationPageEntryModifiedEventHandler(ThemeConfigurationPage sender, string themeKey, bool isAdded);
+public delegate void ThemeConfigurationPageEventHandler(ThemeConfigurationPage sender);
 
 /// <summary>
 /// A folder/entry hierarchy for a theme for 
@@ -58,6 +60,16 @@ public class ThemeConfigurationPage : ConfigurationPage {
     }
 
     public event ThemeConfigurationPageTargetThemeChangedEventHandler? TargetThemeChanged;
+    
+    /// <summary>
+    /// An event fired when a theme entry is added to our internal set of modified entries
+    /// </summary>
+    public event ThemeConfigurationPageEntryModifiedEventHandler? ThemeEntryModified;
+    
+    /// <summary>
+    /// An event fired just before our internal collection of modified theme entries is cleared
+    /// </summary>
+    public event ThemeConfigurationPageEventHandler? ModifiedThemeEntriesCleared;
 
     public ThemeConfigurationPage() {
         this.Root = new ThemeConfigEntryGroup("<root>");
@@ -104,6 +116,7 @@ public class ThemeConfigurationPage : ConfigurationPage {
         }
         
         this.originalBrushes.Add(themeKey, this.targetTheme.SaveThemeEntry(themeKey));
+        this.ThemeEntryModified?.Invoke(this, themeKey, true);
     }
 
     public override ValueTask OnContextCreated(ConfigurationContext context) {
@@ -123,11 +136,22 @@ public class ThemeConfigurationPage : ConfigurationPage {
 
     public override ValueTask RevertLiveChanges(List<ApplyChangesFailureEntry>? errors) {
         if (this.targetTheme == null) {
-            throw new InvalidOperationException("TargetTheme is not set");
+            throw new InvalidOperationException("TargetTheme is not set. " 
+                                                + nameof(this.OnContextDestroyed) + 
+                                                " should have been called AFTER this, since that is what clears the target theme");
         }
 
         this.ReverseChanges(this.targetTheme);
+        return ValueTask.CompletedTask;
+    }
+    
+    public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
+        this.ClearOriginalBrushesInternal();
 
+        ThemeConfigurationOptions options = ThemeConfigurationOptions.Instance;
+        options.SaveThemesToModels(ThemeManager.Instance);
+        options.StorageManager.SaveArea(options);
+        
         return ValueTask.CompletedTask;
     }
 
@@ -150,7 +174,7 @@ public class ThemeConfigurationPage : ConfigurationPage {
                 revert.ApplyThemeEntry(brush.Key, brush.Value);
             }
 
-            this.originalBrushes = null;
+            this.ClearOriginalBrushesInternal();
         }
     }
     
@@ -164,19 +188,35 @@ public class ThemeConfigurationPage : ConfigurationPage {
                 target.ApplyThemeEntry(brush.Key, brush.Value);
             }
 
-            this.originalBrushes = null;
+            this.ClearOriginalBrushesInternal();
         }
     }
-
-    public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
-        this.originalBrushes = null;
-
-        // TODO: save theme
-
-        ThemeConfigurationOptions options = ThemeConfigurationOptions.Instance;
-        options.SaveThemesToModels(ThemeManager.Instance);
-        options.StorageManager.SaveArea(options);
+    
+    public bool ReverseChangeFor(Theme theme, string themeKey) {
+        Validate.NotNull(theme);
+        Validate.NotNullOrWhiteSpaces(themeKey);
         
-        return ValueTask.CompletedTask;
+        if (this.originalBrushes != null && this.originalBrushes.Remove(themeKey, out ISavedThemeEntry? entry)) {
+            this.ThemeEntryModified?.Invoke(this, themeKey, false);
+            theme.ApplyThemeEntry(themeKey, entry);
+            return true;
+        }
+        
+        return false;
+    }
+
+    public bool HasThemeKeyChanged(Theme theme, string themeKey) {
+        Validate.NotNull(theme);
+        Validate.NotNullOrWhiteSpaces(themeKey);
+        return this.originalBrushes != null && this.originalBrushes.ContainsKey(themeKey);
+    }
+    
+    private void ClearOriginalBrushesInternal() {
+        try {
+            this.ModifiedThemeEntriesCleared?.Invoke(this);
+        }
+        finally {
+            this.originalBrushes = null;
+        }
     }
 }

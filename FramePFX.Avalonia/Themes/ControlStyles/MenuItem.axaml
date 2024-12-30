@@ -90,6 +90,7 @@
                                             BorderBrush="{DynamicResource MenuItem.IconBar.Static.Border}"
                                             BorderThickness="0,0,1,0"
                                             Width="{StaticResource MenuItemIconTrayWithPaddingWidth}" HorizontalAlignment="Left"/>
+                                    
                                     <ScrollViewer Theme="{StaticResource SimpleMenuScrollViewer}">
                                         <ItemsPresenter x:Name="PART_ItemsPresenter"
                                                         Grid.IsSharedSizeScope="True"

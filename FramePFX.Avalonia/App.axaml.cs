@@ -34,6 +34,7 @@ using FramePFX.Plugins;
 using FramePFX.Services.Messaging;
 using FramePFX.Services.VideoEditors;
 using FramePFX.Themes;
+using HotAvalonia;
 
 namespace FramePFX.Avalonia;
 
@@ -45,6 +46,7 @@ public partial class App : global::Avalonia.Application {
     }
 
     public override void Initialize() {
+        this.EnableHotReload();
         AvaloniaXamlLoader.Load(this);
         AvCore.OnApplicationInitialised();
         ApplicationImpl.InternalSetupApplicationInstance(this);
@@ -98,8 +100,10 @@ public partial class App : global::Avalonia.Application {
 
             psm.Register(new EditorConfigurationOptions(), "editor", "window");
             psm.Register(new StartupConfigurationOptions(), null, "startup");
-            psm.Register<ThemeConfigurationOptions>(new ThemeConfigurationOptionsImpl(), null, "themes");
+            psm.Register<ThemeConfigurationOptions>(new ThemeConfigurationOptionsImpl(), "themes", "themes");
 
+            
+            
             Application.Instance.PluginLoader.RegisterConfigurations(psm);
 
             await psm.LoadAllAsync(null, false);
@@ -151,6 +155,7 @@ public partial class App : global::Avalonia.Application {
         await Application.Instance.PluginLoader.OnApplicationLoaded();
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             (progress as AppSplashScreen)?.Close();
+            ((ApplicationImpl) Application.Instance).StartupPhaseImpl = ApplicationStartupPhase.Running;
             await progress.ProgressAndSynchroniseAsync("Startup completed", 1.0);
             await StartupManager.Instance.OnApplicationStartupWithArgs(envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
             desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;

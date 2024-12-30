@@ -6,7 +6,6 @@
     <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
     <PathGeometry x:Key="ResetGeometry">F1 M 38,20.5833C 42.9908,20.5833 47.4912,22.6825 50.6667,26.046L 50.6667,17.4167L 55.4166,22.1667L 55.4167,34.8333L 42.75,34.8333L 38,30.0833L 46.8512,30.0833C 44.6768,27.6539 41.517,26.125 38,26.125C 31.9785,26.125 27.0037,30.6068 26.2296,36.4167L 20.6543,36.4167C 21.4543,27.5397 28.9148,20.5833 38,20.5833 Z M 38,49.875C 44.0215,49.875 48.9963,45.3932 49.7703,39.5833L 55.3457,39.5833C 54.5457,48.4603 47.0852,55.4167 38,55.4167C 33.0092,55.4167 28.5088,53.3175 25.3333,49.954L 25.3333,58.5833L 20.5833,53.8333L 20.5833,41.1667L 33.25,41.1667L 38,45.9167L 29.1487,45.9167C 31.3231,48.3461 34.483,49.875 38,49.875 Z</PathGeometry>
     <PathGeometry x:Key="ActiveCheckGeometry">F1 M 9.97498,1.22334L 4.6983,9.09834L 4.52164,9.09834L 0,5.19331L 1.27664,3.52165L 4.255,6.08833L 8.33331,1.52588e-005L 9.97498,1.22334 Z</PathGeometry>
-    <SolidColorBrush x:Key="SeparatorMouseOverBrush" Color="{DynamicResource ABrush.AccentTone2.Border.Static.Color}"/>
 
     <!-- ####################### TOGGLE BUTTON THEMES ####################### -->
 
@@ -91,7 +90,7 @@
             <Setter Property="Stroke" Value="{DynamicResource Expander.MouseOver.Arrow.Stroke}"/>
         </Style>
         <Style Selector="^:pointerover /template/ Separator#PART_Separator">
-            <Setter Property="Background" Value="{DynamicResource SeparatorMouseOverBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ABrush.PFX.PropertyEditor.Separator.MouseOverBrush}"/>
         </Style>
         <Style Selector="^[IsPressed=True] /template/ Path#arrow">
             <Setter Property="Stroke" Value="{DynamicResource Expander.Pressed.Arrow.Stroke}"/>
@@ -226,7 +225,7 @@
             <Setter Property="IsVisible" Value="true"/>
         </Style>
         <Style Selector="^[(l|ExpanderHelper.IsPointerOverEx)=True] /template/ Separator#PART_Separator">
-            <Setter Property="Background" Value="{DynamicResource SeparatorMouseOverBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ABrush.PFX.PropertyEditor.Separator.MouseOverBrush}"/>
         </Style>
         <Style Selector="^[IsEnabled=False]">
             <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>

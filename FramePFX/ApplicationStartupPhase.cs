@@ -20,30 +20,38 @@
 namespace FramePFX;
 
 public enum ApplicationStartupPhase {
+    // TODO: do we even need this many phases???
+    
     /// <summary>
     /// The application is in its default state; the instance just exists but nothing else has happened
     /// </summary>
     Default,
+    
     /// <summary>
     /// The application is in the pre-init stage, which is where services are being created
     /// </summary>
     PreInitialization,
+    
     /// <summary>
     /// The application is initialising core components and is loading plugins
     /// </summary>
     Initializing,
+    
     /// <summary>
     /// The application is fully initialised and is about to enter the running state
     /// </summary>
     FullyInitialized,
+
     /// <summary>
     /// The application is in its running state.
     /// </summary>
     Running,
+    
     /// <summary>
     /// The application is in the process of shutting down (e.g. the last editor window was closed)
     /// </summary>
     Stopping,
+    
     /// <summary>
     /// The application is stopped and the process will exit soon
     /// </summary>

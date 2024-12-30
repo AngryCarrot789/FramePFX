@@ -46,13 +46,7 @@
                         <Polygon IsHitTestVisible="False" Grid.Row="0" Points="0,0 15,0 15,10 8,17 7,17 0,10"
                                  StrokeThickness="1"
                                  Stroke="{TemplateBinding BorderBrush}"
-                                 HorizontalAlignment="Left" Width="15">
-                            <Polygon.Fill>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                    <GradientStop Color="{DynamicResource ABrush.Glyph.Static.Color}" Offset="0"/>
-                                    <GradientStop Color="{DynamicResource ABrush.Glyph.Disabled.Color}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Polygon.Fill>
+                                 HorizontalAlignment="Left" Width="15" Fill="{DynamicResource ABrush.PFX.Editor.Timeline.PlayHeadThumb.Background}">
                         </Polygon>
                         <Border IsHitTestVisible="False" BorderThickness="1,1,0,0" Width="3" Height="7" Margin="-5,-4,0,0" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
                                 Opacity="0.3"/>

@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Collections.Immutable;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using FramePFX.BaseFrontEnd.Bindings;
@@ -56,9 +58,10 @@ public partial class SingleUserInputControl : UserControl, IUserInputContent {
         this.footerBinder.AttachModel(this.myData);
         SingleUserInputInfo.LabelParameter.AddValueChangedHandler(info, this.OnLabelChanged);
         BaseTextUserInputInfo.FooterParameter.AddValueChangedHandler(this.myData!, this.OnFooterChanged);
-        this.myData.TextErrorChanged += this.OnTextErrorChanged;
+        this.myData.TextErrorsChanged += this.UpdateTextErrors;
         this.UpdateLabelVisibility();
         this.UpdateFooterVisibility();
+        this.UpdateTextErrors(this.myData);
     }
 
     public void Disconnect() {
@@ -67,18 +70,17 @@ public partial class SingleUserInputControl : UserControl, IUserInputContent {
         this.footerBinder.DetachModel();
         SingleUserInputInfo.LabelParameter.RemoveValueChangedHandler(this.myData!, this.OnLabelChanged);
         BaseTextUserInputInfo.FooterParameter.RemoveValueChangedHandler(this.myData!, this.OnFooterChanged);
-        this.myData!.TextErrorChanged -= this.OnTextErrorChanged;
+        this.myData!.TextErrorsChanged -= this.UpdateTextErrors;
         this.myDialog = null;
         this.myData = null;
     }
 
-    private void OnTextErrorChanged(SingleUserInputInfo sender) {
-        if (sender.TextError != null) {
-            DataValidationErrors.SetErrors(this.PART_TextBox, [sender.TextError]);
-        }
-        else {
-            DataValidationErrors.ClearErrors(this.PART_TextBox);
-        }
+    public static void SetErrorsOrClear(AvaloniaObject target, IImmutableList<string>? errors) {
+        target.SetValue(DataValidationErrors.ErrorsProperty, errors?.ToList() ?? AvaloniaProperty.UnsetValue);
+    }
+    
+    private void UpdateTextErrors(SingleUserInputInfo info) {
+        SetErrorsOrClear(this.PART_TextBox, info.TextErrors);
     }
 
     public bool FocusPrimaryInput() {

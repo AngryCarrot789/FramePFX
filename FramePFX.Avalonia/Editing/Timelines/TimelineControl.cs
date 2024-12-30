@@ -96,7 +96,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     public Border? TimelineBorder { get; private set; }
 
-    public Border? RulerBorder { get; private set; }
+    public InputElement? RulerBorder { get; private set; }
 
     public FlatLinePlayHeadControl? PlayHeadInSequence { get; private set; }
 
@@ -164,7 +164,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.TimelineScrollViewer = e.NameScope.GetTemplateChild<ScrollViewer>("PART_SequenceScrollViewer");
         this.TrackListScrollViewer = e.NameScope.GetTemplateChild<ScrollViewer>("PART_TrackListScrollViewer");
         this.TimelineBorder = e.NameScope.GetTemplateChild<Border>("PART_TimelineSequenceBorder");
-        this.RulerBorder = e.NameScope.GetTemplateChild<Border>("PART_RulerBorder");
+        this.RulerBorder = e.NameScope.GetTemplateChild<InputElement>("PART_RulerBorder");
         this.PlayHeadInSequence = e.NameScope.GetTemplateChild<FlatLinePlayHeadControl>("PART_PlayHeadControl");
         this.StopHeadInSequence = e.NameScope.GetTemplateChild<FlatLinePlayHeadControl>("PART_StopHeadControl");
         this.PlayHeadInRuler = e.NameScope.GetTemplateChild<GrippedPlayHeadControl>("PART_RulerPlayHead");

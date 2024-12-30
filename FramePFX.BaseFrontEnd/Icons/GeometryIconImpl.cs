@@ -17,11 +17,17 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Media;
+using Avalonia.Skia;
 using FramePFX.BaseFrontEnd.Themes.BrushFactories;
+using FramePFX.Icons;
 using FramePFX.Logging;
 using FramePFX.Themes;
+using SkiaSharp;
+using Vector = Avalonia.Vector;
 
 namespace FramePFX.BaseFrontEnd.Icons;
 
@@ -87,43 +93,119 @@ public class GeometryIconImpl : AbstractAvaloniaIcon {
         this.OnRenderInvalidated();
     }
 
-    public override void Render(DrawingContext context, Rect size, bool scale) {
-        DrawingContext.PushedState? x = null;
-        if (scale) {
-            Rect geometryBounds = this.GetBounds();
-            Vector theScale = new Vector(size.Width / geometryBounds.Width, size.Height / geometryBounds.Height);
-            x = context.PushTransform(Matrix.CreateScale(theScale));
-        }
+    SKMatrix Transpose(SKMatrix matrix)
+    {
+        return new SKMatrix
+        {
+            ScaleX = matrix.ScaleX, // row 1, col 1 stays the same
+            SkewX = matrix.SkewY,  // row 1, col 2 becomes row 2, col 1
+            TransX = matrix.Persp0, // row 1, col 3 becomes row 3, col 1
 
-        using (x) {
-            foreach (Geometry? geometry in this.Geometries) {
-                if (geometry != null) {
-                    if (this.myPen == null && this.myPenBrush != null) {
-                        this.myPen = new Pen(this.myPenBrush, this.StrokeThickness);
-                    }
+            SkewY = matrix.SkewX,  // row 2, col 1 becomes row 1, col 2
+            ScaleY = matrix.ScaleY, // row 2, col 2 stays the same
+            TransY = matrix.Persp1, // row 2, col 3 becomes row 3, col 2
 
-                    context.DrawGeometry(this.myFillBrush, this.myPen, geometry);
+            Persp0 = matrix.TransX, // row 3, col 1 becomes row 1, col 3
+            Persp1 = matrix.TransY, // row 3, col 2 becomes row 2, col 3
+            Persp2 = matrix.Persp2  // row 3, col 3 stays the same
+        };
+    }
+    
+    internal static Matrix ToAvaloniaMatrix(SKMatrix m)
+    {
+        return new Matrix(m.ScaleX, m.SkewY, m.Persp0, m.SkewX, m.ScaleY, m.Persp1, m.TransX, m.TransY, m.Persp2);
+    }
+    
+    public override void Render(DrawingContext context, Rect size, SKMatrix transform) {
+        // DrawingContext.PushedState? x = null;
+        // if (scale) {
+        //     Rect geometryBounds = this.GetBounds();
+        //     Vector theScale = new Vector(size.Width / geometryBounds.Width, size.Height / geometryBounds.Height);
+        //     x = context.PushTransform(Matrix.CreateScale(theScale));
+        // }
+
+        Matrix theMat = ToAvaloniaMatrix(transform);
+        foreach (Geometry? geometry in this.Geometries) {
+            if (geometry != null) {
+                if (this.myPen == null && this.myPenBrush != null) {
+                    this.myPen = new Pen(this.myPenBrush, this.StrokeThickness);
                 }
+
+                Geometry theGeo;
+                if (theMat == Matrix.Identity) {
+                    theGeo = geometry;
+                }
+                else {
+                    theGeo = geometry.Clone();
+                    theGeo.Transform = theGeo.Transform == null || theGeo.Transform.Value == Matrix.Identity ? new MatrixTransform(theMat) : (Transform) new MatrixTransform(theGeo.Transform.Value * theMat);
+                }
+
+                context.DrawGeometry(this.myFillBrush, this.myPen, theGeo);
             }
         }
     }
 
     public Rect GetBounds() {
-        Rect b = new Rect();
+        double l = double.MaxValue, t = double.MaxValue, r = double.MinValue, b = double.MinValue;
         foreach (Geometry? g in this.Geometries) {
             if (g == null)
                 continue;
 
             Rect a = g.Bounds;
-            double le = Math.Min(a.Left, b.Left), to = Math.Min(a.Top, b.Top);
-            double ri = Math.Max(a.Right, b.Right), bo = Math.Max(a.Bottom, b.Bottom);
-            b = new Rect(le, to, ri - le, bo - to);
+            l = Math.Min(a.Left, l);
+            t = Math.Min(a.Top, t);
+            r = Math.Max(a.Right, r);
+            b = Math.Max(a.Bottom, b);
         }
 
-        return b;
+        return new Rect(l, t, r - l, b - t);
     }
-    
-    public override Size GetSize() {
-        return this.GetBounds().Size;
+
+    public override (Size Size, SKMatrix Transform) Measure(Size availableSize, StretchMode stretch) {
+        (Size size, Matrix t) = CalculateSizeAndTransform(availableSize, this.GetBounds(), (Stretch) stretch);
+        return (size, t.ToSKMatrix());
+    }
+
+    internal static (Size size, Matrix transform) CalculateSizeAndTransform(Size availableSize, Rect shapeBounds, Stretch Stretch) {
+        Size size = new Size(shapeBounds.Right, shapeBounds.Bottom);
+        Matrix matrix1 = Matrix.Identity;
+        double width = availableSize.Width;
+        double height = availableSize.Height;
+        double num1 = 0.0;
+        double num2 = 0.0;
+        if (Stretch != Stretch.None) {
+            size = shapeBounds.Size;
+            matrix1 = Matrix.CreateTranslation(-(Vector) shapeBounds.Position);
+        }
+
+        if (double.IsInfinity(availableSize.Width))
+            width = size.Width;
+        if (double.IsInfinity(availableSize.Height))
+            height = size.Height;
+        if (shapeBounds.Width > 0.0)
+            num1 = width / size.Width;
+        if (shapeBounds.Height > 0.0)
+            num2 = height / size.Height;
+        if (double.IsInfinity(availableSize.Width))
+            num1 = num2;
+        if (double.IsInfinity(availableSize.Height))
+            num2 = num1;
+        switch (Stretch) {
+            case Stretch.Fill:
+                if (double.IsInfinity(availableSize.Width))
+                    num1 = 1.0;
+                if (double.IsInfinity(availableSize.Height)) {
+                    num2 = 1.0;
+                    break;
+                }
+
+            break;
+            case Stretch.Uniform:       num1 = num2 = Math.Min(num1, num2); break;
+            case Stretch.UniformToFill: num1 = num2 = Math.Max(num1, num2); break;
+            default:                    num1 = num2 = 1.0; break;
+        }
+
+        Matrix matrix2 = matrix1 * Matrix.CreateScale(num1, num2);
+        return (new Size(size.Width * num1, size.Height * num2), matrix2);
     }
 }

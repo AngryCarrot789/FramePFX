@@ -17,9 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using FramePFX.Icons;
+using SkiaSharp;
 
 namespace FramePFX.BaseFrontEnd.Icons;
 
@@ -30,11 +34,12 @@ public class BitmapIconImpl : AbstractAvaloniaIcon {
         this.Bitmap = bitmap;
     }
 
-    public override void Render(DrawingContext context, Rect size, bool scale) {
-        context.DrawImage(this.Bitmap, size);
+    public override void Render(DrawingContext context, Rect size, SKMatrix transform) {
+        using (context.PushTransform(Unsafe.As<SKMatrix, Matrix>(ref transform)))
+            context.DrawImage(this.Bitmap, size);
     }
 
-    public override Size GetSize() {
-        return this.Bitmap.Size;
+    public override (Size Size, SKMatrix Transform) Measure(Size availableSize, StretchMode stretchMode) {
+        return (this.Bitmap.Size, SKMatrix.Identity);
     }
 }

@@ -19,6 +19,7 @@
 
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Threading;
 using FramePFX.AdvancedMenuService;
 using FramePFX.BaseFrontEnd.AvControls;
@@ -74,7 +75,7 @@ public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
         if (this.Entry.Icon != null) {
             this.myIconControl = new IconControl() {
                 Icon = this.Entry.Icon,
-                ScaleIcon = this.Entry.ScaleIcon
+                Stretch = this.Entry.ScaleIcon ? Stretch.UniformToFill : Stretch.None
             };
             
             this.Icon = this.myIconControl;

@@ -209,4 +209,11 @@
     <SolidColorBrush x:Key="ABrush.PFX.Editor.ResourceManager.TabItem.Background"   Color="{StaticResource ABrush.Tone5.Background.Static.Color}"/>
     <SolidColorBrush x:Key="ABrush.PFX.Editor.ResourceManager.List.Background"      Color="{StaticResource ABrush.Tone2.Background.Static.Color}"/>
     <SolidColorBrush x:Key="ABrush.PFX.Editor.ResourceManager.Tree.Background"      Color="{StaticResource ABrush.Tone3.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Automation.Active.Fill" Color="OrangeRed"/>
+    <SolidColorBrush x:Key="ABrush.PFX.TrackAutomation.Active.Fill" Color="Chocolate"/>
+    <SolidColorBrush x:Key="ABrush.PFX.PropertyEditor.Separator.MouseOverBrush" Color="{DynamicResource ABrush.AccentTone2.Border.Static.Color}"/>
+    <LinearGradientBrush x:Key="ABrush.PFX.Editor.Timeline.PlayHeadThumb.Background" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{DynamicResource ABrush.Glyph.Static.Color}" Offset="0"/>
+        <GradientStop Color="{DynamicResource ABrush.Glyph.Disabled.Color}" Offset="1"/>
+    </LinearGradientBrush>
 </ResourceDictionary>

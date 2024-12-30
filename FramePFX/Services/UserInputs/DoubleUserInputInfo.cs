@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Collections.Immutable;
 using FramePFX.DataTransfer;
 using FramePFX.Utils.Accessing;
 
@@ -25,28 +26,25 @@ namespace FramePFX.Services.UserInputs;
 public delegate void DoubleUserInputDataEventHandler(DoubleUserInputInfo sender);
 
 public class DoubleUserInputInfo : BaseTextUserInputInfo {
-    public static readonly DataParameterString TextAParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(TextA), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(textA))));
-    public static readonly DataParameterString TextBParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(TextB), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(textB))));
+    public static readonly DataParameterString TextAParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(TextA), "", ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(textA)), isNullable:false));
+    public static readonly DataParameterString TextBParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(TextB), "", ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(textB)), isNullable:false));
     public static readonly DataParameterString LabelAParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(LabelA), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(labelA))));
     public static readonly DataParameterString LabelBParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(LabelB), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(labelB))));
 
-    private string? textA = TextAParameter.DefaultValue;
-    private string? textB = TextBParameter.DefaultValue;
+    private string textA = TextAParameter.DefaultValue!;
+    private string textB = TextBParameter.DefaultValue!;
     private string? labelA = LabelAParameter.DefaultValue;
     private string? labelB = LabelBParameter.DefaultValue;
-    private bool allowEmptyTextA;
-    private bool allowEmptyTextB;
-    private string? textErrorA, textErrorB;
-    private Func<string?, string?>? validatorA, validatorB;
+    private IImmutableList<string>? textErrorsA, textErrorsB;
 
-    public string? TextA {
+    public string TextA {
         get => this.textA;
-        set => DataParameter.SetValueHelper(this, TextAParameter, ref this.textA, value);
+        set => DataParameter.SetValueHelper<string?>(this, TextAParameter, ref this.textA!, value ?? "");
     }
 
-    public string? TextB {
+    public string TextB {
         get => this.textB;
-        set => DataParameter.SetValueHelper(this, TextBParameter, ref this.textB, value);
+        set => DataParameter.SetValueHelper<string?>(this, TextBParameter, ref this.textB!, value ?? "");
     }
 
     public string? LabelA {
@@ -59,91 +57,49 @@ public class DoubleUserInputInfo : BaseTextUserInputInfo {
         set => DataParameter.SetValueHelper(this, LabelBParameter, ref this.labelB, value);
     }
 
-    public bool AllowEmptyTextA {
-        get => this.allowEmptyTextA;
-        set {
-            if (this.allowEmptyTextA == value)
-                return;
-
-            this.allowEmptyTextA = value;
-            this.AllowEmptyTextAChanged?.Invoke(this);
-            this.UpdateTextAError();
-        }
-    }
-
-    public bool AllowEmptyTextB {
-        get => this.allowEmptyTextB;
-        set {
-            if (this.allowEmptyTextB == value)
-                return;
-
-            this.allowEmptyTextB = value;
-            this.AllowEmptyTextBChanged?.Invoke(this);
-            this.UpdateTextBError();
-        }
-    }
-
-    /// <summary>
-    /// A validation function that is invoked when the A text changes. This converts the text into an error message.
-    /// This function should return a non-null value when there's an error (preventing
-    /// the dialog from closing), and return null when there's no error
-    /// </summary>
-    public Func<string?, string?>? ValidatorA {
-        get => this.validatorA;
-        set {
-            this.validatorA = value;
-            this.UpdateTextAError();
-        }
-    }
-
-    /// <summary>
-    /// A validation function that is invoked when the B text changes. This converts the text into an error message.
-    /// This function should return a non-null value when there's an error (preventing
-    /// the dialog from closing), and return null when there's no error
-    /// </summary>
-    public Func<string?, string?>? ValidatorB {
-        get => this.validatorB;
-        set {
-            this.validatorB = value;
-            this.UpdateTextBError();
-        }
-    }
-
-    public string? TextErrorA {
-        get => this.textErrorA;
+    public Action<string, List<string>>? ValidateA { get; set; }
+    
+    public Action<string, List<string>>? ValidateB { get; set; }
+    
+    public IImmutableList<string>? TextErrorsA {
+        get => this.textErrorsA;
         private set {
-            if (this.textErrorA == value)
-                return;
+            if (value?.Count < 1) {
+                value = null; // set empty to null for simplified usage of the property
+            }
 
-            this.textErrorA = value;
-            this.TextErrorAChanged?.Invoke(this);
-            this.RaiseHasErrorsChanged();
+            if (!ReferenceEquals(this.textErrorsA, value)) {
+                this.textErrorsA = value;
+                this.TextErrorsAChanged?.Invoke(this);
+                this.RaiseHasErrorsChanged();
+            }
         }
     }
-
-    public string? TextErrorB {
-        get => this.textErrorB;
+    
+    public IImmutableList<string>? TextErrorsB {
+        get => this.textErrorsB;
         private set {
-            if (this.textErrorB == value)
-                return;
+            if (value?.Count < 1) {
+                value = null; // set empty to null for simplified usage of the property
+            }
 
-            this.textErrorB = value;
-            this.TextErrorBChanged?.Invoke(this);
-            this.RaiseHasErrorsChanged();
+            if (!ReferenceEquals(this.textErrorsB, value)) {
+                this.textErrorsB = value;
+                this.TextErrorsBChanged?.Invoke(this);
+                this.RaiseHasErrorsChanged();
+            }
         }
     }
 
-    public event DoubleUserInputDataEventHandler? AllowEmptyTextAChanged;
-    public event DoubleUserInputDataEventHandler? AllowEmptyTextBChanged;
-    public event DoubleUserInputDataEventHandler? TextErrorAChanged;
-    public event DoubleUserInputDataEventHandler? TextErrorBChanged;
+    public event DoubleUserInputDataEventHandler? TextErrorsAChanged;
+    public event DoubleUserInputDataEventHandler? TextErrorsBChanged;
 
     public DoubleUserInputInfo() {
     }
 
     public DoubleUserInputInfo(string? textA, string? textB) {
-        this.textA = textA;
-        this.textB = textB;
+        this.textA = textA ?? "";
+        this.textB = textB ?? "";
     }
 
     static DoubleUserInputInfo() {
@@ -152,24 +108,14 @@ public class DoubleUserInputInfo : BaseTextUserInputInfo {
     }
 
     private void UpdateTextAError() {
-        if (string.IsNullOrEmpty(this.TextA) && !this.AllowEmptyTextA) {
-            this.TextErrorA = "Text cannot be an empty string";
-        }
-        else {
-            this.TextErrorA = this.ValidatorA?.Invoke(this.TextA);
-        }
+        this.TextErrorsA = SingleUserInputInfo.GetErrors(this.TextA, this.ValidateA);
     }
 
     private void UpdateTextBError() {
-        if (string.IsNullOrEmpty(this.TextB) && !this.AllowEmptyTextB) {
-            this.TextErrorB = "Text cannot be an empty string";
-        }
-        else {
-            this.TextErrorB = this.ValidatorB?.Invoke(this.TextB);
-        }
+        this.TextErrorsB = SingleUserInputInfo.GetErrors(this.TextB, this.ValidateB);
     }
 
-    public override bool HasErrors() => this.textErrorA != null || this.textErrorB != null;
+    public override bool HasErrors() => this.TextErrorsA != null || this.TextErrorsB != null;
 
     public override void UpdateAllErrors() {
         this.UpdateTextAError();

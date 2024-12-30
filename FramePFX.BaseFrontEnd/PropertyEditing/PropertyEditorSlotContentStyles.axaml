@@ -338,14 +338,14 @@
     <!-- Automatable Property Editors -->
 
     <ControlTheme x:Key="{x:Type pea:BaseParameterPropertyEditorSlotControl}" TargetType="{x:Type pea:BaseParameterPropertyEditorSlotControl}">
-        <Setter Property="AutomationLedBrush" Value="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
+        <Setter Property="AutomationLedBrush" Value="{DynamicResource ABrush.PFX.Automation.Active.Fill}"/>
     </ControlTheme>
 
     <TextBlock x:Key="AutomationLedTooltipTextBlock" x:Shared="True">
         <Run Text="This LED being visible indicates key frames are present for this parameter"/>
         <LineBreak/>
         <!-- must remain single lined!!! avalonia is weird and it isn't drawn the same when multi-line -->
-        <Run Text="When "/><Run BaselineAlignment="Center" Text="lit" Foreground="{DynamicResource ABrush.AutomationActiveColour.Static}"/><Run Text=", it means automation is active, and grey (off) means override is enabled"/>
+        <Run Text="When "/><Run BaselineAlignment="Center" Text="lit" Foreground="{DynamicResource ABrush.PFX.Automation.Active.Fill}"/><Run Text=", it means automation is active, and grey (off) means override is enabled"/>
     </TextBlock>
 
     <ControlTheme x:Key="{x:Type pea:BaseNumericParameterPropertyEditorSlotControl}" TargetType="{x:Type pea:BaseNumericParameterPropertyEditorSlotControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorSlotControl}}">
@@ -360,7 +360,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock x:Name="PART_DisplayName" VerticalAlignment="Center"/>
-                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"
+                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.PFX.Automation.Active.Fill}"
                                      Stroke="Black" StrokeThickness="1" Width="7" Margin="2,2,0,0"
                                      Height="7" IsVisible="False" VerticalAlignment="Top"
                                      ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"/>
@@ -391,7 +391,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock x:Name="PART_DisplayName" VerticalAlignment="Center"/>
-                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"
+                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.PFX.Automation.Active.Fill}"
                                      Stroke="Black" StrokeThickness="1" Width="7" Margin="2,2,0,0"
                                      Height="7" IsVisible="False" VerticalAlignment="Top"
                                      ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"/>
@@ -418,7 +418,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock x:Name="PART_DisplayName" VerticalAlignment="Center"/>
-                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"
+                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.PFX.Automation.Active.Fill}"
                                      Stroke="Black" StrokeThickness="1" Width="7" Margin="2,2,0,0"
                                      Height="7" IsVisible="False" VerticalAlignment="Top"
                                      ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"/>

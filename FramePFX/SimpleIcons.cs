@@ -17,12 +17,20 @@ using FramePFX.Themes;
 namespace FramePFX;
 
 public static class SimpleIcons {
+    // Can't remember where I got this from... I'm pretty sure it was public domain but I try to credit anyway
     public static readonly Icon LoopIcon = 
         IconManager.Instance.RegisterGeometryIcon(
             "LoopIcon", 
             BrushManager.Instance.GetDynamicThemeBrush("ABrush.Glyph.Static"), 
             null, 
             ["M0 11 0 0 16.8 0 16.8 11.6 10 11.6 12.6 13.8 8.7 13.8 4.8 10.3 8.7 6.6 12.6 6.6 10 9.2 14.4 9.2 14.4 2.6 2.6 2.6 2.6 9 4.6 9 3.6 10.3 4.5 11.6 0 11.6Z"]);
+    
+    public static readonly Icon ResetIcon = 
+        IconManager.Instance.RegisterGeometryIcon(
+            "ResetIcon", 
+            BrushManager.Instance.GetDynamicThemeBrush("ABrush.Glyph.Static"), 
+            null, 
+            ["F1 M 38,20.5833C 42.9908,20.5833 47.4912,22.6825 50.6667,26.046L 50.6667,17.4167L 55.4166,22.1667L 55.4167,34.8333L 42.75,34.8333L 38,30.0833L 46.8512,30.0833C 44.6768,27.6539 41.517,26.125 38,26.125C 31.9785,26.125 27.0037,30.6068 26.2296,36.4167L 20.6543,36.4167C 21.4543,27.5397 28.9148,20.5833 38,20.5833 Z M 38,49.875C 44.0215,49.875 48.9963,45.3932 49.7703,39.5833L 55.3457,39.5833C 54.5457,48.4603 47.0852,55.4167 38,55.4167C 33.0092,55.4167 28.5088,53.3175 25.3333,49.954L 25.3333,58.5833L 20.5833,53.8333L 20.5833,41.1667L 33.25,41.1667L 38,45.9167L 29.1487,45.9167C 31.3231,48.3461 34.483,49.875 38,49.875 Z"]);
     
     // https://www.svgrepo.com/svg/486816/rename
     public static readonly Icon RenameIcon = 

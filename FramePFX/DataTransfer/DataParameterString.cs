@@ -38,15 +38,25 @@ public sealed class DataParameterString : DataParameter<string?> {
     /// </summary>
     public int MaximumChars { get; }
 
-    public DataParameterString(Type ownerType, string name, ValueAccessor<string?> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, null, accessor, flags) {
+    /// <summary>
+    /// Returns true if this string can be set to null.
+    /// </summary>
+    public bool IsNullable { get; }
+    
+    public DataParameterString(Type ownerType, string name, ValueAccessor<string?> accessor, DataParameterFlags flags = DataParameterFlags.None, bool isNullable = true) : this(ownerType, name, null, accessor, flags, isNullable) {
     }
 
-    public DataParameterString(Type ownerType, string name, string? defValue, ValueAccessor<string?> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, defValue, 0, int.MaxValue, accessor, flags) {
+    public DataParameterString(Type ownerType, string name, string? defValue, ValueAccessor<string?> accessor, DataParameterFlags flags = DataParameterFlags.None, bool isNullable = true) : this(ownerType, name, defValue, 0, int.MaxValue, accessor, flags, isNullable) {
     }
 
-    public DataParameterString(Type ownerType, string name, string? defValue, int minChars, int maxChars, ValueAccessor<string?> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags) {
+    public DataParameterString(Type ownerType, string name, string? defValue, int minChars, int maxChars, ValueAccessor<string?> accessor, DataParameterFlags flags = DataParameterFlags.None, bool isNullable = true) : base(ownerType, name, defValue, accessor, flags) {
         if (minChars > maxChars)
             throw new ArgumentException($"Minimum value exceeds the maximum value: {minChars} > {maxChars}", nameof(minChars));
+        this.IsNullable = isNullable;
+        
+        if (isNullable && defValue == null)
+            defValue = "";
+        
         this.hasCharLimit = minChars != 0 || maxChars != int.MaxValue;
         if (this.hasCharLimit && ((defValue ?? "").Length < minChars || (defValue ?? "").Length > maxChars))
             throw new ArgumentOutOfRangeException(nameof(defValue), $"Default value '{defValue ?? ""}' length of {defValue?.Length ?? 0} falls out of range of the min-max values ({minChars}-{maxChars})");
@@ -54,11 +64,9 @@ public sealed class DataParameterString : DataParameter<string?> {
         this.MinimumChars = minChars;
         this.MaximumChars = maxChars;
     }
-
+    
     public override void SetValue(ITransferableData owner, string? value) {
-        if (this.hasCharLimit)
-            value = (value ?? this.DefaultValue ?? "").FitLength(this.MinimumChars);
-        base.SetValue(owner, value);
+        base.SetValue(owner, this.CoerceValue(value));
     }
 
     public override void SetObjectValue(ITransferableData owner, object? value) {
@@ -80,6 +88,6 @@ public sealed class DataParameterString : DataParameter<string?> {
             }
         }
 
-        return value;
+        return this.IsNullable ? value : (value ?? "");
     }
 }

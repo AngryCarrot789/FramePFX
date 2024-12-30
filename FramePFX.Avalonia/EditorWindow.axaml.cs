@@ -136,6 +136,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     private void OnSetThemeMenuItemClicked(object? sender, RoutedEventArgs e) {
         Theme theme = (Theme) ((MenuItem) sender!).Tag!;
         theme.ThemeManager.SetTheme(theme);
+        StartupConfigurationOptions.Instance.StartupTheme = theme.Name;
     }
 
     protected override void OnUnloaded(RoutedEventArgs e) {

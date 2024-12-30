@@ -6,8 +6,9 @@
                     xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing"
                     xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls"
                     xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages"
-                    xmlns:themes="clr-namespace:FramePFX.BaseFrontEnd.Configurations.Pages.Themes"
-                    xmlns:converters="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml">
+                    xmlns:converters="clr-namespace:Avalonia.Markup.Xaml.Converters;assembly=Avalonia.Markup.Xaml"
+                    xmlns:configurations="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Configurations"
+                    xmlns:themes="clr-namespace:FramePFX.BaseFrontEnd.Themes.Configurations">
     <ControlTheme x:Key="{x:Type b:BasicEditorWindowConfigurationPageControl}" TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
@@ -31,9 +32,9 @@
         </Setter>
     </ControlTheme>
     
-    <ControlTheme x:Key="{x:Type b:ShortcutEditorConfigurationPageControl}" TargetType="{x:Type b:ShortcutEditorConfigurationPageControl}">
+    <ControlTheme x:Key="{x:Type configurations:ShortcutEditorConfigurationPageControl}" TargetType="{x:Type configurations:ShortcutEditorConfigurationPageControl}">
         <Setter Property="Template">
-            <ControlTemplate TargetType="{x:Type b:ShortcutEditorConfigurationPageControl}">
+            <ControlTemplate TargetType="{x:Type configurations:ShortcutEditorConfigurationPageControl}">
                 <Grid Margin="0,2" RowDefinitions="Auto,5,*">
                     <Grid Grid.Row="0">
                         <TextBlock Padding="10" TextWrapping="Wrap">
@@ -72,6 +73,11 @@
                         <TextBlock Padding="10" TextWrapping="Wrap">
                             <Run Text="The theme configuration tree groups the UI's theme elements" BaselineAlignment="Center"/>
                         </TextBlock>
+                        <TextBlock x:Name="PART_WarnEditingBuiltInTheme" Padding="10" TextWrapping="Wrap">
+                            <Run Text="Warning! The current theme is a built-in theme. Changes to built-in themes are not saved across restarts." BaselineAlignment="Center"/>
+                            <LineBreak/>
+                            <Run Text="Creates a copy (ideally an inherited copy) of the current theme to save changes" BaselineAlignment="Center"/>
+                        </TextBlock>
                     </Grid>
                     <c:GroupBox Grid.Row="2" Header="Theme" Margin="5,0,5,5">
                         <Grid Margin="0" RowDefinitions="Auto,*,40">
@@ -80,7 +86,20 @@
                                     <Button Content="Expand All" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.ExpandThemeConfigTree"/>
                                     <Button Content="Collapse All" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.CollapseThemeConfigTree"/>
                                     <Separator Theme="{StaticResource VerticalSeparatorTheme}"/>
-                                    <Button Content="Create copy" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.CreateTheme"/>
+                                    <Button Content="Create Inherited Copy" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.CreateInheritedCopy"
+                                            ToolTip.Tip="Creates a new theme that is based on (inheriting from) the current theme"/>
+                                    <Button Content="Create Clone" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.themeconfig.CreateCompleteCopy">
+                                        <ToolTip.Tip>
+                                            <TextBlock>
+                                                <Run Text="Creates a complete copy of the current theme"/>
+                                                <LineBreak/>
+                                                <Run Text="If the current theme is based on another theme, then the new theme still inherits from that theme"/>
+                                                <LineBreak/>
+                                                <LineBreak/>
+                                                <Run Text="This basically just copies all theme entries from the current theme"/>
+                                            </TextBlock>
+                                        </ToolTip.Tip>
+                                    </Button>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Grid.Column="2">
                                     <TextBox Width="200" Text="Search..."/>

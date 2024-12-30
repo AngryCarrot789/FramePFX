@@ -20,6 +20,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using FramePFX.BaseFrontEnd.Configurations.Pages;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Shortcuts.Trees;
 using FramePFX.BaseFrontEnd.Utils;
@@ -27,7 +28,7 @@ using FramePFX.Configurations.Shortcuts;
 using FramePFX.Configurations.UI;
 using FramePFX.Shortcuts;
 
-namespace FramePFX.BaseFrontEnd.Configurations.Pages.Basic;
+namespace FramePFX.BaseFrontEnd.Shortcuts.Configurations;
 
 public class ShortcutEditorConfigurationPageControl : BaseConfigurationPageControl {
     private ShortcutTreeView? PART_ShortcutTree;

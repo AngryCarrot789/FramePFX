@@ -20,6 +20,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using FramePFX.Themes;
 using FramePFX.Utils;
 
 namespace FramePFX.Persistence;
@@ -29,10 +30,11 @@ public delegate void PersistentConfigurationValueChangeEventHandler(PersistentCo
 /// <summary>
 /// The base class for an object that stores a set of registered configuration options that
 /// are loaded on application startup and saved during application exit (they may also be
-/// saved manually, e.g. after clicking Save in a configuration page).
+/// saved manually, e.g. after clicking Apply or Save in a configuration page).
 /// <para>
 /// The purpose of this system is to simplify saving application and plugin options to the
-/// disk. Plugin authors need never deal with file IO directly for config files
+/// disk. Plugin authors need never deal with file IO directly for config files, as long
+/// as they can use the built in properties or manage their own custom XML serialisation
 /// </para>
 /// </summary>
 public abstract class PersistentConfiguration {
@@ -72,10 +74,8 @@ public abstract class PersistentConfiguration {
         return PersistentProperty.GetProperties(this.GetType(), true);
     }
 
-    internal void InternalAssignDefaultValues() {
-        foreach (PersistentProperty property in this.GetProperties()) {
-            property.InternalAssignDefaultValue(this);
-        }
+    public virtual void OnLoaded() {
+        
     }
 
     /// <summary>
@@ -111,6 +111,12 @@ public abstract class PersistentConfiguration {
         }
     }
 
+    internal void InternalAssignDefaultValues() {
+        foreach (PersistentProperty property in this.GetProperties()) {
+            property.InternalAssignDefaultValue(this);
+        }
+    }
+    
     internal static void InternalRaiseValueChange<T>(PersistentConfiguration config, PersistentProperty<T> property, T oldValue, T newValue, bool isBeforeChange) {
         if (config.TryGetPropertyData(property, out PropertyData<T>? data)) {
             data.RaiseValueChange(config, property, oldValue, newValue, isBeforeChange);

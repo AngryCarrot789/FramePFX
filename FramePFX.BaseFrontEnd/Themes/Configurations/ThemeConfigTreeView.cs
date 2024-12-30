@@ -23,7 +23,7 @@ using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.Configurations.UI;
 using FramePFX.Themes.Configurations;
 
-namespace FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
+namespace FramePFX.BaseFrontEnd.Themes.Configurations;
 
 public class ThemeConfigTreeView : TreeView, IThemeConfigEntryTreeOrNode, IThemeConfigurationTreeElement {
     public static readonly StyledProperty<ThemeConfigurationPage?> ThemeConfigurationPageProperty = AvaloniaProperty.Register<ThemeConfigTreeView, ThemeConfigurationPage?>(nameof(ThemeConfigurationPage));

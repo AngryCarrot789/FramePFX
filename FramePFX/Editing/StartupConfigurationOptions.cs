@@ -19,6 +19,7 @@
 
 using FramePFX.Persistence;
 using FramePFX.PropertyEditing.DataTransfer.Enums;
+using FramePFX.Themes;
 
 namespace FramePFX.Editing;
 
@@ -26,8 +27,10 @@ public class StartupConfigurationOptions : PersistentConfiguration {
     public static StartupConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<StartupConfigurationOptions>();
     
     public static readonly PersistentProperty<EnumStartupBehaviour> StartupBehaviourProperty = PersistentProperty.RegisterEnum<EnumStartupBehaviour, StartupConfigurationOptions>(nameof(StartupBehaviour), EnumStartupBehaviour.OpenStartupWindow, x => x.startupBehaviour, (x, y) => x.startupBehaviour = y, true);
+    public static readonly PersistentProperty<string> StartupThemeProperty = PersistentProperty.RegisterString<StartupConfigurationOptions>(nameof(StartupTheme), "Dark", x => x.startupTheme ?? "", (x, y) => x.startupTheme = y, true);
     
     private EnumStartupBehaviour startupBehaviour;
+    private string? startupTheme;
     
     /// <summary>
     /// Gets or sets the application's startup behaviour
@@ -36,15 +39,31 @@ public class StartupConfigurationOptions : PersistentConfiguration {
         get => StartupBehaviourProperty.GetValue(this);
         set => StartupBehaviourProperty.SetValue(this, value);
     }
+    
+    public string StartupTheme {
+        get => StartupThemeProperty.GetValue(this);
+        set => StartupThemeProperty.SetValue(this, value);
+    }
 
     static StartupConfigurationOptions() {
         StartupBehaviourProperty.DescriptionLines.Add("This property defines what to do on application startup.");
         StartupBehaviourProperty.DescriptionLines.Add("Applicable values: " + string.Join(", ", DataParameterEnumInfo<EnumStartupBehaviour>.EnumValues));
+        StartupThemeProperty.DescriptionLines.Add("The theme the application loads with by default. If the theme does not exist at startup, 'Dark' will be used instead");
     }
 
     public enum EnumStartupBehaviour {
         OpenStartupWindow,
         OpenDemoProject,
         OpenEmptyProject
+    }
+
+    public void ApplyTheme() {
+        if (!string.IsNullOrWhiteSpace(this.startupTheme) && ThemeManager.Instance.GetTheme(this.startupTheme) is Theme theme) {
+            ThemeManager.Instance.SetTheme(theme);
+        }
+    }
+
+    public void SetStartupThemeAsCurrent() {
+        this.StartupTheme = ThemeManager.Instance.ActiveTheme.Name;
     }
 }

@@ -21,6 +21,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Media;
+using FramePFX.BaseFrontEnd.Configurations.Pages;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Themes.BrushFactories;
 using FramePFX.BaseFrontEnd.Utils;
@@ -29,7 +30,7 @@ using FramePFX.Themes.Configurations;
 using SkiaSharp;
 using IThemeConfigurationTreeElement = FramePFX.Configurations.UI.IThemeConfigurationTreeElement;
 
-namespace FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
+namespace FramePFX.BaseFrontEnd.Themes.Configurations;
 
 public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
     public new ThemeConfigurationPage? Page => (ThemeConfigurationPage?) base.Page;
@@ -39,6 +40,7 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
     private Grid? PART_SelectedItemGrid;
     private ColorPicker? PART_ColorPicker;
     private BindingExpressionBase? colourBinding;
+    private TextBlock? PART_WarnEditingBuiltInTheme;
 
     private bool ignoreSpectrumColourChange;
     private string? activeThemeKey;
@@ -52,6 +54,7 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
         base.OnApplyTemplate(e);
         this.PART_ThemeConfigTree = e.NameScope.GetTemplateChild<ThemeConfigTreeView>("PART_ThemeConfigTree");
         this.PART_ThemeKeyTextBox = e.NameScope.GetTemplateChild<TextBox>("PART_ThemeKeyTextBox");
+        this.PART_WarnEditingBuiltInTheme = e.NameScope.GetTemplateChild<TextBlock>("PART_WarnEditingBuiltInTheme");
         this.PART_SelectedItemGrid = e.NameScope.GetTemplateChild<Grid>("PART_SelectedItemGrid");
         this.PART_ColorPicker = e.NameScope.GetTemplateChild<ColorPicker>("PART_ColorPicker");
         DataManager.GetContextData(this).Set(IThemeConfigurationTreeElement.TreeElementKey, this.PART_ThemeConfigTree);
@@ -60,6 +63,15 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
         this.PART_ColorPicker.ColorChanged += this.OnColourChanged;
     }
 
+    private void OnTargetThemeChanged(ThemeConfigurationPage sender, Theme? oldTheme, Theme? newTheme) {
+        this.PART_WarnEditingBuiltInTheme!.IsVisible = newTheme != null && newTheme.IsBuiltIn;
+        if (newTheme != null && this.activeThemeKey != null) {
+            if (((ThemeManagerImpl.ThemeImpl) newTheme).TryFindBrushInHierarchy(this.activeThemeKey, out IBrush? brush)) {
+                this.OnColourChangedInTheme(brush);
+            }
+        }
+    }
+    
     private void OnColourChanged(object? sender, ColorChangedEventArgs e) {
         if (this.ignoreSpectrumColourChange) {
             return;
@@ -128,10 +140,12 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
     public override void OnConnected() {
         base.OnConnected();
         this.PART_ThemeConfigTree!.ThemeConfigurationPage = this.Page!;
+        this.Page!.TargetThemeChanged += this.OnTargetThemeChanged;
     }
 
     public override void OnDisconnected() {
         base.OnDisconnected();
         this.PART_ThemeConfigTree!.ThemeConfigurationPage = null;
+        this.Page!.TargetThemeChanged -= this.OnTargetThemeChanged;
     }
 }

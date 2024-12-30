@@ -38,9 +38,24 @@ public abstract class Theme {
     public abstract string Name { get; }
 
     /// <summary>
+    /// Gets the theme that this theme is based on. Null for built-in themes
+    /// </summary>
+    public abstract Theme? BasedOn { get; }
+
+    /// <summary>
     /// Gets the theme keys for this theme. This may get modified by <see cref="SetThemeColour"/>
     /// </summary>
     public abstract IEnumerable<string> ThemeKeys { get; }
+
+    /// <summary>
+    /// Returns true if this is a built-in theme, which cannot be
+    /// modified by the user and is not serialized to the disk
+    /// </summary>
+    public bool IsBuiltIn { get; }
+
+    protected Theme(bool isBuiltIn) {
+        this.IsBuiltIn = isBuiltIn;
+    }
 
     /// <summary>
     /// Sets a theme colour to the given value. This method may

@@ -25,6 +25,12 @@ using FramePFX.Themes.Configurations;
 namespace FramePFX.Themes.Commands;
 
 public class CreateThemeCommand : AsyncCommand {
+    public bool CopyKeys { get; }
+
+    public CreateThemeCommand(bool copyKeys) {
+        this.CopyKeys = copyKeys;
+    }
+
     protected override async Task ExecuteAsync(CommandEventArgs e) {
         if (!IThemeConfigurationTreeElement.TreeElementKey.TryGetContext(e.ContextData, out IThemeConfigurationTreeElement? tree)) {
             return;
@@ -62,7 +68,7 @@ public class CreateThemeCommand : AsyncCommand {
             return;
         }
         
-        Theme newTheme = theme.ThemeManager.RegisterTheme(info.Text!, theme);
+        Theme newTheme = theme.ThemeManager.RegisterTheme(info.Text!, theme, this.CopyKeys);
         page.ApplyAndRevertChanges(theme, newTheme);
         
         theme.ThemeManager.SetTheme(newTheme);

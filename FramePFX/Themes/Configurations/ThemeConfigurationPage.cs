@@ -172,6 +172,11 @@ public class ThemeConfigurationPage : ConfigurationPage {
         this.originalBrushes = null;
 
         // TODO: save theme
+
+        ThemeConfigurationOptions options = ThemeConfigurationOptions.Instance;
+        options.SaveThemesToModels(ThemeManager.Instance);
+        options.StorageManager.SaveArea(options);
+        
         return ValueTask.CompletedTask;
     }
 }

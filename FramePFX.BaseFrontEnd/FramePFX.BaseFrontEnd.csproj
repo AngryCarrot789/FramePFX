@@ -27,10 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Shortcuts\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <AdditionalFiles Include="AvControls\ControlStyles.axaml" />
       <AdditionalFiles Include="Configurations\ConfigurationDialog.axaml" />
       <AdditionalFiles Include="Configurations\ConfigurationPanelControl.axaml" />

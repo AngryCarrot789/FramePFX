@@ -27,11 +27,13 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
 using FramePFX.BaseFrontEnd;
+using FramePFX.BaseFrontEnd.Themes;
 using FramePFX.Editing;
 using FramePFX.Persistence;
 using FramePFX.Plugins;
 using FramePFX.Services.Messaging;
 using FramePFX.Services.VideoEditors;
+using FramePFX.Themes;
 
 namespace FramePFX.Avalonia;
 
@@ -96,6 +98,7 @@ public partial class App : global::Avalonia.Application {
 
             psm.Register(new EditorConfigurationOptions(), "editor", "window");
             psm.Register(new StartupConfigurationOptions(), null, "startup");
+            psm.Register<ThemeConfigurationOptions>(new ThemeConfigurationOptionsImpl(), null, "themes");
 
             Application.Instance.PluginLoader.RegisterConfigurations(psm);
 
@@ -141,6 +144,8 @@ public partial class App : global::Avalonia.Application {
             }
         }
 
+        StartupConfigurationOptions.Instance.ApplyTheme();
+        
         await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
         await ApplicationImpl.InternalOnFullyInitialised();
         await Application.Instance.PluginLoader.OnApplicationLoaded();

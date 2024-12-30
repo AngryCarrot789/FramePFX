@@ -26,6 +26,7 @@ using Avalonia.Styling;
 using FramePFX.BaseFrontEnd.Themes.BrushFactories;
 using FramePFX.Logging;
 using FramePFX.Themes;
+using FramePFX.Utils;
 using FramePFX.Utils.Collections.Observable;
 using SkiaSharp;
 
@@ -94,12 +95,18 @@ public class ThemeManagerImpl : ThemeManager {
         this.App.RequestedThemeVariant = impl.Variant;
     }
 
-    public override Theme RegisterTheme(string name, Theme basedOn) {
+    public override Theme RegisterTheme(string name, Theme basedOn, bool copyAllKeys = false) {
+        Validate.NotNullOrWhiteSpaces(name);
+        Validate.NotNull(basedOn);
         if (this.GetTheme(name) != null) {
             throw new InvalidOperationException($"Theme already exists with the name '{name}'");
         }
         
         ThemeImpl newTheme = new ThemeImpl(this, name, new ResourceDictionary(), (ThemeImpl) basedOn);
+        if (copyAllKeys) {
+            newTheme.CopyKeysFrom(newTheme.BasedOn!);
+        }
+        
         this.themes.Add(newTheme);
         this.ThemeDictionaries[newTheme.Variant] = newTheme.Resources;
         return newTheme;
@@ -137,30 +144,30 @@ public class ThemeManagerImpl : ThemeManager {
     public class ThemeImpl : Theme {
         public const string ColourSuffix = ".Color";
 
-        private readonly HashSet<string> registeredKeys;
+        private readonly HashSet<string> registeredBrushKeys;
 
         public override string Name { get; }
 
-        public ThemeImpl? BasedOn { get; }
+        public override ThemeImpl? BasedOn { get; }
 
         public ThemeVariant Variant { get; }
 
         public override ThemeManagerImpl ThemeManager { get; }
 
-        public override IEnumerable<string> ThemeKeys => this.registeredKeys;
+        public override IEnumerable<string> ThemeKeys => this.registeredBrushKeys;
 
         /// <summary>
         /// Gets the live resource dictionary that contains all the theme keys for this theme
         /// </summary>
         public ResourceDictionary Resources { get; }
 
-        public ThemeImpl(ThemeManagerImpl manager, string name, ResourceDictionary resources, ThemeImpl? basedOn) {
+        public ThemeImpl(ThemeManagerImpl manager, string name, ResourceDictionary resources, ThemeImpl? basedOn) : base(basedOn == null) {
             this.Name = name;
             this.BasedOn = basedOn;
             this.ThemeManager = manager;
             this.Variant = new ThemeVariant(name, basedOn?.Variant);
             this.Resources = resources;
-            this.registeredKeys = new HashSet<string>(32);
+            this.registeredBrushKeys = new HashSet<string>(32);
         }
 
         private static void GetKeys(string key, out string brushKey, out string colourKey) {
@@ -175,6 +182,21 @@ public class ThemeManagerImpl : ThemeManager {
             }
         }
 
+        public void CopyKeysFrom(ThemeImpl theme) {
+            foreach (string key in theme.registeredBrushKeys) {
+                if (theme.Resources.TryGetResource(key, null, out object? brush)) {
+                    // assert brush is IBrush
+                    
+                    this.registeredBrushKeys.Add(key);
+                    if (theme.Resources.TryGetResource(key + ColourSuffix, null, out object? colour)) {
+                        this.Resources[key] = colour;
+                    }
+                    
+                    this.Resources[key] = brush;
+                }
+            }
+        }
+        
         public override void SetThemeColour(string key, SKColor colour) {
             // Our theme library creates a colour and brush, because some of the UI may use both
             GetKeys(key, out string brushKey, out string colourKey);
@@ -182,7 +204,7 @@ public class ThemeManagerImpl : ThemeManager {
             Color avColour = new Color(colour.Alpha, colour.Red, colour.Green, colour.Blue);
             IBrush avBrush = new ImmutableSolidColorBrush(avColour);
 
-            this.registeredKeys.Add(brushKey);
+            this.registeredBrushKeys.Add(brushKey);
             this.Resources[colourKey] = avColour;
             this.Resources[brushKey] = avBrush;
         }
@@ -191,15 +213,14 @@ public class ThemeManagerImpl : ThemeManager {
             // Our theme library creates a colour and brush, because some of the UI may use both
             GetKeys(key, out string brushKey, out string colourKey);
 
-            this.registeredKeys.Add(brushKey);
+            this.registeredBrushKeys.Add(brushKey);
             if (brush is ConstantAvaloniaColourBrush i) {
-                SKColor colour = i.Brush.Color.ToSKColor();
-                this.Resources[colourKey] = colour;
+                this.Resources[colourKey] = i.Brush.Color;
                 this.Resources[brushKey] = i.Brush;
             }
             else if (brush is AvaloniaColourBrush bruh) {
                 if (bruh.Brush is ISolidColorBrush colourBrush) {
-                    this.Resources[colourKey] = colourBrush.Color.ToSKColor();
+                    this.Resources[colourKey] = colourBrush.Color;
                 }
                 else {
                     AppLogger.Instance.WriteLine($"Could not update colour value for theme key '{key}', because the brush was not solid");
@@ -209,6 +230,19 @@ public class ThemeManagerImpl : ThemeManager {
             }
             else {
                 return;
+            }
+        }
+        
+        public void SetBrushInternal(string themeKey, IImmutableBrush brush) {
+            GetKeys(themeKey, out string brushKey, out string colourKey);
+
+            this.registeredBrushKeys.Add(brushKey);
+            if (brush is ISolidColorBrush scb) {
+                this.Resources[colourKey] = scb.Color;
+                this.Resources[brushKey] = scb;
+            }
+            else {
+                this.Resources[brushKey] = brush;
             }
         }
 
@@ -255,12 +289,10 @@ public class ThemeManagerImpl : ThemeManager {
 
         public override void ApplyThemeEntry(string themeKey, ISavedThemeEntry entry) {
             SavedThemeEntryImpl impl = (SavedThemeEntryImpl) entry;
-            SKColor? colour = impl.Colour?.ToSKColor();
-
             GetKeys(themeKey, out string brushKey, out string colourKey);
             
-            if (colour.HasValue)
-                this.Resources[colourKey] = colour.Value;
+            if (impl.Colour.HasValue)
+                this.Resources[colourKey] = impl.Colour.Value;
             if (impl.Brush != null)
                 this.Resources[brushKey] = impl.Brush;
         }
@@ -285,7 +317,7 @@ public class ThemeManagerImpl : ThemeManager {
                 if (key is string keyString) {
                     // Only load brush keys. We do colours along the side
                     if (!keyString.EndsWith(ColourSuffix)) {
-                        this.registeredKeys.Add(keyString);
+                        this.registeredBrushKeys.Add(keyString);
                     }
                 }
             }

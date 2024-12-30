@@ -39,4 +39,27 @@ public abstract class PropertyEditorConfigurationPage : ConfigurationPage, ITran
         this.TransferableData = new TransferableData(this);
         this.PropertyEditor = propertyEditor;
     }
+    
+    private static void MarkModifiedHandler(DataParameter parameter, ITransferableData owner) => ((PropertyEditorConfigurationPage) owner).MarkModified();
+
+    protected static void AffectsModifiedState(DataParameter parameter) {
+        parameter.ValueChanged += MarkModifiedHandler;
+    }
+    
+    protected static void AffectsModifiedState(DataParameter p1, DataParameter p2) {
+        p1.ValueChanged += MarkModifiedHandler;
+        p2.ValueChanged += MarkModifiedHandler;
+    }
+    
+    protected static void AffectsModifiedState(DataParameter p1, DataParameter p2, DataParameter p3) {
+        p1.ValueChanged += MarkModifiedHandler;
+        p2.ValueChanged += MarkModifiedHandler;
+        p3.ValueChanged += MarkModifiedHandler;
+    }
+    
+    protected static void AffectsModifiedState(params DataParameter[] parameters) {
+        foreach (DataParameter p in parameters) {
+            p.ValueChanged += MarkModifiedHandler;
+        }
+    }
 }

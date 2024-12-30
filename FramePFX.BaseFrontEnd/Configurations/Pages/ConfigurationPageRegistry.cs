@@ -18,7 +18,8 @@
 // 
 
 using FramePFX.BaseFrontEnd.Configurations.Pages.Basic;
-using FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
+using FramePFX.BaseFrontEnd.Shortcuts.Configurations;
+using FramePFX.BaseFrontEnd.Themes.Configurations;
 using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Configurations;
 using FramePFX.Configurations.Basic;

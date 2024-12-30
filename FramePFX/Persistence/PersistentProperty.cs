@@ -18,6 +18,7 @@
 // 
 
 using System.Xml;
+using FramePFX.Persistence.Serialisation;
 using FramePFX.Utils.Collections.Observable;
 
 namespace FramePFX.Persistence;
@@ -147,6 +148,23 @@ public abstract class PersistentProperty {
         return RegisterParsable(name, defaultValue, getValue, setValue, canSaveDefault);
     }
 
+    /// <summary>
+    /// Registers a completely custom persistent property using the given XML serializer
+    /// </summary>
+    /// <param name="name">The name of the property</param>
+    /// <param name="defaultValue">The property's default value</param>
+    /// <param name="getValue">The getter</param>
+    /// <param name="setValue">The setter</param>
+    /// <param name="serializer"></param>
+    /// <typeparam name="TValue">The value type</typeparam>
+    /// <typeparam name="TOwner">The owner of the property</typeparam>
+    /// <returns>The property, which you can store as a public static readonly field</returns>
+    public static PersistentProperty<TValue> RegisterCustom<TValue, TOwner>(string name, TValue defaultValue, Func<TOwner, TValue> getValue, Action<TOwner, TValue> setValue, IValueSerializer<TValue> serializer) where TOwner : PersistentConfiguration {
+        PersistentPropertyCustom<TValue> property = new PersistentPropertyCustom<TValue>(defaultValue, (x) => getValue((TOwner) x), (x, y) => setValue((TOwner) x, y), serializer);
+        RegisterCore(property, name, typeof(TOwner));
+        return property;
+    }
+    
     private static void RegisterCore(PersistentProperty property, string name, Type ownerType) {
         if (property.globalIndex != 0) {
             throw new InvalidOperationException($"Property '{property.globalKey}' was already registered with a global index of " + property.globalIndex);
@@ -187,6 +205,22 @@ public abstract class PersistentProperty {
     /// </summary>
     public abstract void Deserialize(PersistentConfiguration config, XmlElement propertyElement);
 
+    private class PersistentPropertyCustom<T> : PersistentProperty<T> {
+        private readonly IValueSerializer<T> serializer;
+
+        public PersistentPropertyCustom(T defaultValue, Func<PersistentConfiguration, T> getValue, Action<PersistentConfiguration, T> setValue, IValueSerializer<T> serializer) : base(defaultValue, getValue, setValue) {
+            this.serializer = serializer;
+        }
+
+        public override bool Serialize(PersistentConfiguration config, XmlDocument document, XmlElement propertyElement) {
+            return this.serializer.Serialize(this.GetValue(config), document, propertyElement);
+        }
+
+        public override void Deserialize(PersistentConfiguration config, XmlElement propertyElement) {
+            this.SetValue(config, this.serializer.Deserialize(propertyElement));
+        }
+    }
+    
     private class PersistentPropertyStringParsable<T> : PersistentProperty<T> where T : IParsable<T> {
         private readonly Func<string, T> fromString;
         private readonly Func<T, string>? toString;
@@ -265,7 +299,7 @@ public abstract class PersistentProperty {
             }
 
             try {
-                if (TypeToParametersMap.TryGetValue(type, out List<PersistentProperty>? properties)) {
+                if (TypeToParametersMap.TryGetValue(theType, out List<PersistentProperty>? properties)) {
                     props.AddRange(properties);
                 }
             }

@@ -30,7 +30,7 @@ using FramePFX.Configurations.Shortcuts;
 using FramePFX.Themes;
 using FramePFX.Themes.Configurations;
 
-namespace FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
+namespace FramePFX.BaseFrontEnd.Themes.Configurations;
 
 public class ThemeConfigTreeViewItem : TreeViewItemEx, IThemeConfigEntryTreeOrNode {
     public ThemeConfigTreeView? ThemeConfigTree { get; private set; }

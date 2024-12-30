@@ -32,7 +32,8 @@ public interface IValueSerializer<T> {
     /// <param name="value">The value to serialise</param>
     /// <param name="document">The XML document involved</param>
     /// <param name="parent">The parent element. Add your child xml objects to this</param>
-    void Serialize(T value, XmlDocument document, XmlElement parent);
+    /// <returns>False results in the parent element not being appended to the final document</returns>
+    bool Serialize(T value, XmlDocument document, XmlElement parent);
     
     /// <summary>
     /// Deserialise this value from the element

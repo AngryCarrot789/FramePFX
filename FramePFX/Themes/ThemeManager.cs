@@ -166,6 +166,7 @@ public abstract class ThemeManager {
     /// </summary>
     /// <param name="name">The new name of the theme</param>
     /// <param name="basedOn">A theme whose colours are copied into the new one</param>
-    /// <returns></returns>
-    public abstract Theme RegisterTheme(string name, Theme basedOn);
+    /// <param name="copyAllKeys">True to copy all keys to create effectively a complete clone</param>
+    /// <returns>The new theme</returns>
+    public abstract Theme RegisterTheme(string name, Theme basedOn, bool copyAllKeys = false);
 }

@@ -39,7 +39,7 @@ public sealed class PersistentStorageManager {
     /// Gets the location of the configuration storage directory
     /// </summary>
     public string StorageDirectory { get; }
-    
+
     public bool IsSaveStackActive => this.saveStackCount > 0;
 
     public PersistentStorageManager(string storageDirectory) {
@@ -76,7 +76,17 @@ public sealed class PersistentStorageManager {
     /// <param name="config">The config</param>
     /// <param name="area">The name of the area. Set as null to use the application area</param>
     /// <param name="name">The name of the configuration</param>
-    public void Register(PersistentConfiguration config, string? area, string name) {
+    public void Register(PersistentConfiguration config, string? area, string name) => this.Register(config.GetType(), config, area, name);
+
+    /// <summary>
+    /// Registers a persistent configuration with the given area and name
+    /// </summary>
+    /// <param name="config">The config</param>
+    /// <param name="area">The name of the area. Set as null to use the application area</param>
+    /// <param name="name">The name of the configuration</param>
+    public void Register<T>(T config, string? area, string name) where T : PersistentConfiguration => this.Register(typeof(T), config, area, name);
+
+    private void Register(Type type, PersistentConfiguration config, string? area, string name) {
         Validate.NotNull(config);
         Validate.NotNullOrWhiteSpaces(area ??= "application");
         Validate.NotNullOrWhiteSpaces(name);
@@ -100,7 +110,7 @@ public sealed class PersistentStorageManager {
 
         configMap.Add(name, config);
         this.allConfigs.Add(config);
-        this.typeMap[config.GetType()] = config;
+        this.typeMap[type] = config;
         PersistentConfiguration.InternalOnRegistered(config, this, area, name);
     }
 
@@ -110,7 +120,7 @@ public sealed class PersistentStorageManager {
     public async Task LoadAllAsync(List<string>? missingConfigSets, bool assignDefaultsForUnsavedConfigs) {
         this.EnsureDirectoryExists();
         using ErrorList errors = new ErrorList("Errors occurred while loading all configurations", false, true);
-        
+
         HashSet<PersistentConfiguration>? unloaded = assignDefaultsForUnsavedConfigs ? this.allConfigs.ToHashSet() : null;
         foreach (KeyValuePair<string, Dictionary<string, PersistentConfiguration>> areaEntry in this.areaMap) {
             if (areaEntry.Value.Count < 1) {
@@ -192,15 +202,22 @@ public sealed class PersistentStorageManager {
     }
 
     private static void LoadConfiguration(PersistentConfiguration config, XmlElement configElement) {
-        Dictionary<string, XmlElement> propertyToElementMap = configElement.GetElementsByTagName("Property").OfType<XmlElement>().Select(x => {
+        List<KeyValuePair<string, XmlElement>> theList = configElement.GetElementsByTagName("Property").OfType<XmlElement>().Select(x => {
             if (x.GetAttribute("name") is string configName && !string.IsNullOrWhiteSpace(configName)) {
                 return new KeyValuePair<string, XmlElement>(configName, x);
             }
             else {
                 return default;
             }
-        }).Where(x => x.Value != null!).ToDictionary();
+        }).Where(x => x.Value != null!).ToList();
 
+        List<KeyValuePair<string, XmlElement>> distinct = theList.DistinctBy(x => x.Key).ToList();
+        
+        if (distinct.Count != theList.Count) {
+            AppLogger.Instance.WriteLine($"Ignoring duplicate property entries in configuration '{config.Name}'");
+        }
+
+        Dictionary<string, XmlElement> propertyToElementMap = distinct.ToDictionary();
         using ErrorList list = new ErrorList("One or more errors occurred while deserializing properties");
         foreach (PersistentProperty property in config.GetProperties()) {
             if (propertyToElementMap.TryGetValue(property.Name, out XmlElement? propertyElement)) {
@@ -212,8 +229,9 @@ public sealed class PersistentStorageManager {
                 }
             }
         }
-            
+
         config.internalIsModified = false;
+        config.OnLoaded();
     }
 
     public void SaveAll(ErrorList? areaErrors = null) {
@@ -250,10 +268,6 @@ public sealed class PersistentStorageManager {
         document.AppendChild(rootElement);
 
         foreach (KeyValuePair<string, PersistentConfiguration> config in configSet) {
-            if (!config.Value.internalIsModified) {
-                continue;
-            }
-
             try {
                 SaveConfiguration(config.Value, document, rootElement);
             }
@@ -291,7 +305,7 @@ public sealed class PersistentStorageManager {
 
     private static void SaveConfiguration(PersistentConfiguration config, XmlDocument document, XmlElement rootElement) {
         config.internalIsModified = false;
-        
+
         XmlElement configElement = (XmlElement) rootElement.AppendChild(document.CreateElement("Configuration"))!;
         configElement.SetAttribute("name", config.Name);
 
@@ -304,7 +318,7 @@ public sealed class PersistentStorageManager {
                         configElement.AppendChild(document.CreateComment(line));
                     }
                 }
-                
+
                 configElement.AppendChild(propertyElement);
             }
         }

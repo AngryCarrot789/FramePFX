@@ -38,7 +38,7 @@ public class ApplicationConfigurationManager : ConfigurationManager {
     public static readonly ApplicationConfigurationManager Instance = new ApplicationConfigurationManager();
 
     public ConfigurationEntry EditorConfigurationEntry { get; }
-    
+
     public ConfigurationEntry StartupConfigurationEntry { get; }
 
     private ApplicationConfigurationManager() {
@@ -57,11 +57,11 @@ public class ApplicationConfigurationManager : ConfigurationManager {
         this.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Keymap", Id = "config.keymap", Page = new ShortcutEditorConfigurationPage(ShortcutManager.Instance)
         });
-        
+
         this.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Themes", Id = "config.themes", Page = ThemeManager.Instance.ThemeConfigurationPage
         });
-        
+
         this.RootEntry.AddEntry(this.StartupConfigurationEntry = new ConfigurationEntry() {
             DisplayName = "Startup", Id = "config.startup", Page = new StartupPropEditorConfigurationPage()
         });
@@ -109,35 +109,40 @@ public class ApplicationConfigurationManager : ConfigurationManager {
             // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
         }
     }
-    
+
     public class StartupPropEditorConfigurationPage : PropertyEditorConfigurationPage {
-        
-        public static readonly DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> StartupBehaviourParameter =
-            DataParameter.Register(
-                new DataParameter<StartupConfigurationOptions.EnumStartupBehaviour>(
-                    typeof(StartupPropEditorConfigurationPage),
-                    nameof(StartupBehaviour), default,
-                    ValueAccessors.Reflective<StartupConfigurationOptions.EnumStartupBehaviour>(typeof(StartupPropEditorConfigurationPage), nameof(startupBehaviour))));
+        public static readonly DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> StartupBehaviourParameter = DataParameter.Register(new DataParameter<StartupConfigurationOptions.EnumStartupBehaviour>(typeof(StartupPropEditorConfigurationPage), nameof(StartupBehaviour), default, ValueAccessors.Reflective<StartupConfigurationOptions.EnumStartupBehaviour>(typeof(StartupPropEditorConfigurationPage), nameof(startupBehaviour))));
+        public static readonly DataParameterString StartupThemeParameter = DataParameter.Register(new DataParameterString(typeof(StartupPropEditorConfigurationPage), nameof(StartupTheme), "Dark", ValueAccessors.Reflective<string?>(typeof(StartupPropEditorConfigurationPage), nameof(startupTheme))));
 
         private StartupConfigurationOptions.EnumStartupBehaviour startupBehaviour;
+        private string? startupTheme;
 
         public StartupConfigurationOptions.EnumStartupBehaviour StartupBehaviour {
             get => this.startupBehaviour;
             set => DataParameter.SetValueHelper(this, StartupBehaviourParameter, ref this.startupBehaviour, value);
         }
-        
-        public StartupPropEditorConfigurationPage() {
-            this.startupBehaviour = StartupBehaviourParameter.GetDefaultValue(this);
-            StartupBehaviourParameter.AddValueChangedHandler(this, this.MarkModifiedHandler);
 
-            this.PropertyEditor.Root.AddItem(new DataParameterStartupBehaviourPropertyEditorSlot(StartupBehaviourParameter, typeof(StartupPropEditorConfigurationPage), "Behaviour"));
+        public string? StartupTheme {
+            get => this.startupTheme;
+            set => DataParameter.SetValueHelper(this, StartupThemeParameter, ref this.startupTheme, value);
         }
 
-        private void MarkModifiedHandler(DataParameter parameter, ITransferableData owner) => this.MarkModified();
+        public StartupPropEditorConfigurationPage() {
+            this.startupBehaviour = StartupBehaviourParameter.GetDefaultValue(this);
+            this.startupTheme = StartupThemeParameter.GetDefaultValue(this);
+
+            this.PropertyEditor.Root.AddItem(new DataParameterStartupBehaviourPropertyEditorSlot(StartupBehaviourParameter, typeof(StartupPropEditorConfigurationPage), "Behaviour"));
+            this.PropertyEditor.Root.AddItem(new DataParameterStringPropertyEditorSlot(StartupThemeParameter, typeof(StartupPropEditorConfigurationPage), "Startup Theme"));
+        }
+
+        static StartupPropEditorConfigurationPage() {
+            AffectsModifiedState(StartupBehaviourParameter, StartupThemeParameter);
+        }
 
         public override async ValueTask OnContextCreated(ConfigurationContext context) {
             StartupConfigurationOptions options = StartupConfigurationOptions.Instance;
             this.startupBehaviour = options.StartupBehaviour;
+            this.startupTheme = options.StartupTheme;
             this.PropertyEditor.Root.SetupHierarchyState([this]);
         }
 
@@ -149,11 +154,12 @@ public class ApplicationConfigurationManager : ConfigurationManager {
         public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
             StartupConfigurationOptions options = StartupConfigurationOptions.Instance;
             options.StartupBehaviour = this.startupBehaviour;
-
+            options.StartupTheme = this.startupTheme ?? "";
+            options.ApplyTheme();
             // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
         }
     }
-    
+
     public class DataParameterStartupBehaviourPropertyEditorSlot : DataParameterEnumPropertyEditorSlot<StartupConfigurationOptions.EnumStartupBehaviour> {
         public static DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour> CodedIdEnumInfo { get; }
 

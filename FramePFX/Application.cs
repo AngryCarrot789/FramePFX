@@ -216,7 +216,8 @@ public abstract class Application : IServiceable {
         manager.Register("commands.config.keymap.CollapseShortcutTree", new CollapseShortcutTreeCommand());
         manager.Register("commands.config.themeconfig.ExpandThemeConfigTree", new ExpandThemeConfigTreeCommand());
         manager.Register("commands.config.themeconfig.CollapseThemeConfigTree", new CollapseThemeConfigTreeCommand());
-        manager.Register("commands.config.themeconfig.CreateTheme", new CreateThemeCommand());
+        manager.Register("commands.config.themeconfig.CreateInheritedCopy", new CreateThemeCommand(false));
+        manager.Register("commands.config.themeconfig.CreateCompleteCopy", new CreateThemeCommand(true));
 
         progress.CompletionState.SetProgress(1.0);
     }

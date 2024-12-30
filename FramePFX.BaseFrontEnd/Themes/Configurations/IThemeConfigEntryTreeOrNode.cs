@@ -19,7 +19,7 @@
 
 using FramePFX.Themes.Configurations;
 
-namespace FramePFX.BaseFrontEnd.Configurations.Pages.Themes;
+namespace FramePFX.BaseFrontEnd.Themes.Configurations;
 
 public interface IThemeConfigEntryTreeOrNode {
     ThemeConfigTreeView? ThemeConfigTree { get; }

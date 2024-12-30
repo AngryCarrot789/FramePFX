@@ -26,8 +26,8 @@ using FramePFX.Services.Messaging;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public class DeleteResourcesCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class DeleteResourcesCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.IsPresent(e.ContextData)) {
             return Executability.Invalid;
         }
@@ -39,7 +39,7 @@ public class DeleteResourcesCommand : AsyncCommand {
         return Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? videoEditor)) {
             return;
         }

@@ -211,7 +211,7 @@ public class Timeline : ITransferableData, IServiceable, IDestroy {
 
         FixedContextGroup modGenerate = ContextRegistry.GetFixedGroup("modify.generate");
         modGenerate.AddHeader("New Tracks");
-        modGenerate.AddCommand("commands.editor.NewVideoTrack", "New Video Track", "Creates a new video track");
+        modGenerate.AddCommand("commands.editor.CreateVideoTrack", "New Video Track", "Creates a new video track");
     }
 
     public void UpdateAutomation(long playHead, bool invalidateRender = true) {

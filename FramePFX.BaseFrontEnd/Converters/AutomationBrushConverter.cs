@@ -21,26 +21,27 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
+using FramePFX.Icons;
 
 namespace FramePFX.BaseFrontEnd.Converters;
 
 public class AutomationBrushConverter : IMultiValueConverter {
-    public IBrush NoAutomationBrush { get; set; } = Brushes.Transparent;
-    public IBrush AutomationBrush { get; set; } = Brushes.Orange;
-    public IBrush OverrideBrush { get; set; } = Brushes.Gray;
+    public Icon? NoAutomationIcon { get; set; } = null;
+    public Icon? AutomationIcon { get; set; } = AutomationIcons.IconLED_Active;
+    public Icon? OverrideIcon { get; set; } = AutomationIcons.IconLED_Override;
 
-    public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture) {
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture) {
         if (values[0] == AvaloniaProperty.UnsetValue || values[1] == AvaloniaProperty.UnsetValue) {
             return AvaloniaProperty.UnsetValue;
         }
 
-        bool isAutomated = (bool) values[0];
-        bool isOverride = (bool) values[1];
+        bool isAutomated = (bool) values[0]!;
+        bool isOverride = (bool) values[1]!;
         if (isAutomated) {
-            return isOverride ? this.OverrideBrush : this.AutomationBrush;
+            return isOverride ? this.OverrideIcon : this.AutomationIcon;
         }
         else {
-            return this.NoAutomationBrush;
+            return this.NoAutomationIcon;
         }
     }
 }

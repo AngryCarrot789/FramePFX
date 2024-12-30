@@ -91,10 +91,11 @@ public class ApplicationConfigurationManager : ConfigurationManager {
 
         private void Handler(DataParameter parameter, ITransferableData owner) => this.MarkModified();
 
-        public override async ValueTask OnContextCreated(ConfigurationContext context) {
+        public override ValueTask OnContextCreated(ConfigurationContext context) {
             EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
             this.titleBarBrush = options.TitleBarBrush;
             this.PropertyEditor.Root.SetupHierarchyState([this]);
+            return ValueTask.CompletedTask;
         }
 
         public override ValueTask OnContextDestroyed(ConfigurationContext context) {
@@ -102,9 +103,10 @@ public class ApplicationConfigurationManager : ConfigurationManager {
             return ValueTask.CompletedTask;
         }
 
-        public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
+        public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
             EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
             options.TitleBarBrush = this.titleBarBrush;
+            return ValueTask.CompletedTask;
 
             // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
         }
@@ -139,11 +141,12 @@ public class ApplicationConfigurationManager : ConfigurationManager {
             AffectsModifiedState(StartupBehaviourParameter, StartupThemeParameter);
         }
 
-        public override async ValueTask OnContextCreated(ConfigurationContext context) {
+        public override ValueTask OnContextCreated(ConfigurationContext context) {
             StartupConfigurationOptions options = StartupConfigurationOptions.Instance;
             this.startupBehaviour = options.StartupBehaviour;
             this.startupTheme = options.StartupTheme;
             this.PropertyEditor.Root.SetupHierarchyState([this]);
+            return ValueTask.CompletedTask;
         }
 
         public override ValueTask OnContextDestroyed(ConfigurationContext context) {
@@ -151,11 +154,12 @@ public class ApplicationConfigurationManager : ConfigurationManager {
             return ValueTask.CompletedTask;
         }
 
-        public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
+        public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
             StartupConfigurationOptions options = StartupConfigurationOptions.Instance;
             options.StartupBehaviour = this.startupBehaviour;
             options.StartupTheme = this.startupTheme ?? "";
             options.ApplyTheme();
+            return ValueTask.CompletedTask;
             // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
         }
     }

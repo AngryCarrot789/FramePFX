@@ -28,12 +28,12 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Commands;
 
-public class OpenProjectCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class OpenProjectCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return DataKeys.VideoEditorKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor)) {
             return;
         }

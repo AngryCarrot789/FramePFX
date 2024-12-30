@@ -132,6 +132,10 @@ public abstract class Application : IServiceable {
     protected virtual Task Initialise(IApplicationStartupProgress progress) {
         return Task.CompletedTask;
     }
+    
+    protected virtual Task OnFullyInitialised() {
+        return Task.CompletedTask;
+    }
 
     protected virtual void RegisterServices(ServiceManager manager) {
         manager.RegisterConstant(new TaskManager());
@@ -146,8 +150,8 @@ public abstract class Application : IServiceable {
         // tools
 
         // timelines, tracks and clips
-        manager.Register("commands.editor.NewVideoTrack", new NewVideoTrackCommand());
-        manager.Register("commands.editor.NewAudioTrack", new NewAudioTrackCommand());
+        manager.Register("commands.editor.CreateVideoTrack", new NewVideoTrackCommand());
+        manager.Register("commands.editor.CreateAudioTrack", new NewAudioTrackCommand());
         manager.Register("commands.editor.ToggleTrackAutomationCommand", new ToggleTrackAutomationCommand());
         manager.Register("commands.editor.ToggleClipAutomationCommand", new ToggleClipAutomationCommand());
         manager.Register("commands.editor.TogglePlayCommand", new TogglePlayCommand());
@@ -222,13 +226,24 @@ public abstract class Application : IServiceable {
         progress.CompletionState.SetProgress(1.0);
     }
 
-    protected virtual Task OnFullyInitialised() {
-        return Task.CompletedTask;
-    }
-
     protected virtual void OnExit(int exitCode) {
         PFXNative.ShutdownLibrary();
     }
+    
+    public void EnsureBeforePhase(ApplicationStartupPhase phase) {
+        if (this.StartupPhase >= phase)
+            throw new InvalidOperationException($"Application startup phase has passed '{phase}'");
+    }
+    
+    public void EnsureAtPhase(ApplicationStartupPhase phase) {
+        if (this.StartupPhase < phase)
+            throw new InvalidOperationException($"Application has not reached the startup phase '{phase}' yet.");
+        
+        if (this.StartupPhase > phase)
+            throw new InvalidOperationException($"Application has already passed the startup phase '{phase}' yet.");
+    }
+
+    #region Internals
 
     protected static void InternalSetInstance(Application application) {
         if (application == null)
@@ -301,17 +316,6 @@ public abstract class Application : IServiceable {
         instance!.StartupPhase = ApplicationStartupPhase.FullyInitialized;
         return instance.OnFullyInitialised();
     }
-
-    public void EnsureBeforePhase(ApplicationStartupPhase phase) {
-        if (this.StartupPhase >= phase)
-            throw new InvalidOperationException($"Application startup phase has passed '{phase}'");
-    }
     
-    public void EnsureAtPhase(ApplicationStartupPhase phase) {
-        if (this.StartupPhase < phase)
-            throw new InvalidOperationException($"Application has not reached the startup phase '{phase}' yet.");
-        
-        if (this.StartupPhase > phase)
-            throw new InvalidOperationException($"Application has already passed the startup phase '{phase}' yet.");
-    }
+    #endregion
 }

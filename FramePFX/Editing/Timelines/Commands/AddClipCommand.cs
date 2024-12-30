@@ -33,12 +33,12 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public abstract class AddClipCommand<T> : AsyncCommand where T : Clip {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public abstract class AddClipCommand<T> : Command where T : Clip {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return DataKeys.TrackKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track)) {
             return;
         }

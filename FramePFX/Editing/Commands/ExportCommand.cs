@@ -24,8 +24,8 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.Commands;
 
-public class ExportCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class ExportCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         VideoEditor? theEditor;
         if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? theTimeline)) {
             theEditor = theTimeline.Project?.Editor;
@@ -44,7 +44,7 @@ public class ExportCommand : AsyncCommand {
         return Executability.Valid;
     }
 
-    protected override Task ExecuteAsync(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         VideoEditor? theEditor;
         if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? theTimeline)) {
             theEditor = theTimeline.Project?.Editor;

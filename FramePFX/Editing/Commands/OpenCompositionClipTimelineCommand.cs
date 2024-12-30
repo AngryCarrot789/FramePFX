@@ -26,7 +26,7 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.Editing.Commands;
 
 public class OpenCompositionClipTimelineCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip is CompositionVideoClip composition) {
             if (CompositionVideoClip.ResourceCompositionKey.TryGetResource(composition, out ResourceComposition? resource) && resource.Manager != null) {
                 return resource.Manager!.Project.ActiveTimeline == resource.Timeline ? Executability.ValidButCannotExecute : Executability.Valid;
@@ -39,11 +39,13 @@ public class OpenCompositionClipTimelineCommand : Command {
         return Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip is CompositionVideoClip composition) {
             if (CompositionVideoClip.ResourceCompositionKey.TryGetResource(composition, out ResourceComposition? resource) && resource.Manager != null) {
                 resource.Manager!.Project.ActiveTimeline = resource.Timeline;
             }
         }
+
+        return Task.CompletedTask;
     }
 }

@@ -29,12 +29,12 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public abstract class AddResourceCommand<T> : AsyncCommand where T : BaseResource {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public abstract class AddResourceCommand<T> : Command where T : BaseResource {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return DataKeys.ResourceManagerUIKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.ResourceManagerUIKey.TryGetContext(e.ContextData, out IResourceManagerElement? manager)) {
             return;
         }

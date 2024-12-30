@@ -48,4 +48,8 @@
       </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Toolbars\" />
+    </ItemGroup>
+
 </Project>

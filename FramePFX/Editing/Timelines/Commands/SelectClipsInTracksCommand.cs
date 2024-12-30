@@ -25,11 +25,11 @@ using FramePFX.Utils;
 namespace FramePFX.Editing.Timelines.Commands;
 
 public class SelectClipsInTracksCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return DataKeys.TimelineUIKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline)) {
             List<ITrackElement> selection = timeline.Selection.SelectedItems.ToList();
             if (DataKeys.TrackUIKey.TryGetContext(e.ContextData, out ITrackElement? contextTrack)) {
@@ -40,5 +40,7 @@ public class SelectClipsInTracksCommand : Command {
                 track.Selection.SelectAll();
             }
         }
+
+        return Task.CompletedTask;
     }
 }

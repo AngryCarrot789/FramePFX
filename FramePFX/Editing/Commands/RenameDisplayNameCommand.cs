@@ -24,12 +24,12 @@ using FramePFX.Services.UserInputs;
 
 namespace FramePFX.Editing.Commands;
 
-public abstract class RenameDisplayNameCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public abstract class RenameDisplayNameCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return e.ContextData.TryGetContext(this.DataKey.Id, out object? value) && value is IDisplayName ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (e.ContextData.TryGetContext(this.DataKey.Id, out object? obj) && obj is IDisplayName element) {
             SingleUserInputInfo info = new SingleUserInputInfo("Rename", this.Label, element.DisplayName) {
                 ConfirmText = "Rename", DefaultButton = true

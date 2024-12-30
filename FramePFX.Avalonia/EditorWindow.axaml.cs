@@ -74,7 +74,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
         // average 5 samples. Will take a second to catch up when playing at 5 fps but meh
         this.renderTimeAverager = new NumberAverager(5);
-        this.TheTimeline.EditorOwner = this;
+        this.TheTimeline.OnConnectedToEditor(this);
 
         this.updateFpsInfoRlda = RateLimitedDispatchActionBase.ForDispatcherSync<Timeline>((t) => {
             if (t.Project?.Editor is VideoEditor editor) {
@@ -141,7 +141,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
     protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
-
+        
         this.themeListHandler?.Dispose();
         this.themeListHandler = null;
         this.PART_ThemesMenuItem.Items.Clear();
@@ -149,6 +149,13 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         // Prevent semantic memory leak
         EditorConfigurationOptions.Instance.TitleBarPrefixChanged -= this.OnApplicationTitleBarPrefixChanged;
         EditorConfigurationOptions.Instance.TitleBarBrushChanged -= this.OnApplicationTitleBarBrushChanged;
+        
+        if (this.activeProject != null) {
+            this.VideoEditor.CloseProject();
+        }
+
+        this.TheTimeline.OnDisconnectedFromEditor();
+        this.VideoEditor.Destroy();
     }
     
     private void OnApplicationTitleBarPrefixChanged(PersistentConfiguration config, PersistentProperty<string> property, string oldValue, string newValue) {
@@ -350,11 +357,6 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     protected override void OnClosed(EventArgs e) {
         this.IsClosing = false;
         this.IsClosed = true;
-        if (this.activeProject != null) {
-            this.VideoEditor.CloseProject();
-        }
-
-        this.VideoEditor.Destroy();
         base.OnClosed(e);
     }
 }

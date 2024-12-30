@@ -25,7 +25,7 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.Editing.Timelines.Commands;
 
 public class DeleteClipsCommand : Command {
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline)) {
             List<IClipElement> list = timeline.ClipSelection.SelectedItems.ToList();
 
@@ -38,5 +38,7 @@ public class DeleteClipsCommand : Command {
                 model.Destroy();
             }
         }
+
+        return Task.CompletedTask;
     }
 }

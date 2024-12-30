@@ -23,13 +23,15 @@ using FramePFX.Configurations.UI;
 namespace FramePFX.Configurations.Commands;
 
 public class CollapseShortcutTreeCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return IShortcutTreeElement.TreeElementKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (IShortcutTreeElement.TreeElementKey.TryGetContext(e.ContextData, out IShortcutTreeElement? tree)) {
             tree.CollapseAll();
         }
+
+        return Task.CompletedTask;
     }
 }

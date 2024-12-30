@@ -102,7 +102,7 @@ public class CommandMenuItem : MenuItem {
         if (string.IsNullOrWhiteSpace(cmdId))
             return;
 
-        if (CommandManager.Instance.TryGetCommandById(cmdId, out Command? command) && command is CommandGroup group) {
+        if (CommandManager.Instance.TryFindCommandById(cmdId, out Command? command) && command is CommandGroup group) {
             ItemCollection list = this.Items;
             list.Clear();
             foreach (string childCmdId in group.Commands) {

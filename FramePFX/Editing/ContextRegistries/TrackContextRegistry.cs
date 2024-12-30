@@ -50,8 +50,8 @@ public static class TrackContextRegistry {
 
             FixedContextGroup modExternal = TimelineTrackContextRegistry.GetFixedGroup("modify.externalmodify");
             modExternal.AddHeader("New Tracks");
-            modExternal.AddCommand("commands.editor.NewVideoTrack", "Insert Video Track Above", "Inserts a new Video Track above this track");
-            modExternal.AddCommand("commands.editor.NewAudioTrack", "Insert Audio Track Above", "Inserts a new Audio Track above this track");
+            modExternal.AddCommand("commands.editor.CreateVideoTrack", "Insert Video Track Above", "Inserts a new Video Track above this track");
+            modExternal.AddCommand("commands.editor.CreateAudioTrack", "Insert Audio Track Above", "Inserts a new Audio Track above this track");
 
             FixedContextGroup mod4 = TimelineTrackContextRegistry.GetFixedGroup("modify.destruction", 100000);
             mod4.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track", SimpleIcons.BinIcon);
@@ -64,8 +64,8 @@ public static class TrackContextRegistry {
 
             FixedContextGroup modExternal = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.externalmodify");
             modExternal.AddHeader("New Tracks");
-            modExternal.AddCommand("commands.editor.NewVideoTrack", "Insert Video Track Above", "Inserts a new Video Track above this track");
-            modExternal.AddCommand("commands.editor.NewAudioTrack", "Insert Audio Track Above", "Inserts a new Audio Track above this track");
+            modExternal.AddCommand("commands.editor.CreateVideoTrack", "Insert Video Track Above", "Inserts a new Video Track above this track");
+            modExternal.AddCommand("commands.editor.CreateAudioTrack", "Insert Audio Track Above", "Inserts a new Audio Track above this track");
 
             FixedContextGroup mod3 = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.destruction", 100000);
             mod3.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track", SimpleIcons.BinIcon);

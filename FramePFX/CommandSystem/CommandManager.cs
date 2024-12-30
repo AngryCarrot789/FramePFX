@@ -103,7 +103,7 @@ public sealed class CommandManager {
         return !string.IsNullOrEmpty(id) && this.commands.TryGetValue(id, out CommandEntry? command) ? command.Command : null;
     }
 
-    public bool TryGetCommandById(string id, [NotNullWhen(true)] out Command? command) => (command = this.GetCommandById(id)) != null;
+    public bool TryFindCommandById(string id, [NotNullWhen(true)] out Command? command) => (command = this.GetCommandById(id)) != null;
 
     /// <summary>
     /// Executes a command with the given ID and context
@@ -125,40 +125,16 @@ public sealed class CommandManager {
     }
 
     /// <summary>
-    /// Tries to execute the given command. If it does not exist, this method returns a task with a result
-    /// of false. Otherwise, a result with a result of true. Command completion is too subjective which is why
-    /// this returns the command existence boolean
-    /// </summary>
-    /// <param name="commandId">The target command id</param>
-    /// <param name="contextProvider">A function that provides the data context if required (if the command exists)</param>
-    /// <param name="isUserInitiated">True when executed as a user, which is usually the default</param>
-    public bool TryExecute(string commandId, Func<IContextData> contextProvider, bool isUserInitiated = true) {
-        ValidateId(commandId);
-        if (contextProvider == null)
-            throw new ArgumentNullException(nameof(contextProvider), "Data context provider cannot be null");
-        
-        if (!this.commands.TryGetValue(commandId, out CommandEntry? command))
-            return false;
-
-        IContextData context = contextProvider();
-        if (context == null)
-            throw new ArgumentNullException(nameof(context), "Context cannot be null");
-
-        Command.InternalExecute(commandId, command.Command, new CommandEventArgs(this, context, isUserInitiated));
-        return true;
-    }
-
-    /// <summary>
     /// Executes the command with the given (optional) command ID
     /// </summary>
     /// <param name="commandId">The target command id</param>
     /// <param name="command"></param>
     /// <param name="context"></param>
     /// <param name="isUserInitiated"></param>
-    public void Execute(string commandId, Command command, IContextData context, bool isUserInitiated = true) {
+    public Task Execute(string commandId, Command command, IContextData context, bool isUserInitiated = true) {
         ValidateId(commandId);
         ValidateContext(context);
-        Command.InternalExecute(commandId, command, new CommandEventArgs(this, context, isUserInitiated));
+        return Command.InternalExecute(commandId, command, new CommandEventArgs(this, context, isUserInitiated));
     }
 
     /// <summary>
@@ -168,9 +144,13 @@ public sealed class CommandManager {
     /// <param name="context"></param>
     /// <param name="isUserInitiated"></param>
     /// <returns></returns>
-    public void Execute(Command command, IContextData context, bool isUserInitiated = true) {
+    public Task Execute(Command command, IContextData context, bool isUserInitiated = true) {
         ValidateContext(context);
-        Command.InternalExecute(null, command, new CommandEventArgs(this, context, isUserInitiated));
+        return Command.InternalExecute(null, command, new CommandEventArgs(this, context, isUserInitiated));
+    }
+
+    public CommandExecutionContext BeginExecution(string commandId, Command command, IContextData context, bool isUserInitiated = true) {
+        return new CommandExecutionContext(commandId, command, this, context, isUserInitiated);
     }
 
     /// <summary>

@@ -30,7 +30,7 @@ public abstract class UndoRedoCommand : Command {
         this.IsUndo = isUndo;
     }
 
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return Executability.Invalid;
 
@@ -71,8 +71,9 @@ public class UndoCommand : UndoRedoCommand {
     public UndoCommand() : base(true) {
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         Undo(e.ContextData);
+        return Task.CompletedTask;
     }
 }
 
@@ -80,7 +81,8 @@ public class RedoCommand : UndoRedoCommand {
     public RedoCommand() : base(false) {
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         Redo(e.ContextData);
+        return Task.CompletedTask;
     }
 }

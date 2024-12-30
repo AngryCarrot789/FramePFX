@@ -11,8 +11,6 @@
             xmlns:ams="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd"
             xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
             xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
-            xmlns:avc="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
-            xmlns:framePfx="clr-namespace:FramePFX;assembly=FramePFX-core"
             mc:Ignorable="d"
             x:Class="FramePFX.Avalonia.EditorWindow"
             Background="{DynamicResource PanelBackground0}"
@@ -113,7 +111,7 @@
                                 </StackPanel>
 
                                 <!-- Center Panel -->
-                                <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel x:Name="PART_ViewPortToolBar" Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
                                     <c1:TogglePlayStateButtonControl Width="24" Focusable="False" ToolTip.Tip="Play or pause playback"/>
                                     <c1:PlayStateButtonControl Width="24" Focusable="False"
                                                         HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play"

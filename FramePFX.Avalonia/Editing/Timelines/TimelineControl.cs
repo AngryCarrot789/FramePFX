@@ -31,6 +31,7 @@ using Avalonia.Layout;
 using FramePFX.Avalonia.Editing.Playheads;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
+using FramePFX.Avalonia.Editing.Toolbars;
 using FramePFX.BaseFrontEnd;
 using FramePFX.BaseFrontEnd.AdvancedMenuService;
 using FramePFX.BaseFrontEnd.Interactivity;
@@ -38,10 +39,13 @@ using FramePFX.BaseFrontEnd.Interactivity.Contexts;
 using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
+using FramePFX.Editing.Toolbars;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Toolbars;
 using FramePFX.Utils;
+using FramePFX.Utils.Collections.Observable;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
@@ -139,6 +143,13 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     public event UITimelineModelChanged? TimelineModelChanged;
     public event AvaloniaPropertyChangedEventHandler<double>? ZoomChanged;
     
+    private StackPanel? PART_ToolBar_West;
+    private StackPanel? PART_ToolBar_East;
+    private StackPanel? PART_TrackControlSurfaceToolBar;
+    private ObservableItemProcessorIndexing<ToolBarButton>? disposeWestButtonListHandler;
+    private ObservableItemProcessorIndexing<ToolBarButton>? disposeEastButtonListHandler;
+    private ObservableItemProcessorIndexing<ToolBarButton>? disposeControlSurfaceListHandler;
+
     public TimelineControl() {
         this.Tracks = new TrackListImpl(this);
         this.myTrackElements = new List<TrackElementImpl>();
@@ -171,6 +182,9 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.TimelineRuler = e.NameScope.GetTemplateChild<TimelineRuler>("PART_Ruler");
         this.LoopControl = e.NameScope.GetTemplateChild<TimelineLoopControl>("PART_LoopControl");
         this.PlayHeadInfoTextControl = e.NameScope.GetTemplateChild<PlayheadPositionTextControl>("PART_PlayheadPositionPreviewControl");
+        this.PART_ToolBar_West = e.NameScope.GetTemplateChild<StackPanel>("PART_ToolBar_West");
+        this.PART_ToolBar_East = e.NameScope.GetTemplateChild<StackPanel>("PART_ToolBar_East");
+        this.PART_TrackControlSurfaceToolBar = e.NameScope.GetTemplateChild<StackPanel>("PART_TrackControlSurfaceToolBar");
 
         ToggleButton toggleTrackAutomationButton = e.NameScope.GetTemplateChild<ToggleButton>("PART_ToggleTrackAutomation");
         toggleTrackAutomationButton.Bind(ToggleButton.IsCheckedProperty, new Binding(nameof(this.IsTrackAutomationVisible), BindingMode.TwoWay) { Source = this });
@@ -195,6 +209,44 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         // Has to be a 'preview' handler in WPF speak, since we need to prevent the base scroll viewer scrolling down even if CTRL is held
         this.TimelineScrollViewer.AddHandler(PointerWheelChangedEvent, this.TimelineScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
         this.RulerBorder.AddHandler(PointerWheelChangedEvent, this.TimeStampBoardScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
+    }
+
+    public void OnConnectedToEditor(EditorWindow window) {
+        this.EditorOwner = window;
+        TemplateUtils.Apply(this);
+        
+        TimelineToolBarManager tlManager = TimelineToolBarManager.GetInstance(window.VideoEditor);
+        ControlSurfaceListToolBarManager csManager = ControlSurfaceListToolBarManager.GetInstance(window.VideoEditor);
+        
+        this.disposeWestButtonListHandler = CreateToolbarBinder(tlManager.WestButtons, this.PART_ToolBar_West!);
+        this.disposeEastButtonListHandler = CreateToolbarBinder(tlManager.EastButtons, this.PART_ToolBar_East!);
+        this.disposeControlSurfaceListHandler = CreateToolbarBinder(csManager.Buttons, this.PART_TrackControlSurfaceToolBar!);
+    }
+
+    private static ObservableItemProcessorIndexing<ToolBarButton> CreateToolbarBinder(IObservableList<ToolBarButton> list, StackPanel stackPanel) {
+        int originalCounter = stackPanel.Children.Count;
+        return ObservableItemProcessor.MakeIndexable(list, (sender, index, item) => {
+            AbstractAvaloniaButtonElement btnImpl = (AbstractAvaloniaButtonElement) item.Button;
+            btnImpl.Button.Width = 26;
+            btnImpl.Button.Padding = new Thickness(4);
+            btnImpl.Button.BorderThickness = default;
+            stackPanel.Children.Insert(index + originalCounter, btnImpl.Button);
+            item.UpdateCanExecuteLater();
+        }, (sender, index, item) => {
+            stackPanel.Children.RemoveAt(index + originalCounter);
+        }, (sender, oldIndex, newIndex, item) => {
+            stackPanel.Children.MoveItem(oldIndex + originalCounter, newIndex + originalCounter);
+        }).InitialiseCurrentItems();
+    }
+    
+    public void OnDisconnectedFromEditor() {
+        this.EditorOwner = null;
+        this.disposeWestButtonListHandler!.Dispose();
+        this.disposeEastButtonListHandler!.Dispose();
+        this.disposeControlSurfaceListHandler!.Dispose();
+        this.PART_ToolBar_West!.Children.Clear();
+        this.PART_ToolBar_East!.Children.Clear();
+        this.PART_TrackControlSurfaceToolBar!.Children.Clear();
     }
 
     private void OnIsTrackAutomationVisibilityChanged(bool oldValue, bool newValue) => this.UpdateIsTrackAutomationVisible(newValue, null);

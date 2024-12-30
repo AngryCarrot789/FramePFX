@@ -74,10 +74,11 @@ public class CommandGroup : Command {
         return this.commands.Remove(commandId);
     }
 
-    public override Executability CanExecute(CommandEventArgs e) {
-        return this.commands.Count > 0 ? base.CanExecute(e) : Executability.Invalid;
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
+        return this.commands.Count > 0 ? base.CanExecuteCore(e) : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
+        return Task.CompletedTask;
     }
 }

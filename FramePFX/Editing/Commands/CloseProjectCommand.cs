@@ -24,14 +24,14 @@ using FramePFX.Tasks;
 
 namespace FramePFX.Editing.Commands;
 
-public class CloseProjectCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class CloseProjectCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return Executability.Invalid;
         return editor.Project == null ? Executability.ValidButCannotExecute : Executability.Valid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return;
 

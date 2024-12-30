@@ -33,7 +33,7 @@ public abstract class ToggleBasedCommand : Command {
         return IsToggledKey.TryGetContext(e.ContextData, out bool value) ? (bool?) value : null;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         bool? result = this.GetIsToggled(e);
         if (result.HasValue) {
             this.OnToggled(e, result.Value);
@@ -41,6 +41,8 @@ public abstract class ToggleBasedCommand : Command {
         else {
             this.ExecuteNoToggle(e);
         }
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -59,7 +61,7 @@ public abstract class ToggleBasedCommand : Command {
     /// <returns>Whether the command was executed successfully</returns>
     protected abstract void ExecuteNoToggle(CommandEventArgs e);
 
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         bool? result = this.GetIsToggled(e);
         return result.HasValue ? this.CanExecute(e, result.Value) : this.CanExecuteNoToggle(e);
     }

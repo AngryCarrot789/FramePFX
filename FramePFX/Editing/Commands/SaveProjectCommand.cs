@@ -25,12 +25,12 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Commands;
 
-public class SaveProjectCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class SaveProjectCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return e.ContextData.ContainsKey(DataKeys.ProjectKey) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project? project)) {
             if (project.IsSaving) {
                 await IMessageDialogService.Instance.ShowMessage("Already Saving", "Project is already saving!");
@@ -50,7 +50,7 @@ public class SaveProjectCommand : AsyncCommand {
 }
 
 public class SaveProjectAsCommand : SaveProjectCommand {
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project? project)) {
             await TaskManager.Instance.RunTask(async () => {
                 IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();

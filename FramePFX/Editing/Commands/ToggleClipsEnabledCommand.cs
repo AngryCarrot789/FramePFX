@@ -27,7 +27,7 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.Editing.Commands;
 
 public class ToggleClipsEnabledCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip is VideoClip) {
             return Executability.Valid;
         }
@@ -35,9 +35,9 @@ public class ToggleClipsEnabledCommand : Command {
         return DataKeys.TimelineUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!TimelineCommandUtils.TryGetSelectedVideoClipModels(e.ContextData, out List<VideoClip>? list) || list.Count < 1) {
-            return;
+            return Task.CompletedTask;
         }
 
         int visibleCount = list.Count(clip => VideoClip.IsEnabledParameter.GetCurrentValue(clip));
@@ -45,6 +45,8 @@ public class ToggleClipsEnabledCommand : Command {
         foreach (VideoClip clip in list) {
             AutomationUtils.SetDefaultKeyFrameOrAddNew(clip, VideoClip.IsEnabledParameter, newIsEnabled, (k, d, v) => k.SetBoolValue(v));
         }
+
+        return Task.CompletedTask;
     }
 }
 
@@ -55,7 +57,7 @@ public abstract class SetClipEnabledStateCommand : Command {
         this.State = state;
     }
 
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip is VideoClip) {
             return Executability.Valid;
         }
@@ -63,14 +65,16 @@ public abstract class SetClipEnabledStateCommand : Command {
         return DataKeys.TimelineUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!TimelineCommandUtils.TryGetSelectedVideoClipModels(e.ContextData, out List<VideoClip>? list) || list.Count < 1) {
-            return;
+            return Task.CompletedTask;
         }
 
         foreach (VideoClip clip in list) {
             AutomationUtils.SetDefaultKeyFrameOrAddNew(clip, VideoClip.IsEnabledParameter, this.State, (k, d, v) => k.SetBoolValue(v));
         }
+
+        return Task.CompletedTask;
     }
 }
 

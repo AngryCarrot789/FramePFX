@@ -114,10 +114,10 @@
                 <KeyStroke Mods="CTRL" Key="L"/>
             </Shortcut>
 
-            <Shortcut Name="NewVideoTrack" CommandId="commands.editor.NewVideoTrack" Description="Creates a new video track">
+            <Shortcut Name="NewVideoTrack" CommandId="commands.editor.CreateVideoTrack" Description="Creates a new video track">
                 <KeyStroke Mods="CTRL+SHIFT" Key="Q"/>
             </Shortcut>
-            <Shortcut Name="NewAudioTrack" CommandId="commands.editor.NewAudioTrack" Description="Creates a new audio track">
+            <Shortcut Name="NewAudioTrack" CommandId="commands.editor.CreateAudioTrack" Description="Creates a new audio track">
                 <KeyStroke Mods="CTRL" Key="Q"/>
             </Shortcut>
 

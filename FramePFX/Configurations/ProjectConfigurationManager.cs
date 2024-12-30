@@ -130,12 +130,13 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         ((ProjectVideoPropertyEditorConfigurationPage) owner).MarkModified();
     }
 
-    public override async ValueTask OnContextCreated(ConfigurationContext context) {
+    public override ValueTask OnContextCreated(ConfigurationContext context) {
         ProjectSettings settings = this.manager.Project.Settings;
         this.width = settings.Width;
         this.height = settings.Height;
         this.frameRate = settings.FrameRateDouble;
         this.PropertyEditor.Root.SetupHierarchyState([this]);
+        return ValueTask.CompletedTask;
     }
 
     public override ValueTask OnContextDestroyed(ConfigurationContext context) {
@@ -143,7 +144,7 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         return ValueTask.CompletedTask;
     }
 
-    public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
+    public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
         ProjectSettings settings = this.manager.Project.Settings;
         settings.Resolution = new SKSizeI((int) this.Width, (int) this.Height);
         if (DoubleUtils.IsValid(this.FrameRate)) {
@@ -151,5 +152,6 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         }
 
         this.manager.VideoEditor.CenterViewPort();
+        return ValueTask.CompletedTask;
     }
 }

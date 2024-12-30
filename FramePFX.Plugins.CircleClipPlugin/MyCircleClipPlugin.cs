@@ -54,7 +54,7 @@ public class MyCircleClipPlugin : Plugin {
         manager.Register("commands.mycircleclipplugin.editor.AddCircleClip", new AddCircleClipCommand());
     }
 
-    public override async Task OnApplicationLoaded() {
+    public override Task OnApplicationLoaded() {
         // Register our super cool useless video clip type
         ClipFactory.Instance.RegisterType("vc_plugin_circleclip", typeof(MyCirclePluginVideoClip));
 
@@ -69,6 +69,7 @@ public class MyCircleClipPlugin : Plugin {
         // Listen to when a video editor window is opened so that we can add our radius parameter slot to its property editor
         IVideoEditorService service = Application.Instance.ServiceManager.GetService<IVideoEditorService>();
         service.VideoEditorCreatedOrShown += OnVideoEditorCreatedOrShown;
+        return Task.CompletedTask;
     }
 
     public override void OnApplicationExiting() {

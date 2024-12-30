@@ -24,12 +24,12 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public class ToggleOnlineStateCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class ToggleOnlineStateCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return DataKeys.ResourceTreeUIKey.IsPresent(e.ContextData) || DataKeys.ResourceListUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!GetTargetItems(e.ContextData, out List<ResourceItem>? items)) {
             return;
         }

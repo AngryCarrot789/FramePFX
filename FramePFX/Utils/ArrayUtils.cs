@@ -22,7 +22,7 @@ namespace FramePFX.Utils;
 /// <summary>
 /// Contains function that apparently aren't in C# but are in java, used for NBT equality testing
 /// </summary>
-public static class Arrays {
+public static class ArrayUtils {
     // Using IEqualityComparer + generic functions is easier than having
     // a Hash function for all types of non-struct type arrays
 

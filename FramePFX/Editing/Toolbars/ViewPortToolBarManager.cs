@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2024-2024 REghZy
+// Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,14 +17,16 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.BaseFrontEnd.Editing;
+using FramePFX.Toolbars;
 
-namespace FramePFX.Avalonia.Editing.Toolbars;
+namespace FramePFX.Editing.Toolbars;
 
-public class PlayStateToolbarButton : AbstractToolbarButtonImpl {
-    public PlayStateButtonControl Button { get; }
+[Obsolete("Not yet implemented in the UI. Modifications will do nothing")]
+public class ViewPortToolBarManager : BaseToolBarManager {
+    public ViewPortToolBarManager() {
+    }
 
-    public PlayStateToolbarButton(PlayStateButtonControl button) : base(null) {
-        this.Button = button;
+    public static ViewPortToolBarManager GetInstance(VideoEditor editor) {
+        return editor.ServiceManager.GetService<ViewPortToolBarManager>();
     }
 }

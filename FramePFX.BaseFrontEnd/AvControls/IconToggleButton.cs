@@ -17,15 +17,20 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
-using FramePFX.Editing.Toolbars;
+using Avalonia;
+using Avalonia.Controls.Primitives;
+using FramePFX.Icons;
 
-namespace FramePFX.Avalonia.Editing.Toolbars;
+namespace FramePFX.BaseFrontEnd.AvControls;
 
-public abstract class AbstractToolbarButtonImpl : ToolbarButton {
-    public override ICommandUsage? CommandUsage { get; }
+/// <summary>
+/// A button that uses a <see cref="FramePFX.Icons.Icon"/> to present an icon for the button contents
+/// </summary>
+public class IconToggleButton : ToggleButton, IIconButton {
+    public static readonly StyledProperty<Icon?> IconProperty = AvaloniaProperty.Register<IconToggleButton, Icon?>(nameof(Icon));
 
-    public AbstractToolbarButtonImpl(ICommandUsage? commandUsage) {
-        this.CommandUsage = commandUsage;
+    public Icon? Icon {
+        get => this.GetValue(IconProperty);
+        set => this.SetValue(IconProperty, value);
     }
 }

@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Media;

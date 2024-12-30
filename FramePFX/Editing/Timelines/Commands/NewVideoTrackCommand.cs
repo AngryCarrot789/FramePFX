@@ -26,11 +26,11 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 namespace FramePFX.Editing.Timelines.Commands;
 
 public class NewVideoTrackCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         // if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timelineElement)) {
         //     var seleted = timelineElement.Selection.SelectedItems.FirstOrDefault();
         // }
@@ -53,5 +53,7 @@ public class NewVideoTrackCommand : Command {
 
             timeline.InsertTrack(0, track);
         }
+
+        return Task.CompletedTask;
     }
 }

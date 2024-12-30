@@ -36,7 +36,7 @@ namespace FramePFX.CommandSystem;
 /// If there's just a clip, or, there's a track or timeline and there are selected clips, then
 /// <see cref="Valid"/> will be used, meaning <see cref="Command.Execute"/> will most likely result in
 /// work being done (unless there's an issue in the command implementation, or there's no overridden implementation,
-/// or the state of the contextual data changes since <see cref="Command.CanExecute"/> was called)
+/// or the state of the contextual data changes since <see cref="Command.CanExecuteCore"/> was called)
 /// </para>
 /// </summary>
 public enum Executability {
@@ -54,7 +54,7 @@ public enum Executability {
 
     /// <summary>
     /// The context contains the correct information and the command is fully executable.
-    /// This is the default value returned by <see cref="Command.CanExecute"/>, just in case
+    /// This is the default value returned by <see cref="Command.CanExecuteCore"/>, just in case
     /// I was too lazy to override the method
     /// </summary>
     Valid

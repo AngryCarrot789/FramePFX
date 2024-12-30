@@ -48,7 +48,6 @@ using FramePFX.Configurations;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Resources;
-using FramePFX.Editing.Toolbars;
 using FramePFX.Icons;
 using FramePFX.Natives;
 using FramePFX.Plugins;
@@ -63,6 +62,7 @@ using FramePFX.Services.UserInputs;
 using FramePFX.Services.VideoEditors;
 using FramePFX.Shortcuts;
 using FramePFX.Themes;
+using FramePFX.Toolbars;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia;
@@ -114,8 +114,8 @@ public class ApplicationImpl : Application, IFrontEndApplication {
         manager.RegisterConstant<IConfigurationDialogService>(new ConfigurationDialogServiceImpl());
         manager.RegisterConstant<IInputStrokeQueryDialogService>(new InputStrokeDialogsImpl());
         manager.RegisterConstant<IVideoEditorService>(new VideoEditorServiceImpl());
-        manager.RegisterConstant<TimelineToolBarManager>(new TimelineToolBarManagerImpl());
         manager.RegisterConstant<BrushManager>(new BrushManagerImpl());
+        manager.RegisterConstant<ToolbarButtonFactory>(new ToolbarButtonFactoryImpl());
     }
 
     protected override async Task<bool> LoadKeyMapAsync() {

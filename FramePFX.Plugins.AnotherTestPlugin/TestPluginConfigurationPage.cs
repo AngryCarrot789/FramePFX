@@ -50,9 +50,10 @@ public class TestPluginConfigurationPage : PropertyEditorConfigurationPage {
 
     private void OnStringChanged(DataParameter parameter, ITransferableData owner) => this.MarkModified();
 
-    public override async ValueTask OnContextCreated(ConfigurationContext context) {
+    public override ValueTask OnContextCreated(ConfigurationContext context) {
         this.coolString = GlobalCoolString;
         this.PropertyEditor.Root.SetupHierarchyState([this]);
+        return ValueTask.CompletedTask;
     }
 
     public override ValueTask OnContextDestroyed(ConfigurationContext context) {

@@ -24,15 +24,15 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public class ChangeResourceColourCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class ChangeResourceColourCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (!ResourceCommandUtils.GetSingleItem(e.ContextData, out BaseResource? resource))
             return Executability.Invalid;
 
         return resource is ResourceColour ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!ResourceCommandUtils.GetSingleItem(e.ContextData, out BaseResource? resource)) {
             return;
         }

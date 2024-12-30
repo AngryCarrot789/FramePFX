@@ -102,8 +102,6 @@ public partial class App : global::Avalonia.Application {
             psm.Register(new StartupConfigurationOptions(), null, "startup");
             psm.Register<ThemeConfigurationOptions>(new ThemeConfigurationOptionsImpl(), "themes", "themes");
 
-            
-            
             Application.Instance.PluginLoader.RegisterConfigurations(psm);
 
             await psm.LoadAllAsync(null, false);

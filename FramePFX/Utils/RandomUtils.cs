@@ -19,7 +19,7 @@
 
 namespace FramePFX.Utils;
 
-public class RandomUtils {
+public static class RandomUtils {
     private static readonly Random RANDOM = new Random();
     private static readonly Action<char[], int, int> RandomLettersFunc = RandomLetters;
     private static readonly Action<char[], int, int> RandomLettersAndNumbersFunc = RandomLettersAndNumbers;

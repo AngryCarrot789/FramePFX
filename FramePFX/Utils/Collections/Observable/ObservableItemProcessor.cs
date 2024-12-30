@@ -150,9 +150,9 @@ public sealed class ObservableItemProcessorIndexing<T> : IDisposable {
         }
     }
 
-    private void ItemReplaced(IObservableList<T> observableList, T olditem, T newitem, int index) {
-        this.OnItemRemoved?.Invoke(this, index, olditem);
-        this.OnItemAdded?.Invoke(this, index, newitem);
+    private void ItemReplaced(IObservableList<T> observableList, T oldItem, T newItem, int index) {
+        this.OnItemRemoved?.Invoke(this, index, oldItem);
+        this.OnItemAdded?.Invoke(this, index, newItem);
     }
 
     private void ItemMoved(IObservableList<T> observableList, T item, int oldIndex, int newIndex) {

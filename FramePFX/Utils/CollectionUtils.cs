@@ -289,7 +289,7 @@ public static class CollectionUtils {
         int newLen = oldLen + additionalLength;
         if (additionalLength == 1)
             array = array.CloneArrayMax(newLen);
-        array[oldLen + 1] = value;
+        array[oldLen + 1] = value;  
         return array;
     }
 

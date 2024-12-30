@@ -25,14 +25,14 @@ using FramePFX.Utils;
 
 namespace FramePFX.Themes.Commands;
 
-public class CreateThemeCommand : AsyncCommand {
+public class CreateThemeCommand : Command {
     public bool CopyKeys { get; }
 
     public CreateThemeCommand(bool copyKeys) {
         this.CopyKeys = copyKeys;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!IThemeConfigurationTreeElement.TreeElementKey.TryGetContext(e.ContextData, out IThemeConfigurationTreeElement? tree)) {
             return;
         }

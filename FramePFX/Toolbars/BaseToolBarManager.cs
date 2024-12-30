@@ -1,4 +1,4 @@
-﻿// 
+// 
 // Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
@@ -17,39 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Utils;
+namespace FramePFX.Toolbars;
 
-public enum SKDrawType {
-    Color,
-    Line,
-    Paint,
-    Region,
-    Rect,
-    RoundRect,
-    Oval,
-    Circle,
-    Path,
-    Points,
-    Point,
-    Image,
-    Picture,
-    Drawable,
-    Bitmap,
-    Surface,
-    Text,
-    PositionedText,
-    TextOnPath,
-    Annotation,
-    UrlAnnotation,
-    NamedDestinationAnnotation,
-    LinkDestinationAnnotation,
-    BitmapNinePatch,
-    ImageNinePatch,
-    BitmapLattice,
-    ImageLattice,
-    Vertices,
-    Arc,
-    RoundRectDifference,
-    Atlas,
-    Patch
+/// <summary>
+/// A base class for a standard toolbar
+/// </summary>
+public abstract class BaseToolBarManager {
+    
 }

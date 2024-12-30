@@ -23,13 +23,15 @@ using FramePFX.Configurations.UI;
 namespace FramePFX.Configurations.Commands;
 
 public class CollapseThemeConfigTreeCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return IThemeConfigurationTreeElement.TreeElementKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (IThemeConfigurationTreeElement.TreeElementKey.TryGetContext(e.ContextData, out IThemeConfigurationTreeElement? tree)) {
             tree.CollapseAll();
         }
+
+        return Task.CompletedTask;
     }
 }

@@ -29,8 +29,8 @@ using FramePFX.Services.Messaging;
 
 namespace FramePFX.Editing.Commands;
 
-public class CreateCompositionFromSelectionCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class CreateCompositionFromSelectionCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline))
             return Executability.Invalid;
         if (timeline.Project == null)
@@ -38,7 +38,7 @@ public class CreateCompositionFromSelectionCommand : AsyncCommand {
         return Executability.Valid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timelineUI)) {
             return;
         }

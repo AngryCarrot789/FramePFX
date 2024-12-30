@@ -172,7 +172,7 @@ public override void RegisterCommands(CommandManager manager) {
     );  
 }
 
-private class ShowCompTimlineNameCommand : AsyncCommand {  
+private class ShowCompTimlineNameCommand : Command {  
     protected override Executability CanExecuteOverride(CommandEventArgs e) {  
         if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {  
             // Normally, MenuItem will be invisible, or button will be disabled

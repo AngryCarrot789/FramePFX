@@ -59,13 +59,14 @@ public class EditorWindowConfigurationPage : ConfigurationPage {
     public EditorWindowConfigurationPage() {
     }
 
-    public override async ValueTask OnContextCreated(ConfigurationContext context) {
+    public override ValueTask OnContextCreated(ConfigurationContext context) {
         EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
         this.titleBar = options.TitleBarPrefix;
         this.useIconAntiAliasing = options.UseIconAntiAliasing;
+        return ValueTask.CompletedTask;
     }
 
-    public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
+    public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
         EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
         if (!string.IsNullOrWhiteSpace(this.titleBar)) {
             options.TitleBarPrefix = this.titleBar;
@@ -73,6 +74,7 @@ public class EditorWindowConfigurationPage : ConfigurationPage {
         }
 
         options.StorageManager.SaveArea(options);
+        return ValueTask.CompletedTask;
         // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
     }
 }

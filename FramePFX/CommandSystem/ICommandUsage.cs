@@ -17,9 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Icons;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem;
+
+public delegate void CommandUsageIconChangedEventHandler(ICommandUsage usage, Icon? oldIcon, Icon? newIcon);
 
 /// <summary>
 /// An object that is associated with, typically, a single UI control, and manages specific behaviours in relation to a command
@@ -36,6 +39,16 @@ public interface ICommandUsage {
     /// </summary>
     IContextData ContextData { get; }
 
+    /// <summary>
+    /// Gets or sets the icon this command should display
+    /// </summary>
+    Icon? Icon { get; set; }
+
+    /// <summary>
+    /// Fired when the <see cref="Icon"/> changes
+    /// </summary>
+    event CommandUsageIconChangedEventHandler? IconChanged;
+    
     /// <summary>
     /// Triggers an update on this usage. This may cause a button (that executes the command) to
     /// become enabled or disabled based on the available information in our <see cref="ContextData"/>

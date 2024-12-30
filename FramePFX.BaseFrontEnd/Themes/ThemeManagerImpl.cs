@@ -21,7 +21,6 @@ using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
-using Avalonia.Skia;
 using Avalonia.Styling;
 using FramePFX.BaseFrontEnd.Themes.BrushFactories;
 using FramePFX.Logging;

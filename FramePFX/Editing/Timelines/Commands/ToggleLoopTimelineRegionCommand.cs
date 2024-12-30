@@ -33,9 +33,9 @@ public class ToggleLoopTimelineRegionCommand : Command {
     public ToggleLoopTimelineRegionCommand() {
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {
-            return;
+            return Task.CompletedTask;
         }
 
         // Create loop region spanning the whole timeline as a default value
@@ -47,7 +47,7 @@ public class ToggleLoopTimelineRegionCommand : Command {
                     if (timeline.LoopRegion != span) {
                         timeline.LoopRegion = span;
                         timeline.IsLoopRegionEnabled = true;
-                        return;
+                        return Task.CompletedTask;
                     }
                 }
             }
@@ -57,5 +57,6 @@ public class ToggleLoopTimelineRegionCommand : Command {
         }
 
         timeline.IsLoopRegionEnabled = !timeline.IsLoopRegionEnabled;
+        return Task.CompletedTask;
     }
 }

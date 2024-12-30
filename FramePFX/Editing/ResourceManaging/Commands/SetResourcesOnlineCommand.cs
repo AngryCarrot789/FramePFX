@@ -22,12 +22,12 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public class SetResourcesOnlineCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class SetResourcesOnlineCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return DataKeys.ResourceTreeUIKey.IsPresent(e.ContextData) || DataKeys.ResourceListUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!ToggleOnlineStateCommand.GetTargetItems(e.ContextData, out List<ResourceItem>? items)) {
             return;
         }

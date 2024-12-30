@@ -5,7 +5,9 @@
                     xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
                     xmlns:dragger="clr-namespace:FramePFX.BaseFrontEnd.AvControls.Dragger;assembly=FramePFX.BaseFrontEnd"
                     xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandUsages">
+                    xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandUsages"
+                    xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Converters;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:a="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd">
     <f:UnitToPercentFormatter x:Key="OpacityUnitPercentageFormatter" NonEditingRoundedPlaces="1" EditingRoundedPlaces="4"/>
     <ControlTheme x:Key="TrackListExpandToggleButtonStyle" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
         <Setter Property="Background" Value="Transparent"/>
@@ -134,6 +136,8 @@
         <Setter Property="VerticalAlignment" Value="Stretch"/>
     </ControlTheme>
 
+    <c:AutomationBrushConverter x:Key="AutomationBrushConverter"/>
+    
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceVideo}" TargetType="{x:Type s:TrackControlSurfaceVideo}" BasedOn="{StaticResource {x:Type s:TrackControlSurface}}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceVideo}">
@@ -187,18 +191,17 @@
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate DataType="{x:Type s:TrackListItemParameterViewModel}">
                                             <StackPanel Orientation="Horizontal">
-                                                <Ellipse Margin="0,0,4,0" VerticalAlignment="Center"
-                                                         IsVisible="{Binding IsAutomated, Mode=OneWay}"
-                                                         Width="7" Height="7"
-                                                         Stroke="Black" StrokeThickness="1"
-                                                         ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}">
-                                                    <Ellipse.Fill>
+                                                <a:IconControl Margin="0,0,4,0" VerticalAlignment="Center"
+                                                               IsVisible="{Binding IsAutomated, Mode=OneWay}"
+                                                               ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"
+                                                               Stretch="None">
+                                                    <a:IconControl.Icon>
                                                         <MultiBinding Converter="{StaticResource AutomationBrushConverter}">
                                                             <Binding Path="IsAutomated" Mode="OneWay"/>
                                                             <Binding Path="IsOverrideEnabled" Mode="OneWay"/>
                                                         </MultiBinding>
-                                                    </Ellipse.Fill>
-                                                </Ellipse>
+                                                    </a:IconControl.Icon>
+                                                </a:IconControl>
                                                 <TextBlock Text="{Binding Name}"/>
                                             </StackPanel>
                                         </DataTemplate>
@@ -207,7 +210,7 @@
                                 <Button BorderBrush="Black" Height="20" Width="18"
                                         ToolTip.Tip="Insert a key frame at the current play head"
                                         x:Name="PART_InsertKeyFrameButton">
-                                    <Ellipse Width="7" Height="7" Fill="{DynamicResource ABrush.PFX.Automation.Active.Fill}"/>
+                                    <Ellipse Width="7" Height="7" Fill="{DynamicResource ABrush.PFX.Automation.Active.Fill}" Stroke="Black" StrokeThickness="1"/>
                                 </Button>
                                 <ToggleButton Content="O" BorderBrush="Black" Height="20" Width="18"
                                               ToolTip.Tip="Toggles the parameter override state. This is used to enable or disable automation for the parameter"

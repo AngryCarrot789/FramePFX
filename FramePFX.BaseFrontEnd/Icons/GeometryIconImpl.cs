@@ -17,8 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Skia;
@@ -36,18 +34,21 @@ public class GeometryIconImpl : AbstractAvaloniaIcon {
     public readonly IColourBrush? TheFillBrush;
     public readonly IColourBrush? TheStrokeBrush;
     public readonly double StrokeThickness;
+    public readonly StretchMode Stretch;
 
     private IBrush? myFillBrush, myPenBrush;
     private IPen? myPen;
 
     private Geometry?[]? geometries;
-    private readonly IDisposable disposeFillBrush, disposeStrokeBrush;
+    private readonly IDisposable? disposeFillBrush, disposeStrokeBrush;
 
     public Geometry?[] Geometries {
         get {
             if (this.geometries == null) {
                 this.geometries = new Geometry[this.Elements.Length];
                 for (int i = 0; i < this.Elements.Length; i++) {
+                    
+                    
                     try {
                         this.geometries[i] = Geometry.Parse(this.Elements[i]);
                     }
@@ -61,11 +62,12 @@ public class GeometryIconImpl : AbstractAvaloniaIcon {
         }
     }
 
-    public GeometryIconImpl(string name, IColourBrush? brush, IColourBrush? stroke, double strokeThickness, string[] svgElements) : base(name) {
+    public GeometryIconImpl(string name, IColourBrush? brush, IColourBrush? stroke, double strokeThickness, string[] svgElements, StretchMode stretch) : base(name) {
         this.Elements = svgElements;
         this.TheFillBrush = brush;
         this.TheStrokeBrush = stroke;
         this.StrokeThickness = strokeThickness;
+        this.Stretch = stretch;
 
         if (brush is DynamicAvaloniaColourBrush b) {
             this.disposeFillBrush = b.Subscribe(this.OnFillBrushInvalidated);
@@ -78,7 +80,7 @@ public class GeometryIconImpl : AbstractAvaloniaIcon {
             this.disposeStrokeBrush = s.Subscribe(this.OnStrokeBrushInvalidated);
         }
         else if (stroke != null) {
-            this.myFillBrush = ((AvaloniaColourBrush) stroke).Brush;
+            this.myPenBrush = ((AvaloniaColourBrush) stroke).Brush;
         }
     }
 
@@ -162,7 +164,7 @@ public class GeometryIconImpl : AbstractAvaloniaIcon {
     }
 
     public override (Size Size, SKMatrix Transform) Measure(Size availableSize, StretchMode stretch) {
-        (Size size, Matrix t) = CalculateSizeAndTransform(availableSize, this.GetBounds(), (Stretch) stretch);
+        (Size size, Matrix t) = CalculateSizeAndTransform(availableSize, this.GetBounds(), (Stretch) this.Stretch);
         return (size, t.ToSKMatrix());
     }
 

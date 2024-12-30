@@ -31,7 +31,7 @@ public class CommandUsageModelHelper<T> where T : class {
     /// <summary>
     /// Gets the current model object. Null when disconnected, Non-null when connected
     /// </summary>
-    public T Model { get; private set; }
+    public T? Model { get; private set; }
 
     /// <summary>
     /// An event fired when our <see cref="Model"/> is now valid (meaning it was located in the command usage's context data)

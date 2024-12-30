@@ -18,6 +18,7 @@
 // 
 
 using FramePFX.Editing;
+using FramePFX.Editing.Toolbars;
 using FramePFX.Editing.UI;
 using FramePFX.Services.VideoEditors;
 
@@ -25,25 +26,28 @@ namespace FramePFX.Avalonia.Services.Startups;
 
 public class VideoEditorServiceImpl : IVideoEditorService {
     public event VideoEditorCreationEventHandler? VideoEditorCreatedOrShown;
-    
+
     public VideoEditorServiceImpl() {
     }
-    
+
     public IVideoEditorWindow OpenVideoEditor(VideoEditor editor) {
+        editor.ServiceManager.RegisterConstant(new TimelineToolBarManager());
+        editor.ServiceManager.RegisterConstant(new ControlSurfaceListToolBarManager());
+        editor.ServiceManager.RegisterConstant(new ViewPortToolBarManager());
+
         EditorWindow window = new EditorWindow(editor);
-        
+
         // Something might want to actually do stuff before the visual tree is fully loaded
         this.VideoEditorCreatedOrShown?.Invoke(window, false);
-        
+
         window.Show();
         Application.Instance.Dispatcher.InvokeAsync(() => {
             window.PART_ViewPort!.PART_FreeMoveViewPort!.FitContentToCenter();
             if (editor.Project != null) {
                 editor.Project.ActiveTimeline.InvalidateRender();
             }
-            
         }, DispatchPriority.Background);
-        
+
         this.VideoEditorCreatedOrShown?.Invoke(window, true);
         return window;
     }

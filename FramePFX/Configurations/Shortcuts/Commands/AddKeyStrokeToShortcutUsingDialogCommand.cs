@@ -25,12 +25,12 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Configurations.Shortcuts.Commands;
 
-public class AddKeyStrokeToShortcutUsingDialogCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class AddKeyStrokeToShortcutUsingDialogCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return DataKeys.ShortcutEntryKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.ShortcutEntryKey.TryGetContext(e.ContextData, out ShortcutEntry? entry)) {
             return;
         }

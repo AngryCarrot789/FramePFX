@@ -26,7 +26,7 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 namespace FramePFX.Editing.Timelines.Commands;
 
 public class SplitClipsCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip.Timeline != null)
             return clip.IsTimelineFrameInRange(clip.Timeline.PlayHeadPosition) ? Executability.Valid : Executability.ValidButCannotExecute;
         if (e.ContextData.ContainsKey(DataKeys.TimelineKey))
@@ -34,7 +34,7 @@ public class SplitClipsCommand : Command {
         return Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip.Timeline is Timeline timeline) {
             SliceClip(clip, timeline.PlayHeadPosition);
         }
@@ -48,6 +48,8 @@ public class SplitClipsCommand : Command {
                 SliceClip(clips[i], timeline.PlayHeadPosition);
             }
         }
+
+        return Task.CompletedTask;
     }
 
     public static void SliceClip(Clip clip, long playHead) {

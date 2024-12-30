@@ -24,15 +24,15 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Configurations.Commands;
 
-public class OpenProjectSettingsCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class OpenProjectSettingsCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorWindow? editor))
             return Executability.Invalid;
 
         return editor.VideoEditor?.Project != null ? Executability.Valid : Executability.ValidButCannotExecute;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorWindow? editorUI))
             return;
 

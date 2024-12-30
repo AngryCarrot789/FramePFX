@@ -22,11 +22,10 @@ using FramePFX.CommandSystem;
 
 namespace FramePFX.BaseFrontEnd.CommandUsages;
 
-public class BasicButtonCommandUsage : CommandUsage {
+public class SimpleButtonCommandUsage : CommandUsage {
     private ClickableControlHelper? button;
-    private bool hasExecutedCommand;
     
-    public BasicButtonCommandUsage(string commandId) : base(commandId) { }
+    public SimpleButtonCommandUsage(string commandId) : base(commandId) { }
 
     protected override void OnConnected() {
         base.OnConnected();
@@ -40,21 +39,34 @@ public class BasicButtonCommandUsage : CommandUsage {
     }
 
     protected virtual void OnButtonClick() {
-        if (!CommandManager.Instance.TryGetCommandById(this.CommandId, out Command? command)) {
+        if (!CommandManager.Instance.TryFindCommandById(this.CommandId, out Command? command)) {
             return;
         }
 
         CommandManager.Instance.Execute(this.CommandId, command, DataManager.GetFullContextData(this.Control!));
-        if (command is AsyncCommand cmd && !cmd.AllowMultipleExecutions && cmd.IsExecuting) {
-            cmd.ExecutingChanged += this.OnIsExecutingChanged;
+        if (!command.AllowMultipleExecutions && command.IsExecuting) {
+            command.ExecutingChanged += this.DoOnIsExecutingChanged;
+            this.OnIsExecutingChanged(true);
         }
-        
-        this.UpdateCanExecute();
+        else {
+            this.OnIsExecutingChanged(null);
+        }
     }
     
-    private void OnIsExecutingChanged(AsyncCommand theCmd) {
+    private void DoOnIsExecutingChanged(Command theCmd) {
+        this.OnIsExecutingChanged(false);
+        theCmd.ExecutingChanged -= this.DoOnIsExecutingChanged;
+    }
+
+    /// <summary>
+    /// Invoked when the executing state changed.
+    /// </summary>
+    /// <param name="isExecuting">
+    /// Null if the command is not async and finished immediately,
+    /// True if now executing, False is command completed
+    /// </param>
+    protected virtual void OnIsExecutingChanged(bool? isExecuting) {
         this.UpdateCanExecute();
-        theCmd.ExecutingChanged -= this.OnIsExecutingChanged;
     }
 
     protected override void OnUpdateForCanExecuteState(Executability state) {

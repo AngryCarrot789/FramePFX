@@ -25,15 +25,15 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Commands;
 
-public class NewProjectCommand : AsyncCommand {
+public class NewProjectCommand : Command {
     // true: project was already closed or is now closed
     // false: close was cancelled; cancel entire operation
 
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor)) {
             return;
         }

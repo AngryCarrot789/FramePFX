@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{070E3833-D
 		docs\Rendering.md = docs\Rendering.md
 		docs\Projects and Codebase.md = docs\Projects and Codebase.md
 		docs\Shortcuts.md = docs\Shortcuts.md
+		docs\Dynamic UI.md = docs\Dynamic UI.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.Avalonia", "FramePFX.Avalonia\FramePFX.Avalonia.csproj", "{4E393A8A-C015-4CA2-9CB8-67BC68826170}"

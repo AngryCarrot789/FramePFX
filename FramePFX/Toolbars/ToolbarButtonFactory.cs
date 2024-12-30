@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2024-2024 REghZy
+// Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,19 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Text.RegularExpressions;
+namespace FramePFX.Toolbars;
 
-namespace FramePFX.Utils;
-
-public static class RegexUtils {
-    public static bool IsValidRegex(string pattern) {
-        try {
-            Regex.Match("", pattern);
-        }
-        catch (ArgumentException) {
-            return false;
-        }
-
-        return true;
-    }
+public abstract class ToolbarButtonFactory {
+    public static ToolbarButtonFactory Instance => Application.Instance.ServiceManager.GetService<ToolbarButtonFactory>();
+    
+    public abstract IButtonElement CreateButton();
+    
+    public abstract IToggleButtonElement CreateToggleButton();
 }

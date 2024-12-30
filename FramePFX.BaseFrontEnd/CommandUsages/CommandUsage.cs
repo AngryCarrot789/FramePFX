@@ -21,6 +21,7 @@ using Avalonia;
 using Avalonia.Interactivity;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.CommandSystem;
+using FramePFX.Icons;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using FramePFX.Utils.RDA;
@@ -40,6 +41,7 @@ public abstract class CommandUsage : ICommandUsage {
     // Since its invoke method is only called from the main thread,
     // there's no need for the extended version
     private RapidDispatchAction? delayedContextUpdate;
+    private Icon? icon;
 
     public string CommandId { get; }
 
@@ -47,15 +49,32 @@ public abstract class CommandUsage : ICommandUsage {
 
     public AvaloniaObject? Control { get; private set; }
 
+    public Icon? Icon {
+        get => this.icon;
+        set {
+            Icon? oldIcon = this.icon;
+            if (!ReferenceEquals(oldIcon, value)) {
+                this.icon = value;
+                this.OnIconChanged(oldIcon, value);
+            }
+        }
+    }
+
     /// <summary>
     /// Gets whether this usage is currently connected to a control. When disconnecting, this is set
     /// to false while <see cref="Control"/> remains non-null, until <see cref="OnDisconnected"/> has returned
     /// </summary>
     public bool IsConnected { get; private set; }
 
+    public event CommandUsageIconChangedEventHandler? IconChanged;
+    
     protected CommandUsage(string commandId) {
         Validate.NotNullOrWhiteSpaces(commandId);
         this.CommandId = commandId;
+    }
+
+    protected virtual void OnIconChanged(Icon? oldIcon, Icon? newIcon) {
+        this.IconChanged?.Invoke(this, oldIcon, newIcon);
     }
 
     /// <summary>

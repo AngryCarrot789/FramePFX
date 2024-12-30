@@ -24,8 +24,8 @@ using FramePFX.Services.UserInputs;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public class RenameResourceCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class RenameResourceCommand : Command {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (DataKeys.ResourceNodeUIKey.IsPresent(e.ContextData))
             return Executability.Valid;
         if (DataKeys.ResourceObjectKey.IsPresent(e.ContextData))
@@ -33,7 +33,7 @@ public class RenameResourceCommand : AsyncCommand {
         return Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (DataKeys.ResourceNodeUIKey.TryGetContext(e.ContextData, out IResourceTreeNodeElement? resource)) {
             resource.EditNameState = true;
         }

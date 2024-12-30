@@ -21,7 +21,8 @@ using FramePFX.BaseFrontEnd.CommandUsages;
 
 namespace FramePFX.Avalonia.Editing.CommandUsages;
 
-public class DeleteSpecificTrackCommandUsage : BasicButtonCommandUsage {
+public class DeleteSpecificTrackCommandUsage : SimpleButtonCommandUsage {
     public DeleteSpecificTrackCommandUsage() : base("commands.editor.DeleteSpecificTrack") {
+        this.Icon = SimpleIcons.BinIcon;
     }
 }

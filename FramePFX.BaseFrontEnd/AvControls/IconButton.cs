@@ -26,7 +26,7 @@ namespace FramePFX.BaseFrontEnd.AvControls;
 /// <summary>
 /// A button that uses a <see cref="FramePFX.Icons.Icon"/> to present an icon for the button contents
 /// </summary>
-public class IconButton : Button {
+public class IconButton : Button, IIconButton {
     public static readonly StyledProperty<Icon?> IconProperty = AvaloniaProperty.Register<IconButton, Icon?>(nameof(Icon));
 
     public Icon? Icon {

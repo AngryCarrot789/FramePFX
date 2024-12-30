@@ -26,7 +26,7 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.Editing.Commands;
 
 public class ToggleTracksEnabledCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track) && track is VideoTrack) {
             return Executability.Valid;
         }
@@ -34,9 +34,9 @@ public class ToggleTracksEnabledCommand : Command {
         return DataKeys.TimelineUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!TimelineCommandUtils.TryGetSelectedVideoTrackModels(e.ContextData, out List<VideoTrack>? list) || list.Count < 1) {
-            return;
+            return Task.CompletedTask;
         }
 
         int visibleCount = list.Count(clip => VideoTrack.IsEnabledParameter.GetCurrentValue(clip));
@@ -44,6 +44,8 @@ public class ToggleTracksEnabledCommand : Command {
         foreach (VideoTrack track in list) {
             AutomationUtils.SetDefaultKeyFrameOrAddNew(track, VideoTrack.IsEnabledParameter, newIsEnabled, (k, d, v) => k.SetBoolValue(v));
         }
+
+        return Task.CompletedTask;
     }
 }
 
@@ -54,7 +56,7 @@ public abstract class SetTrackEnabledStateCommand : Command {
         this.State = state;
     }
 
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track) && track is VideoTrack) {
             return Executability.Valid;
         }
@@ -62,14 +64,16 @@ public abstract class SetTrackEnabledStateCommand : Command {
         return DataKeys.TimelineUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!TimelineCommandUtils.TryGetSelectedVideoTrackModels(e.ContextData, out List<VideoTrack>? list) || list.Count < 1) {
-            return;
+            return Task.CompletedTask;
         }
 
         foreach (VideoTrack track in list) {
             AutomationUtils.SetDefaultKeyFrameOrAddNew(track, VideoTrack.IsEnabledParameter, this.State, (k, d, v) => k.SetBoolValue(v));
         }
+
+        return Task.CompletedTask;
     }
 }
 

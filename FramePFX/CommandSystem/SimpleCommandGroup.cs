@@ -20,7 +20,7 @@
 namespace FramePFX.CommandSystem;
 
 /// <summary>
-/// A command group that overrides <see cref="Command.CanExecute"/> to return an executability state based on the available context
+/// A command group that overrides <see cref="Command.CanExecuteCore"/> to return an executability state based on the available context
 /// </summary>
 public class SimpleCommandGroup : CommandGroup {
     private readonly HashSet<string> required;
@@ -35,9 +35,9 @@ public class SimpleCommandGroup : CommandGroup {
     public static SimpleCommandGroup RequireAny(HashSet<string> keys) => new SimpleCommandGroup(null, keys);
     public static SimpleCommandGroup RequireAllAndAny(HashSet<string> allOf, HashSet<string> anyOf) => new SimpleCommandGroup(allOf, anyOf);
 
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (this.required == null && this.any == null)
-            return base.CanExecute(e);
+            return base.CanExecuteCore(e);
 
         bool isValid;
         if (this.any == null)

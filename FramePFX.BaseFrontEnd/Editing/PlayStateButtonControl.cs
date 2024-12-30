@@ -55,8 +55,13 @@ public class PlayStateButtonControl : Button {
         DataManager.AddInheritedContextChangedHandler(this, this.OnInheritedContextChanged);
         this.delayedContextChangeUpdater = new RapidDispatchAction(this.UpdateForContext, DispatchPriority.Loaded, "UpdateCanExecute");
         this.command = new RelayCommand(() => {
-            if (this.CommandId is string cmdId && !string.IsNullOrWhiteSpace(cmdId))
-                CommandManager.Instance.TryExecute(cmdId, () => DataManager.GetFullContextData(this));
+            if (this.CommandId is string cmdId && !string.IsNullOrWhiteSpace(cmdId)) {
+                if (CommandManager.Instance.TryFindCommandById(cmdId, out Command? cmd)) {
+                    CommandExecutionContext ctx = CommandManager.Instance.BeginExecution(cmdId, cmd, DataManager.GetFullContextData(this));
+                    ctx.AddCompletionAction(() => this.command!.RaiseCanExecuteChanged());
+                    ctx.Execute();
+                }
+            }
         }, () => {
             if (this.editor == null || !(this.CommandId is string cmdId) || string.IsNullOrWhiteSpace(cmdId))
                 return false;
@@ -97,5 +102,9 @@ public class PlayStateButtonControl : Button {
         this.UpdateButtonUI();
     }
 
-    protected virtual void UpdateButtonUI() => this.command.RaiseCanExecuteChanged();
+    protected virtual void UpdateButtonUI() {
+        // Since the caller might be the toggle commands, its CanExecute will return false since it's currently executing.
+        // So, check later on when it's definitely done. We should be listening to the events though
+        Application.Instance.Dispatcher.InvokeAsync(() => this.command.RaiseCanExecuteChanged());
+    }
 }

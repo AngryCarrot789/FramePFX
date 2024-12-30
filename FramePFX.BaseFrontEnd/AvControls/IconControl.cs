@@ -85,6 +85,8 @@ public class IconControl : Control {
             this.attachedIcon.RenderInvalidated -= this.OnIconInvalidated;
             this.attachedIcon = null;
         }
+        
+        this.isAttachedToVt = false;
     }
 
     private void OnIconChanged(Icon? oldValue, Icon? newValue) {

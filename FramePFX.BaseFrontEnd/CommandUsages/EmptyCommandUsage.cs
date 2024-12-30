@@ -18,6 +18,7 @@
 // 
 
 using FramePFX.CommandSystem;
+using FramePFX.Icons;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
@@ -25,6 +26,7 @@ namespace FramePFX.BaseFrontEnd.CommandUsages;
 
 public class EmptyCommandUsage : ICommandUsage {
     public string CommandId { get; }
+    public Icon? Icon { get; set; }
 
     public EmptyCommandUsage(string commandId) {
         Validate.NotNullOrWhiteSpaces(commandId);
@@ -32,7 +34,8 @@ public class EmptyCommandUsage : ICommandUsage {
     }
 
     public IContextData ContextData => EmptyContext.Instance;
-    
+    public event CommandUsageIconChangedEventHandler? IconChanged;
+
     public void UpdateCanExecuteLater() {
     }
 

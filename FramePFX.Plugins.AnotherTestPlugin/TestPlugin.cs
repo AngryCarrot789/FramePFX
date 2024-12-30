@@ -23,7 +23,7 @@ using FramePFX.Editing.Exporting;
 namespace FramePFX.Plugins.AnotherTestPlugin;
 
 public class TestPlugin : Plugin {
-    public override async Task OnApplicationLoaded() {
+    public override Task OnApplicationLoaded() {
         // Register a test exporter
         ExporterRegistry.Instance.RegisterExporter(new ExporterKey("testplugin.TestExporter", "Test Exporter (do not use)"), new TestExporterInfo());
         
@@ -36,6 +36,7 @@ public class TestPlugin : Plugin {
         
         IConfigurationDialogService e;
         IExportDialogService d;
+        return Task.CompletedTask;
     }
 
     private static void ProjectConfigurationManagerOnSetupProjectConfiguration(ProjectConfigurationManager configuration) {

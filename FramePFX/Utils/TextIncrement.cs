@@ -21,7 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FramePFX.Utils;
 
-public class TextIncrement {
+public static class TextIncrement {
     public static int GetChars(ulong value, char[] dst, int offset) {
         string str = value.ToString();
         str.CopyTo(0, dst, offset, str.Length);

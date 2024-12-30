@@ -26,7 +26,7 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 namespace FramePFX.Editing.Timelines.Commands;
 
 public class TrimStartCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip.Timeline != null)
             return Executability.Valid;
         if (e.ContextData.ContainsKey(DataKeys.TimelineKey))
@@ -34,7 +34,7 @@ public class TrimStartCommand : Command {
         return Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         // TODO
         if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {
             List<Clip> clips = new List<Clip>();
@@ -57,6 +57,8 @@ public class TrimStartCommand : Command {
                 ApplyClips(clips[i], timeline.PlayHeadPosition);
             }
         }
+
+        return Task.CompletedTask;
     }
 
     public static void ApplyClips(Clip clip, long playHead) {

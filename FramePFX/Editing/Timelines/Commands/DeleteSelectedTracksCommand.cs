@@ -42,17 +42,19 @@ public class DeleteSelectedTracksCommand : Command {
         return false;
     }
 
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return GetTrackSelection(e.ContextData, out _) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!GetTrackSelection(e.ContextData, out Track[] tracks))
-            return;
+            return Task.CompletedTask;
 
         foreach (Track track in tracks) {
             track.Timeline?.RemoveTrack(track);
             track.Destroy();
         }
+
+        return Task.CompletedTask;
     }
 }

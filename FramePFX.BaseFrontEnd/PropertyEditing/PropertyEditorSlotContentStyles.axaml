@@ -18,7 +18,7 @@
                         <Button x:Name="PART_InsertKeyFrame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                                 Height="20" Width="20" CornerRadius="2"
                                 ToolTip.Tip="Insert a key frame at the current play head">
-                            <Ellipse Width="8" Height="8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource ABrush.Glyph.Static}" Stroke="Black" StrokeThickness="1"/>
                         </Button>
                         <ToggleButton x:Name="PART_ToggleOverride" 
                                       Background="{TemplateBinding Background}" 

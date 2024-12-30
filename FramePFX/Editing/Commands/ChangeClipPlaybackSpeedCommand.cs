@@ -26,12 +26,12 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing.Commands;
 
-public class ChangeClipPlaybackSpeedCommand : AsyncCommand {
+public class ChangeClipPlaybackSpeedCommand : Command {
     public bool IgnoreNotSensitiveToSpeed { get; init; }
 
     public ChangeClipPlaybackSpeedCommand() { }
 
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) || !(clip is VideoClip videoClip))
             return Executability.Invalid;
 
@@ -56,7 +56,7 @@ public class ChangeClipPlaybackSpeedCommand : AsyncCommand {
         return Executability.Valid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) || !(clip is VideoClip videoClip)) {
             return;
         }

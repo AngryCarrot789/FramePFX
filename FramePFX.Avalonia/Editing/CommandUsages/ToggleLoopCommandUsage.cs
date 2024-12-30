@@ -24,7 +24,7 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.Editing.CommandUsages;
 
-public class ToggleLoopCommandUsage : BasicButtonCommandUsage {
+public class ToggleLoopCommandUsage : SimpleButtonCommandUsage {
     private Timeline? myTimeline;
 
     public ToggleLoopCommandUsage() : base("commands.editor.ToggleLoopTimelineRegion") {

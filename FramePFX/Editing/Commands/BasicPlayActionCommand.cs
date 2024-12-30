@@ -25,21 +25,23 @@ namespace FramePFX.Editing.Commands;
 public abstract class BasicPlayActionCommand : Command {
     public abstract PlayState TargetState { get; }
 
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return Executability.Invalid;
         return editor.Playback.CanSetPlayStateTo(this.TargetState) ? Executability.Valid : Executability.ValidButCannotExecute;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor) || !editor.Playback.CanSetPlayStateTo(this.TargetState))
-            return;
+            return Task.CompletedTask;
         switch (this.TargetState) {
             case PlayState.Play:  editor.Playback.Play(); break;
             case PlayState.Pause: editor.Playback.Pause(); break;
             case PlayState.Stop:  editor.Playback.Stop(); break;
             default:              throw new ArgumentOutOfRangeException();
         }
+
+        return Task.CompletedTask;
     }
 }
 

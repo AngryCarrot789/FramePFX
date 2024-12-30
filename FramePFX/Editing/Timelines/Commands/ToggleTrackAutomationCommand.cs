@@ -24,13 +24,14 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 namespace FramePFX.Editing.Timelines.Commands;
 
 public class ToggleTrackAutomationCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return DataKeys.TimelineUIKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline))
-            return;
+            return Task.CompletedTask;
         timeline.IsTrackAutomationVisible = !timeline.IsTrackAutomationVisible;
+        return Task.CompletedTask;
     }
 }

@@ -24,13 +24,13 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
 public class GroupResourcesCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+    protected override Executability CanExecuteCore(CommandEventArgs e) {
         return DataKeys.ResourceListUIKey.IsPresent(e.ContextData) && DataKeys.ResourceObjectKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override Task ExecuteCommandAsync(CommandEventArgs e) {
         if (!DataKeys.ResourceObjectKey.IsPresent(e.ContextData))
-            return;
+            return Task.CompletedTask;
 
         ResourceFolder dest;
         List<BaseResource> resources;
@@ -39,13 +39,13 @@ public class GroupResourcesCommand : Command {
             dest = (ResourceFolder?) list.CurrentFolderTreeNode?.Resource ?? list.ManagerUI.ResourceManager!.RootContainer;
         }
         else {
-            return;
+            return Task.CompletedTask;
         }
 
         // Safety post processing
         resources = resources.Where(x => x.Parent == dest).ToList();
         if (resources.Count < 1) {
-            return;
+            return Task.CompletedTask;
         }
 
         int minIndex = resources.Min(x => dest.IndexOf(x));
@@ -61,5 +61,6 @@ public class GroupResourcesCommand : Command {
 
         list.ManagerUI.Selection.Tree.Clear();
         list.Selection.SetSelection(folder);
+        return Task.CompletedTask;
     }
 }

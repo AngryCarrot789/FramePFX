@@ -99,7 +99,7 @@ public class ThemeConfigurationPageControl : BaseConfigurationPageControl {
             this.UpdateCanResetValue();
     }
     
-    private void OnThemeModifiedThemeEntriesCleared(ThemeConfigurationPage sender) {
+    private void OnThemeModifiedThemeEntriesCleared(ThemeConfigurationPage sender, Dictionary<string, ISavedThemeEntry> oldItems) {
         this.UpdateCanResetValue();
     }
     

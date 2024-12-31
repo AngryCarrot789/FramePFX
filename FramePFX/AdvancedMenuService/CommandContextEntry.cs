@@ -27,7 +27,7 @@ namespace FramePFX.AdvancedMenuService;
 public class CommandContextEntry : BaseContextEntry {
     public string CommandId { get; }
 
-    public CommandContextEntry(string commandId, string displayName, string? description, Icon? icon = null, bool scaleIcon = true) : base(displayName, description, icon, scaleIcon) {
+    public CommandContextEntry(string commandId, string displayName, string? description, Icon? icon = null, StretchMode stretchMode = StretchMode.None) : base(displayName, description, icon, stretchMode) {
         this.CommandId = commandId;
     }
 }

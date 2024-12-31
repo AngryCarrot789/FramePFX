@@ -1,5 +1,5 @@
-﻿// 
-// Copyright (c) 2023-2024 REghZy
+// 
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,13 +17,16 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using Avalonia.Media;
 using SkiaSharp;
 
-namespace FramePFX.BaseFrontEnd.Utils;
+namespace FramePFX.Themes;
 
-public static class SKUtils {
-    public static SKColor AvToSkia(Color c) => new(c.R, c.G, c.B, c.A);
-
-    public static Color SkiaToAv(SKColor c) => new(c.Alpha, c.Red, c.Green, c.Blue);
+/// <summary>
+/// Represents a brush whose colour is constant, provided when created by the user
+/// </summary>
+public interface IConstantColourBrush : IStaticColourBrush {
+    /// <summary>
+    /// Gets this brush's underlying colour
+    /// </summary>
+    SKColor Color { get; }
 }

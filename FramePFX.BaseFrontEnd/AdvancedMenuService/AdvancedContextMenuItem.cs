@@ -75,7 +75,7 @@ public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
         if (this.Entry.Icon != null) {
             this.myIconControl = new IconControl() {
                 Icon = this.Entry.Icon,
-                Stretch = this.Entry.ScaleIcon ? Stretch.UniformToFill : Stretch.None
+                Stretch = (Stretch) this.Entry.StretchMode
             };
             
             this.Icon = this.myIconControl;

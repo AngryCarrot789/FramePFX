@@ -75,7 +75,7 @@
                         <TextBlock TextWrapping="Wrap">
                             <Run Text="The theme configuration tree groups the UI's theme elements" BaselineAlignment="Center"/>
                         </TextBlock>
-                        <TextBlock x:Name="PART_WarnEditingBuiltInTheme" TextWrapping="Wrap">
+                        <TextBlock x:Name="PART_WarnEditingBuiltInTheme" TextWrapping="Wrap" TextDecorations="Underline">
                             <Run Text="Warning! The current theme is a built-in theme. Changes to built-in themes are not saved across restarts." BaselineAlignment="Center" Foreground="{DynamicResource ABrush.Foreground.Disabled}"/>
                             <LineBreak/>
                             <Run Text="Create a copy (preferably an inherited copy) to save changes" BaselineAlignment="Center" Foreground="{DynamicResource ABrush.Foreground.Disabled}"/>

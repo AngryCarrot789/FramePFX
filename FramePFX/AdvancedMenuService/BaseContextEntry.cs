@@ -29,13 +29,13 @@ public class BaseContextEntry : IContextEntry {
 
     public Icon? Icon { get; }
 
-    public bool ScaleIcon { get; }
+    public StretchMode StretchMode { get; }
     
-    public BaseContextEntry(string displayName, string? description, Icon? icon = null, bool scaleIcon = true) {
+    public BaseContextEntry(string displayName, string? description, Icon? icon = null, StretchMode stretchMode = StretchMode.None) {
         Validate.NotNullOrWhiteSpaces(displayName);
         this.DisplayName = displayName;
         this.Description = description;
         this.Icon = icon;
-        this.ScaleIcon = scaleIcon;
+        this.StretchMode = stretchMode;
     }
 }

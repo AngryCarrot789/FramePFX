@@ -28,11 +28,11 @@ public abstract class BrushManager {
     public static BrushManager Instance => Application.Instance.ServiceManager.GetService<BrushManager>();
     
     /// <summary>
-    /// Creates a brush whose underlying colour does not change
+    /// Creates a brush whose underlying colour is constant and does not change
     /// </summary>
     /// <param name="colour">The colour</param>
     /// <returns>The brush</returns>
-    public abstract IStaticColourBrush CreateConstant(SKColor colour);
+    public abstract IConstantColourBrush CreateConstant(SKColor colour);
 
     /// <summary>
     /// Gets a known theme brush that may change at any time

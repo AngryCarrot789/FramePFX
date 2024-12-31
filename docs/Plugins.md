@@ -173,38 +173,51 @@ public override void RegisterCommands(CommandManager manager) {
 }
 
 private class ShowCompTimlineNameCommand : Command {  
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {  
+    protected override Executability CanExecuteCore(CommandEventArgs e) 
+    {  
         if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {  
             // Normally, MenuItem will be invisible, or button will be disabled
             return Executability.Invalid;
-	    }  
-          
+        }  
+    
         return timeline is CompositionTimeline 
-	        ? Executability.Valid 				   // Control clickable
-	        : Executability.ValidButCannotExecute; // Control disabled
+            ? Executability.Valid 				   // Control clickable
+            : Executability.ValidButCannotExecute; // Control disabled
     }
     
-    protected override async Task ExecuteAsync(CommandEventArgs e) {  
-        if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out var timeline)) {  
-            return;  
-        }
-        
-        if (!(timeline is CompositionTimeline composition)) {  
-            return;  
-        }
-        
+    protected override async Task ExecuteAsync(CommandEventArgs e) 
+    {  
+        if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) 
+            return;
+        if (!(timeline is CompositionTimeline composition)) 
+            return;
+    
         await IMessageDialogService.Instance.ShowMessage(
-            "hello", 
-            $"My resource = '{composition.Resource.DisplayName}'"
-        );  
-    }  
+            "hello", $"My resource = '{composition.Resource.DisplayName}'"
+        );
+    }
 }
 ```
 
-Async commands are an extension of `Command`. If you don't need async, then just use `Command` if you want to.
-
 ## Brush and Icon API
-To assist with 
+This section describes the colour brush and icon API. This provides a way for plugins to create icons and use them in different parts of the application without having to ever interact with avalonia bitmaps or images directly.
+
+### Brush Manager
+This service provides a mechanism for creating abstract delegates around Avalonia brushes.
+- `CreateConstant`: creates the equivalent of `ImmutableSolidColorBrush`
+- `GetStaticThemeBrush`: creates the equivalent of `IImmutableBrush`
+- `GetDynamicThemeBrush` is more complicated. It's a subscription based object where the front end subscribes to dynamic changes 
+  of a brush via the application's `ResourcesChanged` and `ActualThemeVariantChanged` events.
+  This allows, for example, an icon to use the standard glyph colour (which is white within dark themes and black within light themes, adjustable of course)
+
+### Icon Manager
+Icons are managed via the `IconManager`. This provides a way to creating different types of icons, such as images from the disk, bitmaps, custom geometry (SVG) and so on.
+When creating an icon, you provide brushes created by the `BrushManager`.  
+and they take brushes created by the . 
+
+Icon can be passed to context menu entries and used in toolbar buttons
+
+> Accessing underlying icon pixel data is not currently implemented but is certainly possible; SVG icons for example would have to be rendered first using `RenderTargetBitmap`. 
 
 ## End
 This documentation is still being updated, there's a few things missing.

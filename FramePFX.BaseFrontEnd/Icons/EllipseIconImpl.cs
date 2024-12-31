@@ -20,6 +20,7 @@
 using Avalonia;
 using Avalonia.Media;
 using FramePFX.BaseFrontEnd.Themes.BrushFactories;
+using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Icons;
 using FramePFX.Themes;
 using SkiaSharp;
@@ -69,20 +70,13 @@ public class EllipseIconImpl : AbstractAvaloniaIcon {
         this.OnRenderInvalidated();
     }
 
-    internal static Matrix ToAvaloniaMatrix(SKMatrix m)
-    {
-        return new Matrix(m.ScaleX, m.SkewY, m.Persp0, m.SkewX, m.ScaleY, m.Persp1, m.TransX, m.TransY, m.Persp2);
-    }
-    
     public override void Render(DrawingContext context, Rect size, SKMatrix transform) {
         if (this.myPen == null && this.myPenBrush != null) {
             this.myPen = new Pen(this.myPenBrush, this.StrokeThickness);
         }
-        
-        Matrix theMat = ToAvaloniaMatrix(transform);
-        using (DrawingContext.PushedState? state = theMat != Matrix.Identity ? context.PushTransform(theMat) : null) {
-            context.DrawEllipse(this.myFillBrush, this.myPen, new Point(size.Width / 2.0, size.Height / 2.0), this.RadiusX, this.RadiusY);
-        }
+
+        using DrawingContext.PushedState? state = transform != SKMatrix.Identity ? context.PushTransform(transform.ToAvMatrix()) : null;
+        context.DrawEllipse(this.myFillBrush, this.myPen, new Point(size.Width / 2.0, size.Height / 2.0), this.RadiusX, this.RadiusY);
     }
 
     public Rect GetBounds() {

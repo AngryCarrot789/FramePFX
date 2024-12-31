@@ -18,13 +18,14 @@
 // 
 
 using System.Collections.Immutable;
+using FramePFX.Icons;
 
 namespace FramePFX.AdvancedMenuService;
 
 public class SubListContextEntry : BaseContextEntry {
     public ImmutableList<IContextObject> ItemList { get; }
 
-    public SubListContextEntry(string displayName, string? description, IEnumerable<IContextObject> entries) : base(displayName, description) {
+    public SubListContextEntry(string displayName, string? description, IEnumerable<IContextObject> entries, Icon? icon = null, StretchMode stretchMode = StretchMode.None) : base(displayName, description, icon, stretchMode) {
         this.ItemList = entries.ToImmutableList();
     }
 }

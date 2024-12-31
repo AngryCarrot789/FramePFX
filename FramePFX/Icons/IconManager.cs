@@ -49,7 +49,7 @@ public abstract class IconManager {
     
     public bool IconExists(string name) {
         Validate.NotNullOrWhiteSpaces(name);
-        return this.nameToIcon.ContainsKey(name);
+        return this.GetIconFromName(name) != null;
     }
 
     /// <summary>

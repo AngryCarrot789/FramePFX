@@ -24,7 +24,7 @@ namespace FramePFX.Themes.Configurations;
 
 public delegate void ThemeConfigurationPageTargetThemeChangedEventHandler(ThemeConfigurationPage sender, Theme? oldTargetTheme, Theme? newTargetTheme);
 public delegate void ThemeConfigurationPageEntryModifiedEventHandler(ThemeConfigurationPage sender, string themeKey, bool isAdded);
-public delegate void ThemeConfigurationPageEventHandler(ThemeConfigurationPage sender);
+public delegate void ThemeConfigurationPageEventHandler(ThemeConfigurationPage sender, Dictionary<string, ISavedThemeEntry> oldItems);
 
 /// <summary>
 /// A folder/entry hierarchy for a theme for 
@@ -210,13 +210,12 @@ public class ThemeConfigurationPage : ConfigurationPage {
         Validate.NotNullOrWhiteSpaces(themeKey);
         return this.originalBrushes != null && this.originalBrushes.ContainsKey(themeKey);
     }
-    
+
     private void ClearOriginalBrushesInternal() {
-        try {
-            this.ModifiedThemeEntriesCleared?.Invoke(this);
-        }
-        finally {
+        if (this.originalBrushes?.Count > 0) {
+            Dictionary<string, ISavedThemeEntry> items = this.originalBrushes.ToDictionary();
             this.originalBrushes = null;
+            this.ModifiedThemeEntriesCleared?.Invoke(this, items);
         }
     }
 }

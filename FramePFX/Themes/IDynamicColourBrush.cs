@@ -18,6 +18,9 @@ namespace FramePFX.Themes;
 
 public delegate void DynamicColourBrushChangedEventHandler(IDynamicColourBrush brush);
 
+/// <summary>
+/// A brush whose underlying brush updates dynamically when modifying via the theme in the application preferences, or by the theme changing
+/// </summary>
 public interface IDynamicColourBrush : IColourBrush {
     /// <summary>
     /// Gets the key that locates the "brush" contents
@@ -30,7 +33,7 @@ public interface IDynamicColourBrush : IColourBrush {
     int ReferenceCount { get; }
 
     /// <summary>
-    /// An event fired when the "brush" contents of this colour brush change (typically caused
+    /// An event fired when the underlying brush content change (typically caused
     /// by the application theme changing, or maybe the user modified the specific brush)
     /// </summary>
     event DynamicColourBrushChangedEventHandler? BrushChanged;

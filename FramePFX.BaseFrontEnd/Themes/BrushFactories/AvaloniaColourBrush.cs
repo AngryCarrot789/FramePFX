@@ -37,10 +37,13 @@ public abstract class AvaloniaColourBrush : IColourBrush {
     public abstract IBrush? Brush { get; }
 }
 
-public sealed class ConstantAvaloniaColourBrush : AvaloniaColourBrush, IStaticColourBrush {
+public sealed class ConstantAvaloniaColourBrush : AvaloniaColourBrush, IConstantColourBrush {
     public override ImmutableSolidColorBrush Brush { get; }
 
+    public SKColor Color { get; }
+    
     public ConstantAvaloniaColourBrush(SKColor colour) {
+        this.Color = colour;
         this.Brush = new ImmutableSolidColorBrush(new Color(colour.Alpha, colour.Red, colour.Green, colour.Blue));
     }
 }

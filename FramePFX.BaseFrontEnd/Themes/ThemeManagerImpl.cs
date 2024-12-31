@@ -292,8 +292,11 @@ public class ThemeManagerImpl : ThemeManager {
             
             if (impl.Colour.HasValue)
                 this.Resources[colourKey] = impl.Colour.Value;
-            if (impl.Brush != null)
+            
+            if (impl.Brush != null) {
                 this.Resources[brushKey] = impl.Brush;
+                this.registeredBrushKeys.Add(brushKey);
+            }
         }
 
         private class SavedThemeEntryImpl : ISavedThemeEntry {

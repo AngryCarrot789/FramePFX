@@ -19,10 +19,17 @@
 
 namespace FramePFX.Toolbars;
 
-public abstract class ToolbarButtonFactory {
-    public static ToolbarButtonFactory Instance => Application.Instance.ServiceManager.GetService<ToolbarButtonFactory>();
-    
-    public abstract IButtonElement CreateButton();
-    
-    public abstract IToggleButtonElement CreateToggleButton(ToggleButtonStyle style);
+public enum ToggleButtonStyle {
+    /// <summary>
+    /// A regular button that toggles
+    /// </summary>
+    Button,
+    /// <summary>
+    /// A check box
+    /// </summary>
+    CheckBox,
+    /// <summary>
+    /// A switch
+    /// </summary>
+    Switch
 }

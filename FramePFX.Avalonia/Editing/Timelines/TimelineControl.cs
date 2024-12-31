@@ -28,6 +28,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using FramePFX.Avalonia.Editing.Playheads;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
@@ -230,13 +231,14 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             btnImpl.Button.Width = 26;
             btnImpl.Button.Padding = new Thickness(4);
             btnImpl.Button.BorderThickness = default;
+            btnImpl.Button.Bind(BackgroundProperty, new DynamicResourceExtension("ABrush.Tone6.Background.Static"));
             stackPanel.Children.Insert(index + originalCounter, btnImpl.Button);
             item.UpdateCanExecuteLater();
         }, (sender, index, item) => {
             stackPanel.Children.RemoveAt(index + originalCounter);
         }, (sender, oldIndex, newIndex, item) => {
             stackPanel.Children.MoveItem(oldIndex + originalCounter, newIndex + originalCounter);
-        }).InitialiseCurrentItems();
+        }).ProcessExistingItems();
     }
     
     public void OnDisconnectedFromEditor() {

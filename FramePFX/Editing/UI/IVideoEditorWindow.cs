@@ -37,6 +37,11 @@ public interface IVideoEditorWindow {
     IResourceManagerElement ResourceManager { get; }
 
     /// <summary>
+    /// Gets our view port UI
+    /// </summary>
+    IViewPortElement ViewPort { get; }
+
+    /// <summary>
     /// Gets our video editor model
     /// </summary>
     VideoEditor VideoEditor { get; }

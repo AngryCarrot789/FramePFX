@@ -50,6 +50,10 @@ public sealed class EditorConfigurationOptions : PersistentConfiguration {
         set => TitleBarBrushProperty.SetValue(this, (ulong) value);
     }
     
+    /// <summary>
+    /// Gets or sets if antialiasing should be used to render icons. Default is true.
+    /// Changing this value may require a restart to affect all icons
+    /// </summary>
     public bool UseIconAntiAliasing {
         get => UseIconAntiAliasingProperty.GetValue(this);
         set => UseIconAntiAliasingProperty.SetValue(this, value);

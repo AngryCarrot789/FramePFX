@@ -26,16 +26,15 @@ So far, plugins are able to do a fair amount of things, such as:
 - Handling native files dropped in resource manager
 
 ... And a few others. There's still lots that cannot be done yet. A few of the main things are:
-- Cannot add buttons in the toolbars for the timeline, viewport and track surface list box
 - Cannot add menus to the editor's top-level menu
-- Custom panels in the UI (e.g. maybe a side panel for previewing a clip)
-- Access to the keyframe UI system, thought I can't why a plugin would want to access this
+- Custom panels in the UI
+- Access to the keyframe UI system, thought I can't see why a plugin would want to access this
 
 # FramePFX API
-This section describes the APIs of FramePFX  (incomplete)
+This section describes the main APIs of FramePFX. This is still being updated
 
 ## Property Editor
-The property editor system is highly customisable framework, which also makes it somewhat complicated to use.
+The property editor system is a highly customisable framework, which also makes it somewhat complicated to use.
 
 The main power of the custom property editor system is supporting multiple objects being modified at once. We call these "Handlers".
 
@@ -218,6 +217,18 @@ and they take brushes created by the .
 Icon can be passed to context menu entries and used in toolbar buttons
 
 > Accessing underlying icon pixel data is not currently implemented but is certainly possible; SVG icons for example would have to be rendered first using `RenderTargetBitmap`. 
+
+# Toolbars
+
+FramePFX provides a way to dynamically add UI components, such as buttons and toggle buttons, that
+can execute custom user code or commands. This is to allow plugins to add UI components without having
+to necessarily dig into the raw UI components (like Buttons, ToggleButtons, etc.)
+
+These are the current toolbars available and their class:
+- `TimelineToolBarManager`: The toolbar at the bottom of the timeline. Supports west and east anchored buttons
+- `ControlSurfaceListToolBarManager`: The toolbar at the bottom of the control surface list.
+- `ViewPortToolBarManager`: The toolbar just below the view port. Supports west, center and east anchoring
+
 
 ## End
 This documentation is still being updated, there's a few things missing.

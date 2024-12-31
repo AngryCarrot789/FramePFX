@@ -17,12 +17,20 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Toolbars;
+namespace FramePFX.Editing.UI;
 
-public abstract class ToolbarButtonFactory {
-    public static ToolbarButtonFactory Instance => Application.Instance.ServiceManager.GetService<ToolbarButtonFactory>();
+public delegate void ViewPortElementEventHandler(IViewPortElement element);
+
+public interface IViewPortElement {
+    VideoEditor? VideoEditor { get; }
+
+    bool DrawSelectedElements { get; set; }
+
+    bool PanToCursorOnUserZoom { get; set; }
     
-    public abstract IButtonElement CreateButton();
+    bool UseTransparentCheckerBoardBackground { get; set; }
     
-    public abstract IToggleButtonElement CreateToggleButton(ToggleButtonStyle style);
+    event ViewPortElementEventHandler? DrawSelectedElementsChanged;
+    event ViewPortElementEventHandler? PanToCursorOnUserZoomChanged;
+    event ViewPortElementEventHandler? UseTransparentCheckerBoardBackgroundChanged;
 }

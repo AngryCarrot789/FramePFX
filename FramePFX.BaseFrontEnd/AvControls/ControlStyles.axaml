@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:FramePFX.BaseFrontEnd.AvControls">
+                    xmlns:local="clr-namespace:FramePFX.BaseFrontEnd.AvControls"
+                    xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Converters">
     <ControlTheme x:Key="{x:Type local:IconButton}" TargetType="{x:Type local:IconButton}" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Background" Value="{DynamicResource Button.Static.Background}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Button.Static.Border}"/>
@@ -11,17 +12,22 @@
         <Setter Property="Padding" Value="4"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Border x:Name="PART_Border" 
+                <Border x:Name="PART_Border"
                         Padding="{TemplateBinding Padding}"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
                         TextElement.Foreground="{TemplateBinding Foreground}">
-                    <local:IconControl x:Name="PART_IconControl"
-                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                       Icon="{TemplateBinding Icon}"/>
+                    <StackPanel Spacing="3" 
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                        <local:IconControl x:Name="PART_IconControl" Icon="{TemplateBinding Icon}" Stretch="{TemplateBinding Stretch}"
+                                           IsVisible="{TemplateBinding Icon, Converter={x:Static c:NullToBoolConverter.NullToFalse}}"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <ContentPresenter x:Name="PART_ContentPresenter" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          IsVisible="{TemplateBinding Content, Converter={x:Static c:NullToBoolConverter.NullToFalse}}"/>
+                    </StackPanel>
                 </Border>
             </ControlTemplate>
         </Setter>
@@ -38,7 +44,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource Button.Disabled.Border}"/>
         </Style>
     </ControlTheme>
-    
+
     <ControlTheme x:Key="{x:Type local:IconToggleButton}" TargetType="{x:Type local:IconToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
         <Setter Property="Background" Value="{DynamicResource Button.Static.Background}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Button.Static.Border}"/>
@@ -49,21 +55,27 @@
         <Setter Property="Padding" Value="4"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Border x:Name="PART_Border" 
+                <Border x:Name="PART_Border"
                         Padding="{TemplateBinding Padding}"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
                         TextElement.Foreground="{TemplateBinding Foreground}">
-                    <local:IconControl x:Name="PART_IconControl"
-                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                       Icon="{TemplateBinding Icon}"/>
+                    <StackPanel Spacing="3" 
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                        <local:IconControl x:Name="PART_IconControl" Icon="{TemplateBinding Icon}" Stretch="{TemplateBinding Stretch}"
+                                           IsVisible="{TemplateBinding Icon, Converter={x:Static c:NullToBoolConverter.NullToFalse}}"
+                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <ContentPresenter x:Name="PART_ContentPresenter" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          IsVisible="{TemplateBinding Content, Converter={x:Static c:NullToBoolConverter.NullToFalse}}"
+                                          VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </StackPanel>
                 </Border>
             </ControlTemplate>
         </Setter>
-                <Style Selector="^[IsDefault=True] /template/ Border#PART_Border">
+        <Style Selector="^[IsDefault=True] /template/ Border#PART_Border">
             <Setter Property="BorderBrush" Value="{DynamicResource Button.Defaulted.Border}"/>
         </Style>
         <Style Selector="^:pointerover /template/ Border#PART_Border">

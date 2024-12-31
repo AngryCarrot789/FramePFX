@@ -17,12 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Toolbars;
+using Avalonia.Controls;
 
-public abstract class ToolbarButtonFactory {
-    public static ToolbarButtonFactory Instance => Application.Instance.ServiceManager.GetService<ToolbarButtonFactory>();
-    
-    public abstract IButtonElement CreateButton();
-    
-    public abstract IToggleButtonElement CreateToggleButton(ToggleButtonStyle style);
+namespace FramePFX.Avalonia.Editing.Toolbars;
+
+/// <summary>
+/// The base class for any UI control in a toolbar. Might use this
+/// at some point to support more than buttons/toggle switches in toolbars
+/// </summary>
+public abstract class AbstractAvaloniaToolBarElement {
+    public abstract Control Control { get; }
 }

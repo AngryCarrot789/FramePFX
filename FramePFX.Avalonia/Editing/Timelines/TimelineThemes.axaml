@@ -176,10 +176,6 @@
                     <StackPanel x:Name="PART_TrackControlSurfaceToolBar" Grid.Row="4" Grid.Column="0"
                                 Spacing="1" Orientation="Horizontal" Height="26"
                                 Background="{DynamicResource ABrush.PFX.Editor.Timeline.ToolBar.Background}">
-                        <Button Content="+V" BorderThickness="0" FontSize="12"
-                                Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
-                                Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                x:Name="PART_AddVideoTrackButton" cu:CommandUsageManager.UsageClassType="{x:Type cc:CreateVideoTrackCommandUsage}"/>
                     </StackPanel>
 
                     <!-- Button toolbar at the bottom of the timeline, spanning the whole width -->

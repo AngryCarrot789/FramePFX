@@ -17,10 +17,18 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using Avalonia;
+using Avalonia.Media;
 using FramePFX.Icons;
 
 namespace FramePFX.BaseFrontEnd.AvControls;
 
 public interface IIconButton {
     Icon? Icon { get; set; }
+    
+    Stretch Stretch { get; set; }
+
+    double? IconWidth { get; set; }
+    
+    double? IconHeight { get; set; }
 }

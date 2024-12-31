@@ -55,7 +55,9 @@ public sealed class TimelineToolBarManager : BaseToolBarManager {
         return editor.ServiceManager.GetService<TimelineToolBarManager>();
     }
 
-    private class TogglePlayStateButtonImpl : ToolBarButton {
+    #region Button implementations
+    
+    public class TogglePlayStateButtonImpl : ToolBarButton {
         private VideoEditor? editor;
 
         public TogglePlayStateButtonImpl() : base(ToolbarButtonFactory.Instance.CreateButton()) {
@@ -105,7 +107,7 @@ public sealed class TimelineToolBarManager : BaseToolBarManager {
         }
     }
 
-    private class SetPlayStateButtonImpl : ToolBarButton {
+    public class SetPlayStateButtonImpl : ToolBarButton {
         private VideoEditor? myEditor;
 
         public PlayState TargetState { get; }
@@ -163,7 +165,7 @@ public sealed class TimelineToolBarManager : BaseToolBarManager {
 
         public new IToggleButtonElement Button => (IToggleButtonElement) base.Button;
 
-        public ToggleLoopToolBarButton() : base("commands.editor.ToggleLoopTimelineRegion", ToolbarButtonFactory.Instance.CreateToggleButton()) {
+        public ToggleLoopToolBarButton() : base("commands.editor.ToggleLoopTimelineRegion", ToolbarButtonFactory.Instance.CreateToggleButton(default)) {
             this.Icon = SimpleIcons.LoopIcon;
         }
 
@@ -196,4 +198,6 @@ public sealed class TimelineToolBarManager : BaseToolBarManager {
             }
         }
     }
+    
+    #endregion
 }

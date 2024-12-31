@@ -26,7 +26,7 @@ namespace FramePFX.Toolbars;
 public delegate void ButtonContextInvalidatedEventHandler(IButtonElement button);
 
 /// <summary>
-/// A UI button
+/// A UI button. Do not implement this class directly, that is the front end's job
 /// </summary>
 public interface IButtonElement {
     /// <summary>
@@ -55,13 +55,12 @@ public interface IButtonElement {
     bool IsVisible { get; set; }
 
     /// <summary>
-    /// Gets or sets the text displayed in this button
+    /// Gets or sets the text displayed in this button. Setting this may do nothing as some buttons might not support text, only icons.
     /// </summary>
-    [Obsolete("Not yet implemented in the UI")]
     string? Text { get; set; }
     
     /// <summary>
-    /// Gets or sets the button's icon
+    /// Gets or sets the button's icon. Seting this may do nothing as some buttons might not support icons, only text.
     /// </summary>
     Icon? Icon { get; set; }
 

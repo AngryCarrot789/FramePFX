@@ -48,10 +48,11 @@ using MatrixUtils = FramePFX.Utils.MatrixUtils;
 
 namespace FramePFX.Avalonia.Editing;
 
-public class VideoEditorViewPortControl : TemplatedControl {
+public class VideoEditorViewPortControl : TemplatedControl, IViewPortElement {
     public static readonly StyledProperty<VideoEditor?> VideoEditorProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, VideoEditor?>(nameof(VideoEditor));
     public static readonly StyledProperty<bool> DrawSelectedElementsProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, bool>(nameof(DrawSelectedElements));
     public static readonly StyledProperty<bool> PanToCursorOnUserZoomProperty = FreeMoveViewPortV2.PanToCursorOnUserZoomProperty.AddOwner<VideoEditorViewPortControl>();
+    public static readonly StyledProperty<bool> UseTransparentCheckerBoardBackgroundProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, bool>(nameof(UseTransparentCheckerBoardBackground), true);
 
     public VideoEditor? VideoEditor {
         get => this.GetValue(VideoEditorProperty);
@@ -68,12 +69,14 @@ public class VideoEditorViewPortControl : TemplatedControl {
         set => this.SetValue(PanToCursorOnUserZoomProperty, value);
     }
 
-    public static readonly StyledProperty<bool> UseTransparentCheckerBoardBackgroundProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, bool>(nameof(UseTransparentCheckerBoardBackground), true);
-
     public bool UseTransparentCheckerBoardBackground {
         get => this.GetValue(UseTransparentCheckerBoardBackgroundProperty);
         set => this.SetValue(UseTransparentCheckerBoardBackgroundProperty, value);
     }
+
+    public event ViewPortElementEventHandler? DrawSelectedElementsChanged;
+    public event ViewPortElementEventHandler? PanToCursorOnUserZoomChanged;
+    public event ViewPortElementEventHandler? UseTransparentCheckerBoardBackgroundChanged;
 
     public EditorWindow Owner { get; set; }
 
@@ -113,6 +116,8 @@ public class VideoEditorViewPortControl : TemplatedControl {
         AffectsRender<Image>(VideoEditorProperty);
         AffectsMeasure<Image>(VideoEditorProperty);
         VideoEditorProperty.Changed.AddClassHandler<VideoEditorViewPortControl, VideoEditor?>((d, e) => d.OnVideoEditorChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+        DrawSelectedElementsProperty.Changed.AddClassHandler<VideoEditorViewPortControl, bool>((d, e) => d.DrawSelectedElementsChanged?.Invoke(d));
+        PanToCursorOnUserZoomProperty.Changed.AddClassHandler<VideoEditorViewPortControl, bool>((d, e) => d.PanToCursorOnUserZoomChanged?.Invoke(d));
         UseTransparentCheckerBoardBackgroundProperty.Changed.AddClassHandler<VideoEditorViewPortControl, bool>((d, e) => d.OnUseTransparentCheckerBoardBackgroundChanged());
     }
 
@@ -267,6 +272,7 @@ public class VideoEditorViewPortControl : TemplatedControl {
 
     private void OnUseTransparentCheckerBoardBackgroundChanged() {
         this.PART_SkiaViewPort?.InvalidateVisual();
+        this.UseTransparentCheckerBoardBackgroundChanged?.Invoke(this);
     }
 
     private void OnPreRenderViewPort(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset) {

@@ -170,7 +170,7 @@ public sealed class ObservableItemProcessorIndexing<T> : IDisposable {
     /// Invokes our item add handler(s) on all items for the list
     /// </summary>
     /// <returns></returns>
-    public ObservableItemProcessorIndexing<T> InitialiseCurrentItems() {
+    public ObservableItemProcessorIndexing<T> ProcessExistingItems() {
         ObservableItemProcessorItemEventHandler<T>? handler = this.OnItemAdded;
         if (handler != null) {
             int i = -1;

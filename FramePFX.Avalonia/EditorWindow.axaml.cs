@@ -20,10 +20,14 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
+using FramePFX.Avalonia.Editing.Toolbars;
+using FramePFX.BaseFrontEnd.AvControls;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Interactivity.Contexts;
 using FramePFX.BaseFrontEnd.Themes.Controls;
@@ -32,6 +36,7 @@ using FramePFX.Editing;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Editing.Timelines;
+using FramePFX.Editing.Toolbars;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
@@ -39,6 +44,7 @@ using FramePFX.Persistence;
 using FramePFX.PropertyEditing;
 using FramePFX.Tasks;
 using FramePFX.Themes;
+using FramePFX.Toolbars;
 using FramePFX.Utils;
 using FramePFX.Utils.Collections.Observable;
 using FramePFX.Utils.RDA;
@@ -58,12 +64,17 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     ITimelineElement IVideoEditorWindow.TimelineElement => this.TheTimeline;
 
     IResourceManagerElement IVideoEditorWindow.ResourceManager => this.PART_ResourcePanelControl;
+
+    IViewPortElement IVideoEditorWindow.ViewPort => this.PART_ViewPort;
     
     private readonly NumberAverager renderTimeAverager;
     private ActivityTask? primaryActivity;
     private RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
     private Project? activeProject;
     private ObservableItemProcessorIndexing<Theme>? themeListHandler;
+    private ObservableItemProcessorIndexing<ToolBarButton>? disposeWestButtons;
+    private ObservableItemProcessorIndexing<ToolBarButton>? disposeCenterButtons;
+    private ObservableItemProcessorIndexing<ToolBarButton>? disposeEastButtons;
 
     public EditorWindow(VideoEditor videoEditor) {
         this.VideoEditor = videoEditor;
@@ -94,6 +105,26 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         taskManager.TaskStarted += this.OnTaskStarted;
         taskManager.TaskCompleted += this.OnTaskCompleted;
     }
+
+    private static ObservableItemProcessorIndexing<ToolBarButton> CreateToolbarBinder(IObservableList<ToolBarButton> list, StackPanel stackPanel) {
+        int originalCounter = stackPanel.Children.Count;
+        return ObservableItemProcessor.MakeIndexable(list, (sender, index, item) => {
+            AbstractAvaloniaButtonElement btnImpl = (AbstractAvaloniaButtonElement) item.Button;
+            // if (btnImpl.Button is IIconButton button) {
+            //     button.IconWidth = 16;
+            // }
+
+            btnImpl.Button.MinWidth = 24;
+            btnImpl.Button.Padding = new Thickness(3);
+            btnImpl.Button.BorderThickness = new Thickness(1);
+            stackPanel.Children.Insert(index + originalCounter, btnImpl.Button);
+            item.UpdateCanExecuteLater();
+        }, (sender, index, item) => {
+            stackPanel.Children.RemoveAt(index + originalCounter);
+        }, (sender, oldIndex, newIndex, item) => {
+            stackPanel.Children.MoveItem(oldIndex + originalCounter, newIndex + originalCounter);
+        }).ProcessExistingItems();
+    }
     
     private void OnTimelineClipSelectionChanged(ILightSelectionManager<IClipElement> sender) {
         this.PART_ViewPort.OnClipSelectionChanged();
@@ -121,16 +152,20 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         EditorConfigurationOptions.Instance.TitleBarPrefixChanged += this.OnApplicationTitleBarPrefixChanged;
         EditorConfigurationOptions.Instance.TitleBarBrushChanged += this.OnApplicationTitleBarBrushChanged;
         
-        // 
         this.themeListHandler = ObservableItemProcessor.MakeIndexable(ThemeManager.Instance.Themes, (sender, index, item) => {
             MenuItem menuItem = new MenuItem() { Header = item.Name, Tag = item };
             menuItem.Click += this.OnSetThemeMenuItemClicked;
-            this.PART_ThemesMenuItem.Items.Add(menuItem);
+            this.PART_ThemesMenuItem.Items.Insert(index, menuItem);
         }, (sender, index, item) => {
             this.PART_ThemesMenuItem.Items.RemoveAt(index);
         }, (sender, oldIndex, newIndex, item) => {
             CollectionUtils.MoveItem(this.PART_ThemesMenuItem.Items, oldIndex, newIndex);
-        }).InitialiseCurrentItems();
+        }).ProcessExistingItems();
+        
+        ViewPortToolBarManager manager = ViewPortToolBarManager.GetInstance(this.VideoEditor);
+        this.disposeWestButtons = CreateToolbarBinder(manager.WestButtons, this.PART_ToolBar_West);
+        this.disposeCenterButtons = CreateToolbarBinder(manager.CenterButtons, this.PART_ToolBar_Center);
+        this.disposeEastButtons = CreateToolbarBinder(manager.EastButtons, this.PART_ToolBar_East);
     }
 
     private void OnSetThemeMenuItemClicked(object? sender, RoutedEventArgs e) {
@@ -145,6 +180,13 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         this.themeListHandler?.Dispose();
         this.themeListHandler = null;
         this.PART_ThemesMenuItem.Items.Clear();
+        
+        this.disposeWestButtons!.Dispose();
+        this.disposeCenterButtons!.Dispose();
+        this.disposeEastButtons!.Dispose();
+        this.disposeWestButtons = null;
+        this.disposeCenterButtons = null;
+        this.disposeEastButtons = null;
         
         // Prevent semantic memory leak
         EditorConfigurationOptions.Instance.TitleBarPrefixChanged -= this.OnApplicationTitleBarPrefixChanged;
@@ -358,5 +400,43 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         this.IsClosing = false;
         this.IsClosed = true;
         base.OnClosed(e);
+    }
+
+    private void PART_ToolBarPanel_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
+    private void PART_ToolBar_West_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
+    private void PART_ToolBar_Center_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
+    private void PART_ToolBar_East_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
+
+    private bool isUpdatingToolBarCentering = false;
+    
+    private void UpdateToolBarCentering() {
+        if (this.isUpdatingToolBarCentering) {
+            throw new Exception("Impossible reentrency");
+        }
+
+        this.isUpdatingToolBarCentering = true;
+        
+        // Modified version of https://stackoverflow.com/a/61054009
+        StackPanel centerPanel = this.PART_ToolBar_Center!;
+        double centerSize = this.PART_ToolBar_Center.Bounds.Width;
+        double leftSize = this.PART_ToolBar_West.Bounds.Width;
+        double rightSize = this.PART_ToolBar_East.Bounds.Width;
+        double width = (this.PART_ToolBarPanel.Bounds.Width / 2) - (centerSize / 2);
+        const double panel_gap = 4;
+
+        if (width - leftSize - panel_gap <= 0) {
+            centerPanel.HorizontalAlignment = HorizontalAlignment.Left;
+            centerPanel.Margin = new Thickness(leftSize + panel_gap, 0, 0, 0);
+        }
+        else if (width - rightSize - panel_gap <= 0) {
+            centerPanel.HorizontalAlignment = HorizontalAlignment.Right;
+            centerPanel.Margin = new Thickness(0, 0, rightSize + panel_gap, 0);
+        }
+        else {
+            centerPanel.HorizontalAlignment = HorizontalAlignment.Center;
+            centerPanel.Margin = default;
+        }
+
+        this.isUpdatingToolBarCentering = false;
     }
 }

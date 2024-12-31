@@ -94,39 +94,17 @@
                             Focusable="True">
                     <DockPanel>
                         <Border Background="{DynamicResource ABrush.Tone5.Background.Static}" DockPanel.Dock="Bottom" Height="32" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
-                            <DockPanel>
-                                <!-- Left Panel -->
-                                <Grid Margin="5,0,0,0" DockPanel.Dock="Left">
-                                    <Button Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="0,4,0,4"
-                                            Click="FitToScale_Click"/>
-                                    <CheckBox Focusable="False" Content="Zoom to cursor" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5"
-                                              IsChecked="{Binding PanToCursorOnUserZoom, ElementName=PART_ViewPort}"/>
-                                </Grid>
-
-                                <!-- Right Panel -->
-                                <StackPanel Margin="0,0,5,0" Orientation="Horizontal" DockPanel.Dock="Right">
-                                    <CheckBox Focusable="False" Content="Transparent Bg" Padding="1,0,0,0" Margin="85,5,0,5"
-                                              IsChecked="{Binding UseTransparentCheckerBoardBackground, ElementName=PART_ViewPort}"
-                                              ToolTip.Tip="Enable or disable the checkerboard pattern for transparent backgrounds"/>
+                            <Grid Margin="4" x:Name="PART_ToolBarPanel" SizeChanged="PART_ToolBarPanel_OnSizeChanged">
+                                <StackPanel x:Name="PART_ToolBar_West" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Left"
+                                            SizeChanged="PART_ToolBar_West_OnSizeChanged">
+                                    <Button Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" 
+                                            Padding="1,0,0,0" Click="FitToScale_Click"/>
                                 </StackPanel>
-
-                                <!-- Center Panel -->
-                                <StackPanel x:Name="PART_ViewPortToolBar" Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <c1:TogglePlayStateButtonControl Width="24" Focusable="False" ToolTip.Tip="Play or pause playback"/>
-                                    <c1:PlayStateButtonControl Width="24" Focusable="False"
-                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play"
-                                                        CommandId="commands.editor.PlaybackPlayCommand"
-                                                        ToolTip.Tip="Start playback"/>
-                                    <c1:PlayStateButtonControl Width="24" Focusable="False"
-                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause"
-                                                        CommandId="commands.editor.PlaybackPauseCommand"
-                                                        ToolTip.Tip="Pause playback, keeping the play head at the current frame"/>
-                                    <c1:PlayStateButtonControl Width="24" Focusable="False"
-                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop"
-                                                        CommandId="commands.editor.PlaybackStopCommand"
-                                                        ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
+                                <StackPanel x:Name="PART_ToolBar_Center" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4" SizeChanged="PART_ToolBar_Center_OnSizeChanged">
                                 </StackPanel>
-                            </DockPanel>
+                                <StackPanel x:Name="PART_ToolBar_East" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right" SizeChanged="PART_ToolBar_East_OnSizeChanged">
+                                </StackPanel>
+                            </Grid>
                         </Border>
                         <Border DockPanel.Dock="Top" Height="24"
                                 Background="{DynamicResource ABrush.Tone5.Background.Static}"

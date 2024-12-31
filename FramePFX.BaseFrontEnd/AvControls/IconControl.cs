@@ -21,7 +21,6 @@ using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
-using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using FramePFX.BaseFrontEnd.Icons;
@@ -64,8 +63,8 @@ public class IconControl : Control {
         AffectsRender<IconControl>(IconProperty, StretchProperty);
     }
 
-    protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e) {
-        base.OnAttachedToLogicalTree(e);
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e) {
+        base.OnAttachedToVisualTree(e);
         if (this.attachedIcon != null) { // ??? how...
             this.attachedIcon.RenderInvalidated -= this.OnIconInvalidated;
             this.attachedIcon = null;

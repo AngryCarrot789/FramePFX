@@ -97,7 +97,7 @@ public abstract class Application : IServiceable {
     /// Gets whether the application is in the process of shutting down
     /// </summary>
     public bool IsShuttingDown => this.StartupPhase == ApplicationStartupPhase.Stopping;
-    
+
     /// <summary>
     /// Gets whether the application is actually running. False after exited
     /// </summary>
@@ -111,7 +111,7 @@ public abstract class Application : IServiceable {
         protected set {
             if (this.startupPhase == value)
                 throw new InvalidOperationException("Already at phase: " + value);
-            
+
             this.startupPhase = value;
             AppLogger.Instance.WriteLine($"Transitioned to startup phase: {value}");
         }
@@ -132,7 +132,7 @@ public abstract class Application : IServiceable {
     protected virtual Task Initialise(IApplicationStartupProgress progress) {
         return Task.CompletedTask;
     }
-    
+
     protected virtual Task OnFullyInitialised() {
         return Task.CompletedTask;
     }
@@ -226,21 +226,41 @@ public abstract class Application : IServiceable {
         progress.CompletionState.SetProgress(1.0);
     }
 
-    protected virtual void OnExit(int exitCode) {
+    protected virtual void OnExiting(int exitCode) {
         PFXNative.ShutdownLibrary();
     }
-    
+
     public void EnsureBeforePhase(ApplicationStartupPhase phase) {
         if (this.StartupPhase >= phase)
             throw new InvalidOperationException($"Application startup phase has passed '{phase}'");
     }
-    
+
+    public void EnsureAfterPhase(ApplicationStartupPhase phase) {
+        if (this.StartupPhase <= phase)
+            throw new InvalidOperationException($"Application has not reached the startup phase '{phase}' yet.");
+    }
+
     public void EnsureAtPhase(ApplicationStartupPhase phase) {
+        if (this.startupPhase == phase)
+            return;
+
         if (this.StartupPhase < phase)
             throw new InvalidOperationException($"Application has not reached the startup phase '{phase}' yet.");
-        
+
         if (this.StartupPhase > phase)
             throw new InvalidOperationException($"Application has already passed the startup phase '{phase}' yet.");
+    }
+
+    public bool IsBeforePhase(ApplicationStartupPhase phase) {
+        return this.StartupPhase < phase;
+    }
+
+    public bool IsAfterPhase(ApplicationStartupPhase phase) {
+        return this.StartupPhase > phase;
+    }
+
+    public bool IsAtPhase(ApplicationStartupPhase phase) {
+        return this.StartupPhase == phase;
     }
 
     #region Internals
@@ -258,7 +278,7 @@ public abstract class Application : IServiceable {
     protected static async Task InternalInitialise(IApplicationStartupProgress progress) {
         if (instance == null)
             throw new InvalidOperationException("Application has not been pre-initialised yet");
-        
+
         using (progress.CompletionState.PushCompletionRange(0, 1)) {
             instance.StartupPhase = ApplicationStartupPhase.PreInitialization;
             await progress.ProgressAndSynchroniseAsync("Initialising services");
@@ -279,30 +299,34 @@ public abstract class Application : IServiceable {
                 await instance.Initialise(progress);
             }
         }
-        
+
         await progress.SynchroniseAsync();
     }
 
     protected static async Task InternalLoadPlugins(IApplicationStartupProgress progress) {
         List<BasePluginLoadException> exceptions = new List<BasePluginLoadException>();
-
         Instance.PluginLoader.LoadCorePlugins(exceptions);
-        
+
 #if DEBUG
         // Load plugins in the solution folder
-        string solutionPluginFolder = Path.GetFullPath(@"..\\..\\..\\..\\..\\Plugins");
-        if (Directory.Exists(solutionPluginFolder)) {
-            await Instance.PluginLoader.LoadPlugins(solutionPluginFolder, exceptions);
-        }  
-#endif
+        string solutionFolder = Path.GetFullPath(@"..\\..\\..\\..\\..\\");
+        string? debugPlugins = null;
+        if (File.Exists(Path.Combine(solutionFolder, "FramePFX.sln"))) {
+            await Instance.PluginLoader.LoadPlugins(Path.Combine(solutionFolder, "Plugins"), exceptions);
+        }
         
-        // Load full release plugins
+        string releasePlugins = Path.GetFullPath("Plugins");
+        if (debugPlugins == null || releasePlugins != debugPlugins) {
+            await Instance.PluginLoader.LoadPlugins(releasePlugins, exceptions);
+        }
+#else
         if (Directory.Exists("Plugins")) {
             await Instance.PluginLoader.LoadPlugins("Plugins", exceptions);
         }
-        
+#endif
+
         if (exceptions.Count > 0) {
-            await IMessageDialogService.Instance.ShowMessage("Errors", "One or more exceptions occurred while loading plugins", new AggregateException(exceptions).ToString());
+            await IMessageDialogService.Instance.ShowMessage("Errors", "One or more exceptions occurred while loading plugins", string.Join(Environment.NewLine + Environment.NewLine, exceptions));
         }
 
         await progress.ProgressAndSynchroniseAsync("Initialising plugins...", 0.5);
@@ -310,12 +334,12 @@ public abstract class Application : IServiceable {
         Instance.PluginLoader.RegisterServices();
     }
 
-    protected static void InternalOnExit(int exitCode) => instance!.OnExit(exitCode);
+    protected static void InternalOnExiting(int exitCode) => instance!.OnExiting(exitCode);
 
     protected static Task InternalOnFullyInitialisedImpl() {
         instance!.StartupPhase = ApplicationStartupPhase.FullyInitialized;
         return instance.OnFullyInitialised();
     }
-    
+
     #endregion
 }

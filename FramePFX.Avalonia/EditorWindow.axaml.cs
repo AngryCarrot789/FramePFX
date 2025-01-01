@@ -68,13 +68,14 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     IViewPortElement IVideoEditorWindow.ViewPort => this.PART_ViewPort;
     
     private readonly NumberAverager renderTimeAverager;
+    private readonly RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
     private ActivityTask? primaryActivity;
-    private RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
     private Project? activeProject;
     private ObservableItemProcessorIndexing<Theme>? themeListHandler;
     private ObservableItemProcessorIndexing<ToolBarButton>? disposeWestButtons;
     private ObservableItemProcessorIndexing<ToolBarButton>? disposeCenterButtons;
     private ObservableItemProcessorIndexing<ToolBarButton>? disposeEastButtons;
+    private bool isUpdatingToolBarCentering;
 
     public EditorWindow(VideoEditor videoEditor) {
         this.VideoEditor = videoEditor;
@@ -110,11 +111,13 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         int originalCounter = stackPanel.Children.Count;
         return ObservableItemProcessor.MakeIndexable(list, (sender, index, item) => {
             AbstractAvaloniaButtonElement btnImpl = (AbstractAvaloniaButtonElement) item.Button;
-            // if (btnImpl.Button is IIconButton button) {
-            //     button.IconWidth = 16;
-            // }
+            if (btnImpl.Button is IIconButton button) {
+                button.IconMaxWidth = 15;
+                button.IconMaxHeight = 15;
+            }
 
-            btnImpl.Button.MinWidth = 24;
+            btnImpl.Button.MinWidth = 23;
+            btnImpl.Button.Height = 23;
             btnImpl.Button.Padding = new Thickness(3);
             btnImpl.Button.BorderThickness = new Thickness(1);
             stackPanel.Children.Insert(index + originalCounter, btnImpl.Button);
@@ -406,8 +409,6 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     private void PART_ToolBar_West_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
     private void PART_ToolBar_Center_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
     private void PART_ToolBar_East_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
-
-    private bool isUpdatingToolBarCentering = false;
     
     private void UpdateToolBarCentering() {
         if (this.isUpdatingToolBarCentering) {

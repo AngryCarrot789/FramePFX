@@ -32,12 +32,14 @@ namespace FramePFX.Plugins;
 public sealed class PluginLoader {
     private readonly List<Plugin> plugins;
     private List<CorePluginDescriptor>? corePlugins;
+    private HashSet<Type> loadedPluginTypes; // is this a bad idea?
 
     public ReadOnlyCollection<Plugin> Plugins { get; }
 
     public PluginLoader() {
         this.plugins = new List<Plugin>();
         this.Plugins = this.plugins.AsReadOnly();
+        this.loadedPluginTypes = new HashSet<Type>();
     }
 
     /// <summary>
@@ -51,33 +53,49 @@ public sealed class PluginLoader {
         (this.corePlugins ??= new List<CorePluginDescriptor>()).Add(descriptor);
     }
 
+    /// <summary>
+    /// Loads all registered core plugins
+    /// </summary>
+    /// <param name="exceptions">A list of exceptions encountered</param>
     public void LoadCorePlugins(List<BasePluginLoadException> exceptions) {
         if (this.corePlugins == null) {
             return;
         }
         
         foreach (CorePluginDescriptor descriptor in this.corePlugins) {
-            Plugin? instance;
-            try {
-                instance = (Plugin?) Activator.CreateInstance(descriptor.PluginType) ?? throw new InvalidOperationException($"Failed to create plugin instance of type {descriptor.PluginType}");
+            if (this.loadedPluginTypes.Contains(descriptor.PluginType)) {
+                exceptions.Add(new BasePluginLoadException("Plugin type already in use: " + descriptor.PluginType));
             }
-            catch (Exception e) {
-                exceptions.Add(new BasePluginLoadException("Failed to create instance of plugin", e));
-                continue;
-            }
+            else {
+                Plugin? instance;
+                try {
+                    instance = (Plugin?) Activator.CreateInstance(descriptor.PluginType) ?? throw new InvalidOperationException($"Failed to create plugin instance of type {descriptor.PluginType}");
+                }
+                catch (Exception e) {
+                    exceptions.Add(new BasePluginLoadException("Failed to create instance of plugin", e));
+                    continue;
+                }
 
-            this.OnPluginCreated(null, instance, descriptor);
+                this.OnPluginCreated(null, instance, descriptor);
+            }
         }
         
         this.corePlugins.Clear();
         this.corePlugins = null;
     }
 
+    /// <summary>
+    /// Loads all dynamic plugins. This can be called multiple times with different target folders. Don't call twice with the same folder!
+    /// </summary>
+    /// <param name="pluginsFolder">The plugins folder to load from</param>
+    /// <param name="exceptions">A list of exceptions encountered</param>
     public async Task LoadPlugins(string pluginsFolder, List<BasePluginLoadException> exceptions) {
-        pluginsFolder = Path.GetFullPath(pluginsFolder);
         string[] dirs;
         try {
-            dirs = Directory.GetDirectories(pluginsFolder);
+            // Plugins use relative paths, so we need to give them the full path so they can do their thing.
+            // By using the full path here, it ensures GetDirectories returns full paths... hopefully
+            string fullPath = Path.GetFullPath(pluginsFolder);
+            dirs = Directory.Exists(fullPath) ? Directory.GetDirectories(fullPath) : [];
         }
         catch {
             // Plugins dir doesn't exist maybe
@@ -87,7 +105,7 @@ public sealed class PluginLoader {
         foreach (string folder in dirs) {
             (Plugin, AssemblyPluginDescriptor)? info = null;
             try {
-                info = await ReadDescriptorAndCreatePluginInstance(folder);
+                info = await this.ReadDescriptorAndCreatePluginInstance(folder);
             }
             catch (BasePluginLoadException e) {
                 exceptions.Add(e);
@@ -161,7 +179,7 @@ public sealed class PluginLoader {
         plugin.OnCreated();
     }
 
-    private static async Task<(Plugin, AssemblyPluginDescriptor)> ReadDescriptorAndCreatePluginInstance(string folder) {
+    private async Task<(Plugin, AssemblyPluginDescriptor)> ReadDescriptorAndCreatePluginInstance(string folder) {
         string path = Path.Combine(folder, "plugin.xml");
         AssemblyPluginDescriptor descriptor;
 
@@ -201,9 +219,13 @@ public sealed class PluginLoader {
             throw new Exception("Plugin entry class must not be abstract or an interface");
         }
 
-        Plugin plugin = (Plugin) Activator.CreateInstance(entryType)! ?? throw new Exception("Failed to instantiate plugin");
-
-        return (plugin, descriptor);
+        if (this.loadedPluginTypes.Contains(entryType)) {
+            throw new BasePluginLoadException("Plugin type already in use: " + entryType);
+        }
+        else {
+            Plugin plugin = (Plugin) Activator.CreateInstance(entryType)! ?? throw new Exception("Failed to instantiate plugin");
+            return (plugin, descriptor);
+        }
     }
 
     public void RegisterConfigurations(PersistentStorageManager manager) {

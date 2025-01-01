@@ -250,7 +250,19 @@ public class PlaybackManager {
     }
 
     private void InvalidateVisualForStop() {
-        Application.Instance.Dispatcher.Invoke(() => this.Timeline?.InvalidateRender(), DispatchPriority.Background);
+        // There's a chance this method gets called after the app has shutdown when a user closes the main window.
+        using BugTrack.EmptyToken reallyBadImplementation = BugTrack.ReallyBadImplementation(this, "Task cancelled when closing main window");
+        
+        // Checking phase does not help since the render thread is way too fast to respond to
+        // the stop command, and therefore, the phase will almost always be Running
+        if (Application.Instance.IsBeforePhase(ApplicationStartupPhase.Stopping)) {
+            try {
+                Application.Instance.Dispatcher.Invoke(() => this.Timeline?.InvalidateRender(), DispatchPriority.Background);
+            }
+            catch (TaskCanceledException) {
+                // ignored
+            }
+        }
     }
 
     private void OnTimerFrame() {

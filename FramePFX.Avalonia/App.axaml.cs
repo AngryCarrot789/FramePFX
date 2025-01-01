@@ -174,8 +174,6 @@ public partial class App : global::Avalonia.Application {
 
         manager.SaveAll();
         Application.Instance.PluginLoader.OnApplicationExiting();
-        ApplicationImpl.InternalOnExited(e.ApplicationExitCode);
-        
-        ((ApplicationImpl) Application.Instance).StartupPhaseImpl = ApplicationStartupPhase.Stopped;
+        ApplicationImpl.InternalOnExiting(e.ApplicationExitCode);
     }
 }

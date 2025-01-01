@@ -117,6 +117,7 @@ public class ViewPortToolBarManager : BaseToolBarManager {
         public new IToggleButtonElement Button => (IToggleButtonElement) base.Button;
 
         public ToggleUseCheckerboardToolBarButton() : base(ToolbarButtonFactory.Instance.CreateToggleButton(ToggleButtonStyle.Button)) {
+            this.Button.Text = "Transparent BG";
         }
 
         protected override Task OnClickedAsync() {
@@ -158,10 +159,6 @@ public class ViewPortToolBarManager : BaseToolBarManager {
         private void UpdateCheckBox() {
             if (this.editor != null) {
                 this.Button.IsChecked = this.editor.ViewPort.UseTransparentCheckerBoardBackground;
-                this.Button.Text = this.editor.ViewPort.UseTransparentCheckerBoardBackground ? "Use Black BG" : "Use Transparent BG";
-            }
-            else {
-                this.Button.Text = "<invalid>";
             }
         }
     }

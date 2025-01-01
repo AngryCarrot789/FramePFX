@@ -20,7 +20,6 @@
 using Avalonia;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
-using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Icons;
 
 namespace FramePFX.BaseFrontEnd.AvControls;
@@ -44,23 +43,19 @@ public class IconToggleButton : ToggleButton, IIconButton {
         set => this.SetValue(StretchProperty, value);
     }
 
-    public double? IconWidth {
+    public double? IconMaxWidth {
         get => this.iconW;
         set {
             this.iconW = value;
-            if (this.PART_IconControl != null) {
-                this.PART_IconControl.Width = value ?? double.NaN;
-            }
+            IconButtonHelper.SetMaxWidth(this.PART_IconControl, value);
         }
     }
 
-    public double? IconHeight {
+    public double? IconMaxHeight {
         get => this.iconH;
         set {
             this.iconH = value;
-            if (this.PART_IconControl != null) {
-                this.PART_IconControl.Height = value ?? double.NaN;
-            }
+            IconButtonHelper.SetMaxHeight(this.PART_IconControl, value);
         }
     }
 
@@ -72,10 +67,6 @@ public class IconToggleButton : ToggleButton, IIconButton {
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
-        this.PART_IconControl = e.NameScope.GetTemplateChild<IconControl>("PART_IconControl");
-        if (this.iconW.HasValue)
-            this.PART_IconControl.Width = this.iconW.Value;
-        if (this.iconH.HasValue)
-            this.PART_IconControl.Height = this.iconH.Value;
+        IconButtonHelper.ApplyTemplate(this, e, ref this.PART_IconControl);
     }
 }

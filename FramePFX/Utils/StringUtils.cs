@@ -275,4 +275,21 @@ public static class StringUtils {
         if (string.IsNullOrWhiteSpace(str))
             throw new ArgumentException(varName + " cannot be null, empty or consist of only whitespaces", varName);
     }
+    
+    public static string? JoinEx<T>(IList<T> items, string? delimiter, string finalDelimiter, string? emptyValue, Func<T, string> toStringFunc) {
+        int size = items.Count;
+        if (size <= 0) return emptyValue;
+        if (size == 1) return toStringFunc(items[0]);
+        if (delimiter == null) {
+            delimiter = ", ";
+        }
+
+        StringBuilder sb = new StringBuilder(size * 4);
+        sb.Append(toStringFunc(items[0]));
+        for (int i = 1, end = (size - 1); i < end; i++) {
+            sb.Append(delimiter).Append(toStringFunc(items[i]));
+        }
+
+        return sb.Append(finalDelimiter).Append(toStringFunc(items[size - 1])).ToString();
+    }
 }

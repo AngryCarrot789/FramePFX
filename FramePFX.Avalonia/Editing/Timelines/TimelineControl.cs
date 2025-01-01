@@ -35,6 +35,7 @@ using FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
 using FramePFX.Avalonia.Editing.Toolbars;
 using FramePFX.BaseFrontEnd;
 using FramePFX.BaseFrontEnd.AdvancedMenuService;
+using FramePFX.BaseFrontEnd.AvControls;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Interactivity.Contexts;
 using FramePFX.BaseFrontEnd.Utils;
@@ -228,10 +229,18 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         int originalCounter = stackPanel.Children.Count;
         return ObservableItemProcessor.MakeIndexable(list, (sender, index, item) => {
             AbstractAvaloniaButtonElement btnImpl = (AbstractAvaloniaButtonElement) item.Button;
-            btnImpl.Button.Width = 26;
+            if (btnImpl.Button is IIconButton button) {
+                button.IconMaxWidth = 18;
+                button.IconMaxHeight = 18;
+            }
+
+            btnImpl.Button.MinWidth = 26;
+            btnImpl.Button.Height = 26;
             btnImpl.Button.Padding = new Thickness(4);
             btnImpl.Button.BorderThickness = default;
             btnImpl.Button.Bind(BackgroundProperty, new DynamicResourceExtension("ABrush.Tone6.Background.Static"));
+            btnImpl.Button.Background = null;
+            
             stackPanel.Children.Insert(index + originalCounter, btnImpl.Button);
             item.UpdateCanExecuteLater();
         }, (sender, index, item) => {

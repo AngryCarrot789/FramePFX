@@ -86,15 +86,10 @@ public class ApplicationImpl : Application, IFrontEndApplication {
         Dispatcher avd = global::Avalonia.Threading.Dispatcher.UIThread;
         this.Dispatcher = new DispatcherImpl(avd);
         
-        avd.ShutdownStarted += this.OnDispatcherShuttingDown;
         avd.ShutdownFinished += this.OnDispatcherShutDown;
         this.PluginLoader.AddCorePluginEntry(new CorePluginDescriptor(typeof(TestPlugin)));
     }
 
-    private void OnDispatcherShuttingDown(object? sender, EventArgs e) {
-        this.StartupPhase = ApplicationStartupPhase.Stopping;
-    }
-    
     private void OnDispatcherShutDown(object? sender, EventArgs e) {
         this.StartupPhase = ApplicationStartupPhase.Stopped;
     }
@@ -218,7 +213,7 @@ public class ApplicationImpl : Application, IFrontEndApplication {
 
     internal static Task InternalLoadPluginsImpl(IApplicationStartupProgress progress) => InternalLoadPlugins(progress);
 
-    internal static void InternalOnExited(int exitCode) => InternalOnExit(exitCode);
+    internal new static void InternalOnExiting(int exitCode) => Application.InternalOnExiting(exitCode);
 
     internal static Task InternalOnFullyInitialised() => InternalOnFullyInitialisedImpl();
 

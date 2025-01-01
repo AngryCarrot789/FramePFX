@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using Avalonia;
 using Avalonia.Media;
 using FramePFX.Icons;
 
@@ -28,7 +27,7 @@ public interface IIconButton {
     
     Stretch Stretch { get; set; }
 
-    double? IconWidth { get; set; }
+    double? IconMaxWidth { get; set; }
     
-    double? IconHeight { get; set; }
+    double? IconMaxHeight { get; set; }
 }

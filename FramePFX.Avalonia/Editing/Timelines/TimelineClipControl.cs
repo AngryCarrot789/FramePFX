@@ -577,13 +577,13 @@ public class TimelineClipControl : ContentControl, IClipElement {
         }
 
         double zoom = this.TimelineZoom;
-        Vector mPosDifRel = mPos - this.leftClickPos;
+        Vector mPosDiffRel = mPos - this.leftClickPos;
 
         // Vector mPosDiff = absMpos - this.screenClickPos;
         FrameSpan oldSpan = this.ClipModel.FrameSpan;
         if (this.dragState == DragState.DragHeader) {
             if (hasMovedX) {
-                double frameOffsetDouble = (mPosDifRel.X / zoom);
+                double frameOffsetDouble = (mPosDiffRel.X / zoom);
                 long offset = (long) Math.Round(frameOffsetDouble);
                 if (offset != 0) {
                     // If begin is 2 and offset is -5, this sets offset to -2
@@ -599,14 +599,14 @@ public class TimelineClipControl : ContentControl, IClipElement {
                         if (newEndIndex > trackList.Timeline!.MaxDuration) {
                             trackList.Timeline.TryExpandForFrame(newEndIndex);
                         }
-
+                        
                         this.SetClipSpanForDrag(newSpan);
                         // this.SetClipSpanForDrag(new FrameSpan(Maths.Clamp(TimelineUtils.PixelToFrame(mPos.X, this.TimelineZoom), 0, trackList.Timeline.MaxDuration - oldSpan.Duration), oldSpan.Duration));
                     }
                 }
             }
 
-            if (hasMovedY && !this.isMovingBetweenTracks && Math.Abs(mPosDifRel.Y) >= 1.0d) {
+            if (hasMovedY && !this.isMovingBetweenTracks && Math.Abs(mPosDiffRel.Y) >= 1.0d) {
                 double totalHeight = 0.0;
                 List<TimelineTrackControl> tracks = new List<TimelineTrackControl>(trackList.GetTracks());
                 Point mPosTL = e.GetPosition(trackList);
@@ -627,11 +627,11 @@ public class TimelineClipControl : ContentControl, IClipElement {
             }
         }
         else if (this.dragState == DragState.DragLeftGrip || this.dragState == DragState.DragRightGrip) {
-            if (!hasMovedX || !(Math.Abs(mPosDifRel.X) >= 1.0d)) {
+            if (!hasMovedX || !(Math.Abs(mPosDiffRel.X) >= 1.0d)) {
                 return;
             }
 
-            long offset = (long) Math.Round(mPosDifRel.X / zoom);
+            long offset = (long) Math.Round(mPosDiffRel.X / zoom);
             if (offset == 0) {
                 return;
             }

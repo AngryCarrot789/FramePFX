@@ -52,11 +52,11 @@
                                 Opacity="0.3"/>
                         <Border IsHitTestVisible="False" BorderThickness="1,1,0,0" Width="3" Height="7" Margin="5,-4,0,0" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
                                 Opacity="0.3"/>
-                        <Thumb Grid.Row="0" x:Name="PART_ThumbHead"
+                        <Thumb Grid.Row="0" x:Name="PART_ThumbHead" Focusable="True"
                                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                Cursor="SizeWestEast"
                                Background="Transparent" Theme="{StaticResource NoAppearanceThumbTheme}"/>
-                        <Thumb Grid.Row="1" x:Name="PART_ThumbBody"
+                        <Thumb Grid.Row="1" x:Name="PART_ThumbBody" Focusable="True"
                                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                Margin="5,0" Width="1" Cursor="SizeWestEast"
                                Background="Transparent" Theme="{StaticResource NoAppearanceThumbTheme}"/>

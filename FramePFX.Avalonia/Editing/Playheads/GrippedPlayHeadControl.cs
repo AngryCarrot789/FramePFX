@@ -22,7 +22,9 @@ using System.Reflection;
 using Avalonia;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using FramePFX.Avalonia.Editing.Timelines;
+using FramePFX.Editing;
 using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Avalonia.Editing.Playheads;
@@ -32,6 +34,7 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
     private Thumb? PART_ThumbBody;
     private long lastFrame;
     private double lastDeltaX;
+    private bool isShiftPressed;
 
     public GrippedPlayHeadControl() {
     }
@@ -42,11 +45,20 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
         this.PART_ThumbBody = e.NameScope.Find("PART_ThumbBody") as Thumb;
         if (this.PART_ThumbHead != null) {
             this.PART_ThumbHead.DragDelta += this.PART_ThumbOnDragDelta;
+            
+            this.PART_ThumbHead.AddHandler(KeyDownEvent, this.OnKey, RoutingStrategies.Tunnel, true);
+            this.PART_ThumbHead.AddHandler(KeyUpEvent, this.OnKey, RoutingStrategies.Tunnel, true);
         }
 
         if (this.PART_ThumbBody != null) {
             this.PART_ThumbBody.DragDelta += this.PART_ThumbOnDragDelta;
+            this.PART_ThumbBody.AddHandler(KeyDownEvent, this.OnKey, RoutingStrategies.Tunnel, true);
+            this.PART_ThumbBody.AddHandler(KeyUpEvent, this.OnKey, RoutingStrategies.Tunnel, true);
         }
+    }
+
+    private void OnKey(object? sender, KeyEventArgs e) {
+        this.isShiftPressed = (e.KeyModifiers & KeyModifiers.Shift) != 0;
     }
 
     private void PART_ThumbOnDragDelta(object? sender, VectorEventArgs e) {
@@ -54,21 +66,22 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
             return;
         }
 
-        // long change = (long) Math.Round(e.Vector.X / control.Zoom);
-        long change = (long) Math.Round(e.Vector.X * control.Zoom);
+        long change = (long) Math.Round(e.Vector.X / control.Zoom);
+        // long change = (long) Math.Round(e.Vector.X * control.Zoom);
         if (change != 0) {
             long oldFrame = this.Frame;
-            long newFrame = Math.Max(oldFrame + change, 0);
-            if (newFrame >= timeline.MaxDuration) {
-                newFrame = timeline.MaxDuration - 1;
+            long newPlayHeadFrame = Math.Max(oldFrame + change, 0);
+            if (newPlayHeadFrame >= timeline.MaxDuration) {
+                newPlayHeadFrame = timeline.MaxDuration - 1;
+            }
+
+            if (this.isShiftPressed && SnapHelper.SnapPlayHeadToClipEdge(control.Timeline, newPlayHeadFrame, out long snappedFrame)) {
+                newPlayHeadFrame = snappedFrame;
             }
 
             this.lastFrame = this.Frame;
             this.lastDeltaX = e.Vector.X;
-            if (newFrame != oldFrame) {
-                // this.Frame = (long) Maths.Clamp(newFrame - (this.lastFrame), 0, timeline.MaxDuration - 1);
-                this.Frame = newFrame;
-            }
+            this.Frame = newPlayHeadFrame;
         }
     }
 

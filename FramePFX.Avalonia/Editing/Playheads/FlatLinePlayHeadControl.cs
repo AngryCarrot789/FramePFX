@@ -21,6 +21,7 @@ using System;
 using Avalonia;
 using Avalonia.Input;
 using FramePFX.Avalonia.Editing.Timelines;
+using FramePFX.Editing;
 using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Avalonia.Editing.Playheads;
@@ -96,7 +97,14 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
                 }
 
                 if (offset != 0) {
-                    this.Frame = Math.Min(oldFrame + offset, timeline.MaxDuration - 1);
+                    long newFrame = oldFrame + offset;
+                    if ((e.KeyModifiers & KeyModifiers.Shift) != 0) {
+                        if (SnapHelper.SnapPlayHeadToClipEdge(control.Timeline, newFrame, out long snapFrame)) {
+                            newFrame = snapFrame;
+                        }
+                    }
+                    
+                    this.Frame = Math.Min(newFrame, timeline.MaxDuration - 1);
                 }
             }
         }

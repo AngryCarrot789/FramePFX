@@ -74,12 +74,12 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
         }
     }
 
-    public void InternalOnTrackAdded(TimelineTrackControl control) {
+    internal void InternalOnTrackAdded(TimelineTrackControl control) {
         control.SelectionManager.SelectionChanged += this.OnTrackSelectionChanged;
         control.SelectionManager.SelectionCleared += this.OnTrackSelectionCleared;
     }
 
-    public void InternalOnTrackRemoving(TimelineTrackControl control) {
+    internal void InternalOnTrackRemoving(TimelineTrackControl control) {
         control.SelectionManager.SelectionChanged -= this.OnTrackSelectionChanged;
         control.SelectionManager.SelectionCleared -= this.OnTrackSelectionCleared;
     }

@@ -22,10 +22,10 @@ using System.Runtime.CompilerServices;
 namespace FramePFX.Tasks;
 
 /// <summary>
-/// Represents a task that can be run by a <see cref="TaskManager"/> on a background thread
+/// Represents a task that can be run by a <see cref="ActivityManager"/> on a background thread
 /// </summary>
 public class ActivityTask {
-    private readonly TaskManager taskManager;
+    private readonly ActivityManager activityManager;
     private readonly Func<Task> action;
     private volatile Exception? exception;
 
@@ -81,8 +81,8 @@ public class ActivityTask {
 
     // internal int OwningThreadId;
 
-    protected ActivityTask(TaskManager taskManager, Func<Task> action, IActivityProgress activityProgress, CancellationToken cancellationToken) {
-        this.taskManager = taskManager ?? throw new ArgumentNullException(nameof(taskManager));
+    protected ActivityTask(ActivityManager activityManager, Func<Task> action, IActivityProgress activityProgress, CancellationToken cancellationToken) {
+        this.activityManager = activityManager ?? throw new ArgumentNullException(nameof(activityManager));
         this.action = action ?? throw new ArgumentNullException(nameof(action));
         this.Progress = activityProgress ?? throw new ArgumentNullException(nameof(activityProgress));
         this.CancellationToken = cancellationToken;
@@ -108,7 +108,7 @@ public class ActivityTask {
         // this.OwningThreadId = Thread.CurrentThread.ManagedThreadId;
         // Dispatcher.CurrentDispatcher.InvokeAsync(async () => {
         try {
-            await TaskManager.InternalPreActivateTask(this.taskManager, this);
+            await ActivityManager.InternalPreActivateTask(this.activityManager, this);
             this.CheckCancelled();
             await ((this.userTask = this.action()) ?? Task.CompletedTask);
             await this.OnCompleted(null);
@@ -125,15 +125,15 @@ public class ActivityTask {
 
     public void CheckCancelled() => this.CancellationToken.ThrowIfCancellationRequested();
 
-    private Task OnCancelled() => TaskManager.InternalOnActivityCompleted(this.taskManager, this, 3);
+    private Task OnCancelled() => ActivityManager.InternalOnActivityCompleted(this.activityManager, this, 3);
 
     protected virtual async Task OnCompleted(Exception? e) {
         this.exception = e;
-        await TaskManager.InternalOnActivityCompleted(this.taskManager, this, 2);
+        await ActivityManager.InternalOnActivityCompleted(this.activityManager, this, 2);
     }
 
-    internal static ActivityTask InternalStartActivity(TaskManager taskManager, Func<Task> action, IActivityProgress? progress, CancellationToken token, TaskCreationOptions creationOptions) {
-        return InternalStartActivityImpl(new ActivityTask(taskManager, action, progress ?? new DefaultProgressTracker(), token), creationOptions);
+    internal static ActivityTask InternalStartActivity(ActivityManager activityManager, Func<Task> action, IActivityProgress? progress, CancellationToken token, TaskCreationOptions creationOptions) {
+        return InternalStartActivityImpl(new ActivityTask(activityManager, action, progress ?? new DefaultProgressTracker(), token), creationOptions);
     }
 
     internal static ActivityTask InternalStartActivityImpl(ActivityTask task, TaskCreationOptions creationOptions) {
@@ -157,11 +157,11 @@ public class ActivityTask<T> : ActivityTask {
 
     public new Task<T> Task => (Task<T>) this.theMainTask!;
 
-    protected ActivityTask(TaskManager taskManager, Func<Task<T>> action, IActivityProgress activityProgress, CancellationToken cancellationToken) : base(taskManager, action, activityProgress, cancellationToken) {
+    protected ActivityTask(ActivityManager activityManager, Func<Task<T>> action, IActivityProgress activityProgress, CancellationToken cancellationToken) : base(activityManager, action, activityProgress, cancellationToken) {
     }
 
-    internal static ActivityTask<T> InternalStartActivity(TaskManager taskManager, Func<Task<T>> action, IActivityProgress? progress, CancellationToken token, TaskCreationOptions creationOptions) {
-        return (ActivityTask<T>) InternalStartActivityImpl(new ActivityTask<T>(taskManager, action, progress ?? new DefaultProgressTracker(), token), creationOptions);
+    internal static ActivityTask<T> InternalStartActivity(ActivityManager activityManager, Func<Task<T>> action, IActivityProgress? progress, CancellationToken token, TaskCreationOptions creationOptions) {
+        return (ActivityTask<T>) InternalStartActivityImpl(new ActivityTask<T>(activityManager, action, progress ?? new DefaultProgressTracker(), token), creationOptions);
     }
 
     /// <inheritdoc cref="ActivityTask.GetAwaiter"/>

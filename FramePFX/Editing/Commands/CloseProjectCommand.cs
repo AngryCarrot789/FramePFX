@@ -35,8 +35,8 @@ public class CloseProjectCommand : Command {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return;
 
-        await TaskManager.Instance.RunTask(async () => {
-            IActivityProgress prog = TaskManager.Instance.CurrentTask.Progress;
+        await ActivityManager.Instance.RunTask(async () => {
+            IActivityProgress prog = ActivityManager.Instance.CurrentTask.Progress;
             prog.Text = "Closing project...";
             await CloseProjectBGT(editor, prog);
         });
@@ -48,7 +48,7 @@ public class CloseProjectCommand : Command {
             return true;
 
         if (progress == null)
-            progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
+            progress = ActivityManager.Instance.GetCurrentProgressOrEmpty();
 
         progress.Text = "Closing active project";
         progress.CompletionState.OnProgress(0.2);

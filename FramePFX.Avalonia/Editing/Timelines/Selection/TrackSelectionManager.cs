@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Editing.UI;
@@ -213,5 +214,12 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
 
         this.SelectionCleared?.Invoke(this);
         this.LightSelectionChanged?.Invoke(this);
+    }
+
+    internal void InternalOnTrackRemoving(TimelineTrackControl control) {
+        if (!(control.TrackElement is ITrackElement element))
+            throw new Exception("Track control has no element associated");
+        
+        this.Unselect(element);
     }
 }

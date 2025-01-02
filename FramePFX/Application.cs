@@ -138,7 +138,7 @@ public abstract class Application : IServiceable {
     }
 
     protected virtual void RegisterServices(ServiceManager manager) {
-        manager.RegisterConstant(new TaskManager());
+        manager.RegisterConstant(new ActivityManager());
         manager.RegisterConstant(new ResourceDropOnTimelineService());
         manager.RegisterConstant(new TimelineDropManager());
         manager.RegisterConstant(new ExporterRegistry());

@@ -22,10 +22,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FramePFX.Tasks;
 
-public delegate void TaskManagerTaskEventHandler(TaskManager taskManager, ActivityTask task, int index);
+public delegate void TaskManagerTaskEventHandler(ActivityManager activityManager, ActivityTask task, int index);
 
-public sealed class TaskManager : IDisposable {
-    public static TaskManager Instance => Application.Instance.ServiceManager.GetService<TaskManager>();
+public sealed class ActivityManager : IDisposable {
+    public static ActivityManager Instance => Application.Instance.ServiceManager.GetService<ActivityManager>();
 
     // private readonly ThreadLocal<ActivityTask> threadToTask;
     private readonly AsyncLocal<ActivityTask?> threadToTask;
@@ -37,7 +37,7 @@ public sealed class TaskManager : IDisposable {
 
     public IReadOnlyList<ActivityTask> ActiveTasks => this.tasks;
 
-    public TaskManager() {
+    public ActivityManager() {
         this.threadToTask = new AsyncLocal<ActivityTask?>();
         this.tasks = new List<ActivityTask>();
         this.locker = new object();
@@ -92,35 +92,35 @@ public sealed class TaskManager : IDisposable {
 
     // Activity thread
 
-    internal static Task InternalPreActivateTask(TaskManager taskManager, ActivityTask task) {
-        taskManager.threadToTask.Value = task;
-        return Application.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskStarted(taskManager, task));
+    internal static Task InternalPreActivateTask(ActivityManager activityManager, ActivityTask task) {
+        activityManager.threadToTask.Value = task;
+        return Application.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskStarted(activityManager, task));
     }
 
-    internal static Task InternalOnActivityCompleted(TaskManager taskManager, ActivityTask task, int state) {
-        taskManager.threadToTask.Value = null;
+    internal static Task InternalOnActivityCompleted(ActivityManager activityManager, ActivityTask task, int state) {
+        activityManager.threadToTask.Value = null;
 
         // Before AsyncLocal, I was trying out a dispatcher for each task XD
         // Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatchPriority.Background);
-        return Application.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskCompleted(taskManager, task, state));
+        return Application.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskCompleted(activityManager, task, state));
     }
 
     // Main Thread
 
-    internal static void InternalOnTaskStarted(TaskManager taskManager, ActivityTask task) {
-        lock (taskManager.locker) {
-            int index = taskManager.tasks.Count;
-            taskManager.tasks.Insert(index, task);
-            taskManager.TaskStarted?.Invoke(taskManager, task, index);
+    internal static void InternalOnTaskStarted(ActivityManager activityManager, ActivityTask task) {
+        lock (activityManager.locker) {
+            int index = activityManager.tasks.Count;
+            activityManager.tasks.Insert(index, task);
+            activityManager.TaskStarted?.Invoke(activityManager, task, index);
         }
 
         ActivityTask.InternalPostActivate(task);
     }
 
-    internal static void InternalOnTaskCompleted(TaskManager taskManager, ActivityTask task, int state) {
+    internal static void InternalOnTaskCompleted(ActivityManager activityManager, ActivityTask task, int state) {
         ActivityTask.InternalComplete(task, state);
-        lock (taskManager.locker) {
-            int index = taskManager.tasks.IndexOf(task);
+        lock (activityManager.locker) {
+            int index = activityManager.tasks.IndexOf(task);
             if (index == -1) {
                 const string msg = "Completed activity task did not exist in this task manager's internal task list";
                 Debug.WriteLine("[FATAL] " + msg);
@@ -128,8 +128,8 @@ public sealed class TaskManager : IDisposable {
                 return;
             }
 
-            taskManager.tasks.RemoveAt(index);
-            taskManager.TaskCompleted?.Invoke(taskManager, task, index);
+            activityManager.tasks.RemoveAt(index);
+            activityManager.TaskCompleted?.Invoke(activityManager, task, index);
         }
     }
 }

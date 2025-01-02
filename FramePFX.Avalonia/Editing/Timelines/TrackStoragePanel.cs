@@ -118,8 +118,12 @@ public class TrackStoragePanel : StackPanel {
 
     private void RemoveTrackInternal(int index) {
         TimelineTrackControl control = (TimelineTrackControl) this.Children[index];
-        Track model = control.Track!;
+        // Clear clip selection in track
+        control.SelectionManager.Clear();
         this.TimelineControl!.ClipSelectionManager!.InternalOnTrackRemoving(control);
+        this.TimelineControl!.TrackSelectionManager!.InternalOnTrackRemoving(control);
+        
+        Track model = control.Track!;
         this.itemMap.RemoveMapping(model, control);
         control.OnDisconnecting();
         this.Children.RemoveAt(index);

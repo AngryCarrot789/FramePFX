@@ -52,8 +52,8 @@ public class OpenProjectCommand : Command {
     }
 
     public static ActivityTask<bool> RunOpenProjectTask(VideoEditor editor, string filePath) {
-        return TaskManager.Instance.RunTask<bool>(async () => {
-            IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
+        return ActivityManager.Instance.RunTask<bool>(async () => {
+            IActivityProgress progress = ActivityManager.Instance.CurrentTask.Progress;
 
             bool result;
             using (progress.CompletionState.PushCompletionRange(0.0, 0.5)) {

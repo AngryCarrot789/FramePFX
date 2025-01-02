@@ -74,8 +74,8 @@ public class StartupManagerImpl : StartupManager {
         VideoEditor editor = new VideoEditor();
         editor.LoadDefaultProject();
         
-        TaskManager.Instance.RunTask(() => {
-            IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
+        ActivityManager.Instance.RunTask(() => {
+            IActivityProgress progress = ActivityManager.Instance.GetCurrentProgressOrEmpty();
             progress.IsIndeterminate = true;
             progress.Caption = "Open empty editor";
             progress.Text = "Opening editor...";
@@ -95,8 +95,8 @@ public class StartupManagerImpl : StartupManager {
 
     protected override Task OnOpenEmptyEditor() {
         VideoEditor editor = new VideoEditor();
-        TaskManager.Instance.RunTask(() => {
-            IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
+        ActivityManager.Instance.RunTask(() => {
+            IActivityProgress progress = ActivityManager.Instance.GetCurrentProgressOrEmpty();
             progress.IsIndeterminate = true;
             progress.Caption = "Open empty editor";
             progress.Text = "Opening editor...";

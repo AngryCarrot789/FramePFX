@@ -102,9 +102,9 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
             batch.Context.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this);
         }
 
-        TaskManager taskManager = TaskManager.Instance;
-        taskManager.TaskStarted += this.OnTaskStarted;
-        taskManager.TaskCompleted += this.OnTaskCompleted;
+        ActivityManager activityManager = ActivityManager.Instance;
+        activityManager.TaskStarted += this.OnTaskStarted;
+        activityManager.TaskCompleted += this.OnTaskCompleted;
     }
 
     private static ObservableItemProcessorIndexing<ToolBarButton> CreateToolbarBinder(IObservableList<ToolBarButton> list, StackPanel stackPanel) {
@@ -330,13 +330,13 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
     #region Task Manager and Activity System
 
-    private void OnTaskStarted(TaskManager manager, ActivityTask task, int index) {
+    private void OnTaskStarted(ActivityManager manager, ActivityTask task, int index) {
         if (this.primaryActivity == null || this.primaryActivity.IsCompleted) {
             this.SetActivityTask(task);
         }
     }
 
-    private void OnTaskCompleted(TaskManager manager, ActivityTask task, int index) {
+    private void OnTaskCompleted(ActivityManager manager, ActivityTask task, int index) {
         if (task == this.primaryActivity) {
             // try to access next task
             this.SetActivityTask(manager.ActiveTasks.Count > 0 ? manager.ActiveTasks[0] : null);

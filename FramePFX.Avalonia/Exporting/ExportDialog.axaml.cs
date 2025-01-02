@@ -140,8 +140,8 @@ public partial class ExportDialog : WindowEx {
         progressDialog.Show();
 
         setup.Editor.IsExporting = true;
-        ActivityTask exportTask = TaskManager.Instance.RunTask(() => {
-            progressDialog.ActivityTask = TaskManager.Instance.CurrentTask;
+        ActivityTask exportTask = ActivityManager.Instance.RunTask(() => {
+            progressDialog.ActivityTask = ActivityManager.Instance.CurrentTask;
             progressDialog.ActivityTask.Progress.Caption = "Export Task";
             progressDialog.ActivityTask.Progress.Text = "Exporting...";
 

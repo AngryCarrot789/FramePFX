@@ -38,8 +38,8 @@ public class NewProjectCommand : Command {
             return;
         }
 
-        await TaskManager.Instance.RunTask(async () => {
-            IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
+        await ActivityManager.Instance.RunTask(async () => {
+            IActivityProgress progress = ActivityManager.Instance.CurrentTask.Progress;
 
             progress.CompletionState.OnProgress(0.25);
             if (!await CloseProjectCommand.CloseProjectBGT(editor, null)) {

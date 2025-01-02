@@ -282,8 +282,9 @@ public class TimelineTrackControl : TemplatedControl {
             }
 
             TimelineClipControl control = this.ClipStoragePanel![oldIndex];
+            bool isSelected = control.IsSelected;
             this.ClipStoragePanel.RemoveClipInternal(oldIndex, false);
-            dstTrack.clipBeingMoved = new MovedClip(control, clip);
+            dstTrack.clipBeingMoved = new MovedClip(control, clip, isSelected);
         }
         else if (newTrack == this.Track) {
             if (!(this.clipBeingMoved is MovedClip movedClip)) {
@@ -293,6 +294,8 @@ public class TimelineTrackControl : TemplatedControl {
             this.ClipStoragePanel!.InsertClip(movedClip.control, movedClip.clip, newIndex);
             this.clipBeingMoved = null;
             movedClip.control.initiatedDragPointer?.Capture(movedClip.control);
+            if (movedClip.wasSelected)
+                this.SelectionManager.Select(movedClip.control);
         }
     }
 
@@ -336,10 +339,12 @@ public class TimelineTrackControl : TemplatedControl {
     private readonly struct MovedClip {
         public readonly TimelineClipControl control;
         public readonly Clip clip;
+        public readonly bool wasSelected;
 
-        public MovedClip(TimelineClipControl control, Clip clip) {
+        public MovedClip(TimelineClipControl control, Clip clip, bool wasSelected) {
             this.control = control;
             this.clip = clip;
+            this.wasSelected = wasSelected;
         }
     }
 

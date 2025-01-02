@@ -37,8 +37,8 @@ public class SaveProjectCommand : Command {
                 return;
             }
 
-            await TaskManager.Instance.RunTask(async () => {
-                IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
+            await ActivityManager.Instance.RunTask(async () => {
+                IActivityProgress progress = ActivityManager.Instance.GetCurrentProgressOrEmpty();
                 progress.Text = "Saving project...";
 
                 await Application.Instance.Dispatcher.InvokeAsync(async () => {
@@ -52,8 +52,8 @@ public class SaveProjectCommand : Command {
 public class SaveProjectAsCommand : SaveProjectCommand {
     protected override async Task ExecuteCommandAsync(CommandEventArgs e) {
         if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project? project)) {
-            await TaskManager.Instance.RunTask(async () => {
-                IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
+            await ActivityManager.Instance.RunTask(async () => {
+                IActivityProgress progress = ActivityManager.Instance.GetCurrentProgressOrEmpty();
                 progress.Text = "Saving project as...";
 
                 await Application.Instance.Dispatcher.InvokeAsync(() => Project.SaveProjectAs(project, progress)).Unwrap();

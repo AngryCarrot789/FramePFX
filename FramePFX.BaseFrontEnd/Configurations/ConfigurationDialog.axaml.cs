@@ -18,6 +18,7 @@
 // 
 
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using FramePFX.BaseFrontEnd.Themes.Controls;
 using FramePFX.Configurations;
@@ -78,6 +79,14 @@ public partial class ConfigurationDialog : WindowEx {
         
         this.PART_EditorPanel.ActiveContextChanged += this.OnEditorContextChanged;
         this.PART_EditorPanel.ConfigurationManager = manager;
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e) {
+        base.OnKeyDown(e);
+        if (!e.Handled && e.Key == Key.Escape) {
+            e.Handled = true;
+            this.CancelCommand.Execute(null);
+        }
     }
 
     protected override async Task<bool> OnClosingAsync(WindowCloseReason reason) {

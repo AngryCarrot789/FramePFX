@@ -3,7 +3,6 @@
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
-            xmlns:c1="clr-namespace:FramePFX.BaseFrontEnd.Editing;assembly=FramePFX.BaseFrontEnd"
             xmlns:rm="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
             xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
             xmlns:e="clr-namespace:FramePFX.Avalonia.Editing"
@@ -37,29 +36,10 @@
             currently focused item before focus is switched to a menu item.
             This is used to implement a kind of "contextual" non-context menu item
         -->
-        <ams:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
-                                 Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type c:WindowEx}, Mode=FindAncestor}}">
-            <MenuItem Header="File">
-                <ams:CommandMenuItem Header="New Project" CommandId="commands.editor.NewProject"/>
-                <ams:CommandMenuItem Header="Open Project..." CommandId="commands.editor.OpenProject"/>
-                <ams:CommandMenuItem Header="Save Project" CommandId="commands.editor.SaveProject"/>
-                <ams:CommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAs"/>
-                <ams:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProject"/>
-                <Separator/>
-                <ams:CommandMenuItem Header="Open Editor Settings" CommandId="commands.editor.OpenEditorSettings"
-                                    ToolTip.Tip="Opens the editor's settings in a dialog"/>
-                <ams:CommandMenuItem Header="Open Project Settings" CommandId="commands.editor.OpenProjectSettings"
-                                    ToolTip.Tip="Opens the project's settings in a dialog"/>
-                <Separator/>
-                <ams:CommandMenuItem Header="Export" CommandId="commands.editor.Export"
-                                    ToolTip.Tip="Export the current project"/>
-                <ams:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
-                                    ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>
-            </MenuItem>
-            <MenuItem Header="Theme" x:Name="PART_ThemesMenuItem">
-                
-            </MenuItem>
-        </ams:ContextCapturingMenu>
+        <ams:AdvancedTopLevelMenu x:Name="PART_TopLevelMenu" Grid.Row="0"
+                                  BorderBrush="{DynamicResource PanelBorderBrush}" 
+                                  BorderThickness="0,0,0,1"
+                                  Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type c:WindowEx}, Mode=FindAncestor}}"/>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" MinHeight="100"/>

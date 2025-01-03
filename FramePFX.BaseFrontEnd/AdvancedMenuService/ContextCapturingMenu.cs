@@ -21,7 +21,6 @@ using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Shortcuts.Avalonia;
 using FramePFX.Interactivity.Contexts;
@@ -40,10 +39,6 @@ public class ContextCapturingMenu : Menu {
     public ContextCapturingMenu() {
     }
 
-    public override void Open() {
-        base.Open();
-    }
-
     public override void Close() {
         bool wasOpen = this.IsOpen;
         base.Close();
@@ -51,13 +46,12 @@ public class ContextCapturingMenu : Menu {
             this.ClearValue(CapturedContextProperty);
             DataManager.ClearContextData(this);
             Debug.WriteLine("Cleared captured data context");
-            this.lastFocus.Focus();
+            if (this.lastFocus != this) {
+                this.lastFocus.Focus();
+            }
+            
             this.lastFocus = null;
         }
-    }
-
-    protected override void OnSubmenuOpened(RoutedEventArgs e) {
-        base.OnSubmenuOpened(e);
     }
 
     protected override void OnGotFocus(GotFocusEventArgs e) {
@@ -72,15 +66,11 @@ public class ContextCapturingMenu : Menu {
         }
     }
 
-    protected override void OnLostFocus(RoutedEventArgs e) {
-        base.OnLostFocus(e);
-    }
-
     private void CaptureContextFromObject(InputElement inputElement) {
         IContextData ctx = DataManager.GetFullContextData(inputElement);
         Debug.WriteLine($"Captured context{(ctx is IRandomAccessContextData data ? $" ({data.Count} entries) " : " ")}before menu focus switch from {inputElement.GetType().Name}");
         this.SetValue(CapturedContextProperty, ctx);
-        DataManager.SwapInheritedContextData(this, ctx);
+        DataManager.SwapDelegateContextData(this, ctx);
     }
 
     public static IContextData? GetCapturedContext(AvaloniaObject obj) => obj.GetValue(CapturedContextProperty);

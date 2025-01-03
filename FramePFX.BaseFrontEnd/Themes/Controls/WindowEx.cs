@@ -24,16 +24,29 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using FramePFX.AdvancedMenuService;
 using FramePFX.BaseFrontEnd.Utils;
 
 namespace FramePFX.BaseFrontEnd.Themes.Controls;
 
 public class WindowEx : Window {
-    public static readonly StyledProperty<IBrush?> TitleBarBrushProperty = AvaloniaProperty.Register<WindowEx, IBrush?>("TitleBarBrush");
+    public static readonly StyledProperty<IBrush?> TitleBarBrushProperty = AvaloniaProperty.Register<WindowEx, IBrush?>(nameof(TitleBarBrush));
+    public static readonly StyledProperty<TextAlignment> TitleBarTextAlignmentProperty = AvaloniaProperty.Register<WindowEx, TextAlignment>(nameof(TitleBarTextAlignment));
+    public static readonly StyledProperty<TopLevelMenuRegistry?> TitleBarMenuRegistryProperty = AvaloniaProperty.Register<WindowEx, TopLevelMenuRegistry?>(nameof(TitleBarMenuRegistry));
 
     public IBrush? TitleBarBrush {
         get => this.GetValue(TitleBarBrushProperty);
         set => this.SetValue(TitleBarBrushProperty, value);
+    }
+
+    public TextAlignment TitleBarTextAlignment {
+        get => this.GetValue(TitleBarTextAlignmentProperty);
+        set => this.SetValue(TitleBarTextAlignmentProperty, value);
+    }
+
+    public TopLevelMenuRegistry? TitleBarMenuRegistry {
+        get => this.GetValue(TitleBarMenuRegistryProperty);
+        set => this.SetValue(TitleBarMenuRegistryProperty, value);
     }
 
     // Override it here so that any window using WindowEx gets the automatic WindowEx style

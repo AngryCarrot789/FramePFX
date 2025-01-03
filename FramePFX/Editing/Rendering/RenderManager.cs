@@ -55,12 +55,12 @@ public class RenderManager {
     private readonly RapidDispatchActionEx rapidRenderDispatch;
 
     private volatile bool isSkiaValid;
-    private SKBitmap bitmap;
+    private SKBitmap? bitmap;
 
-    private SKPixmap pixmap;
+    private SKPixmap? pixmap;
 
     // public but unsafe access to the underlying surface, used by view port. Must not be replaced externally
-    public SKSurface surface;
+    public SKSurface? surface;
 
     public Task? LastRenderTask {
         get => this.lastRenderTask;
@@ -80,6 +80,7 @@ public class RenderManager {
     public double AverageAudioRenderTimeMillis => this.averageAudioRenderTimeMillis;
 
     public event FrameRenderedEventHandler? FrameRendered;
+    public event EventHandler? BitmapsDisposed;
 
     public RenderManager(Timeline timeline) {
         this.Timeline = timeline;
@@ -156,6 +157,7 @@ public class RenderManager {
         this.bitmap?.Dispose();
         this.pixmap?.Dispose();
         this.surface?.Dispose();
+        this.BitmapsDisposed?.Invoke(this, EventArgs.Empty);
     }
 
     public void UpdateFrameInfo(ProjectSettings settings) {
@@ -262,7 +264,7 @@ public class RenderManager {
             }
 
             this.CheckRenderCancelled();
-            this.surface.Canvas.Clear(SKColors.Transparent);
+            this.surface!.Canvas.Clear(SKColors.Transparent);
             for (int i = 0; i < tasks.Length; i++) {
                 if (!tasks[i].IsCompleted)
                     await tasks[i];
@@ -307,7 +309,7 @@ public class RenderManager {
     }
 
     private unsafe void SumTrackSamples(List<AudioTrack> tracks, int sampleFrames, int effectiveSamples) {
-        lock (this.audioRingBuffer) {
+        lock (this.audioRingBuffer!) {
             int samples = sampleFrames * 2;
             float* final = stackalloc float[samples];
             foreach (AudioTrack track in tracks) {
@@ -386,8 +388,8 @@ public class RenderManager {
     public void OnFrameCompleted() => this.FrameRendered?.Invoke(this);
 
     private async Task DoScheduledRender() {
-        VideoEditor editor;
-        if (this.suspendRenderCount < 1 && (editor = this.Timeline?.Project?.Editor) != null) {
+        VideoEditor? editor;
+        if (this.suspendRenderCount < 1 && (editor = this.Timeline.Project?.Editor) != null) {
             try {
                 await this.RenderTimelineAsync(this.Timeline.PlayHeadPosition, CancellationToken.None, EnumRenderQuality.Low);
             }
@@ -419,7 +421,7 @@ public class RenderManager {
             return;
         }
 
-        this.surface.Flush();
+        this.surface!.Flush();
 
         // this is the same code that VideoTrack uses for efficient final frame assembly
         SKRect frameRect = this.ImageInfo.ToRect();
@@ -427,7 +429,7 @@ public class RenderManager {
             this.surface.Draw(target.Canvas, 0, 0, paint);
         }
         else {
-            using (SKImage img = SKImage.FromPixels(this.ImageInfo, this.bitmap.GetPixels())) {
+            using (SKImage img = SKImage.FromPixels(this.ImageInfo, this.bitmap!.GetPixels())) {
                 target.Canvas.DrawImage(img, usedArea, usedArea, paint);
             }
         }

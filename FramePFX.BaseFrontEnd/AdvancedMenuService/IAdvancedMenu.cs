@@ -23,17 +23,21 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.BaseFrontEnd.AdvancedMenuService;
 
-public interface IAdvancedContainer {
+/// <summary>
+/// An 
+/// </summary>
+public interface IAdvancedMenu : IAdvancedMenuOrItem {
     /// <summary>
-    /// Gets the context for the container menu or root container menu item
+    /// Gets the captured context data 
     /// </summary>
     IContextData? CapturedContext { get; }
-
+    
     bool PushCachedItem(Type entryType, Control element);
 
     Control? PopCachedItem(Type entryType);
 
-    Control CreateChildItem(IContextObject entry);
-
-    void UpdateSubListVisibility();
+    /// <summary>
+    /// Creates or gets a cached item that can represent the given context object
+    /// </summary>
+    Control CreateItem(IContextObject entry);
 }

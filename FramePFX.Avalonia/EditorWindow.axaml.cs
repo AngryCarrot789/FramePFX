@@ -18,6 +18,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
@@ -26,6 +27,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
+using FramePFX.AdvancedMenuService;
 using FramePFX.Avalonia.Editing.Toolbars;
 using FramePFX.BaseFrontEnd.AvControls;
 using FramePFX.BaseFrontEnd.Interactivity;
@@ -38,6 +40,7 @@ using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Toolbars;
 using FramePFX.Editing.UI;
+using FramePFX.Icons;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Persistence;
@@ -54,11 +57,11 @@ namespace FramePFX.Avalonia;
 
 public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     public VideoEditor VideoEditor { get; }
-    
+
     public VideoEditorPropertyEditor PropertyEditor { get; }
-    
+
     public bool IsClosing { get; private set; }
-    
+
     public bool IsClosed { get; private set; }
 
     ITimelineElement IVideoEditorWindow.TimelineElement => this.TheTimeline;
@@ -66,7 +69,10 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     IResourceManagerElement IVideoEditorWindow.ResourceManager => this.PART_ResourcePanelControl;
 
     IViewPortElement IVideoEditorWindow.ViewPort => this.PART_ViewPort;
-    
+
+    public TopLevelMenuRegistry ToolBarRegistry { get; }
+    private readonly ContextEntryGroup themesSubList;
+
     private readonly NumberAverager renderTimeAverager;
     private readonly RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
     private ActivityTask? primaryActivity;
@@ -105,6 +111,32 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         ActivityManager activityManager = ActivityManager.Instance;
         activityManager.TaskStarted += this.OnTaskStarted;
         activityManager.TaskCompleted += this.OnTaskCompleted;
+
+        this.ToolBarRegistry = new TopLevelMenuRegistry();
+        ContextEntryGroup fileEntry = new ContextEntryGroup("File");
+        fileEntry.Items.Add(new CommandContextEntry("commands.editor.NewProject", "New Project"));
+        fileEntry.Items.Add(new CommandContextEntry("commands.editor.OpenProject", "Open Project..."));
+        fileEntry.Items.Add(new CommandContextEntry("commands.editor.SaveProject", "Save Project"));
+        fileEntry.Items.Add(new CommandContextEntry("commands.editor.SaveProjectAs", "Save Project As..."));
+        fileEntry.Items.Add(new CommandContextEntry("commands.editor.CloseProject", "Close Project"));
+        fileEntry.Items.Add(new SeparatorEntry());
+        fileEntry.Items.Add(new CommandContextEntry("commands.editor.OpenEditorSettings", "Preferences"));
+        fileEntry.Items.Add(new CommandContextEntry("commands.editor.OpenProjectSettings", "Project Settings"));
+        fileEntry.Items.Add(new SeparatorEntry());
+        fileEntry.Items.Add(new CommandContextEntry("commands.editor.Export", "Export"));
+        fileEntry.Items.Add(new CommandContextEntry("commands.generic.ExportActiveTimelineCommand", "Export Active Timeline"));
+
+#if DEBUG
+        fileEntry.Items.Add(new SeparatorEntry());
+        fileEntry.Items.Add(new TestDynamicInsertionContextEntry(this, fileEntry));
+#endif
+
+        this.ToolBarRegistry.Items.Add(fileEntry);
+
+        this.themesSubList = new ContextEntryGroup("Themes");
+        this.ToolBarRegistry.Items.Add(this.themesSubList);
+
+        this.PART_TopLevelMenu.TopLevelMenuRegistry = this.ToolBarRegistry;
     }
 
     private static ObservableItemProcessorIndexing<ToolBarButton> CreateToolbarBinder(IObservableList<ToolBarButton> list, StackPanel stackPanel) {
@@ -126,9 +158,9 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
             stackPanel.Children.RemoveAt(index + originalCounter);
         }, (sender, oldIndex, newIndex, item) => {
             stackPanel.Children.MoveItem(oldIndex + originalCounter, newIndex + originalCounter);
-        }).ProcessExistingItems();
+        }).AddExistingItems();
     }
-    
+
     private void OnTimelineClipSelectionChanged(ILightSelectionManager<IClipElement> sender) {
         this.PART_ViewPort.OnClipSelectionChanged();
     }
@@ -154,47 +186,116 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
         EditorConfigurationOptions.Instance.TitleBarPrefixChanged += this.OnApplicationTitleBarPrefixChanged;
         EditorConfigurationOptions.Instance.TitleBarBrushChanged += this.OnApplicationTitleBarBrushChanged;
-        
+
         this.themeListHandler = ObservableItemProcessor.MakeIndexable(ThemeManager.Instance.Themes, (sender, index, item) => {
-            MenuItem menuItem = new MenuItem() { Header = item.Name, Tag = item };
-            menuItem.Click += this.OnSetThemeMenuItemClicked;
-            this.PART_ThemesMenuItem.Items.Insert(index, menuItem);
+            this.themesSubList.Items.Add(new SetThemeContextEntry(item));
         }, (sender, index, item) => {
-            this.PART_ThemesMenuItem.Items.RemoveAt(index);
+            this.themesSubList.Items.RemoveAt(index);
         }, (sender, oldIndex, newIndex, item) => {
-            CollectionUtils.MoveItem(this.PART_ThemesMenuItem.Items, oldIndex, newIndex);
-        }).ProcessExistingItems();
-        
+            this.themesSubList.Items.Move(oldIndex, newIndex);
+        }).AddExistingItems();
+
         ViewPortToolBarManager manager = ViewPortToolBarManager.GetInstance(this.VideoEditor);
         this.disposeWestButtons = CreateToolbarBinder(manager.WestButtons, this.PART_ToolBar_West);
         this.disposeCenterButtons = CreateToolbarBinder(manager.CenterButtons, this.PART_ToolBar_Center);
         this.disposeEastButtons = CreateToolbarBinder(manager.EastButtons, this.PART_ToolBar_East);
     }
 
-    private void OnSetThemeMenuItemClicked(object? sender, RoutedEventArgs e) {
-        Theme theme = (Theme) ((MenuItem) sender!).Tag!;
-        theme.ThemeManager.SetTheme(theme);
-        StartupConfigurationOptions.Instance.StartupTheme = theme.Name;
+    private class SetThemeContextEntry : CustomContextEntry {
+        private readonly Theme theme;
+
+        public SetThemeContextEntry(Theme theme, Icon? icon = null) : base(theme.Name, $"Sets the application's theme to '{theme.Name}'", icon) {
+            this.theme = theme;
+        }
+
+        public override Task OnExecute(IContextData context) {
+            this.theme.ThemeManager.SetTheme(this.theme);
+            StartupConfigurationOptions.Instance.StartupTheme = this.theme.Name;
+            return Task.CompletedTask;
+        }
     }
+
+#if DEBUG
+    private class TestDynamicInsertionContextEntry : CustomContextEntry {
+        private readonly ContextEntryGroup entry;
+        private readonly EditorWindow editorWindow;
+
+        public TestDynamicInsertionContextEntry(EditorWindow editorWindow, ContextEntryGroup entry, Icon? icon = null) : base("Test Dynamic Items", null, icon) {
+            this.entry = entry;
+            this.editorWindow = editorWindow;
+        }
+
+        public override Task OnExecute(IContextData context) {
+            return ActivityManager.Instance.RunTask(async () => {
+                IActivityProgress prog = ActivityManager.Instance.GetCurrentProgressOrEmpty();
+                prog.Text = "Waiting a few secs; Open 'file'";
+
+                await Task.Delay(2000);
+
+                List<int> indices = new List<int>();
+                prog.Text = "Inserting 10 items";
+                for (int i = 0; i <= 10; i += 2) {
+                    await Application.Instance.Dispatcher.InvokeAsync(() => {
+                        int idx = Math.Min(i, this.entry.Items.Count);
+                        if (i % 5 == 0) {
+                            this.entry.Items.Insert(idx, new ContextEntryGroup($"Before SubList at {i}", null));
+                            this.entry.Items.Insert(idx + 1, new DynamicGroupPlaceholderContextObject(new DynamicContextGroup(Generate)));
+                            indices.Add(idx);
+                            indices.Add(idx + 1);
+                        }
+                        else {
+                            this.entry.Items.Insert(idx, new ContextEntryGroup($"Another Test at {i}", null));
+                            indices.Add(idx); // 2
+                        }
+                    });
+
+                    prog.CompletionState.OnProgress(0.1);
+                    await Task.Delay(500);
+                }
+
+                prog.Text = "Waiting 1 sec...";
+                prog.CompletionState.TotalCompletion = 0.0;
+                await Task.Delay(3000);
+                await Application.Instance.Dispatcher.InvokeAsync(() => {
+                    prog.Text = "Removing those 10 items";
+                });
+                
+                for (int i = indices.Count - 1; i >= 0; i--) {
+                    await Application.Instance.Dispatcher.InvokeAsync(() => {
+                        this.entry.Items.RemoveAt(indices[i]);
+                        prog.CompletionState.OnProgress(0.1);
+                    });
+                    
+                    await Task.Delay(500);
+                }
+            }).Task;
+        }
+
+        private void Generate(DynamicContextGroup group, IContextData ctx, List<IContextObject> items) {
+            items.Add(new ContextEntryGroup("Sub Item 0", null));
+            items.Add(new ContextEntryGroup("Sub Item 1", null));
+            items.Add(new ContextEntryGroup("Sub Item 2", null));
+        }
+    }
+#endif
 
     protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
-        
+
         this.themeListHandler?.Dispose();
         this.themeListHandler = null;
-        this.PART_ThemesMenuItem.Items.Clear();
-        
+
         this.disposeWestButtons!.Dispose();
         this.disposeCenterButtons!.Dispose();
         this.disposeEastButtons!.Dispose();
         this.disposeWestButtons = null;
         this.disposeCenterButtons = null;
         this.disposeEastButtons = null;
-        
+
         // Prevent semantic memory leak
         EditorConfigurationOptions.Instance.TitleBarPrefixChanged -= this.OnApplicationTitleBarPrefixChanged;
         EditorConfigurationOptions.Instance.TitleBarBrushChanged -= this.OnApplicationTitleBarBrushChanged;
-        
+
         if (this.activeProject != null) {
             this.VideoEditor.CloseProject();
         }
@@ -202,7 +303,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         this.TheTimeline.OnDisconnectedFromEditor();
         this.VideoEditor.Destroy();
     }
-    
+
     private void OnApplicationTitleBarPrefixChanged(PersistentConfiguration config, PersistentProperty<string> property, string oldValue, string newValue) {
         this.UpdateWindowTitle(this.VideoEditor.Project);
     }
@@ -409,14 +510,14 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     private void PART_ToolBar_West_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
     private void PART_ToolBar_Center_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
     private void PART_ToolBar_East_OnSizeChanged(object? sender, SizeChangedEventArgs e) => this.UpdateToolBarCentering();
-    
+
     private void UpdateToolBarCentering() {
         if (this.isUpdatingToolBarCentering) {
             throw new Exception("Impossible reentrency");
         }
 
         this.isUpdatingToolBarCentering = true;
-        
+
         // Modified version of https://stackoverflow.com/a/61054009
         StackPanel centerPanel = this.PART_ToolBar_Center!;
         double centerSize = this.PART_ToolBar_Center.Bounds.Width;

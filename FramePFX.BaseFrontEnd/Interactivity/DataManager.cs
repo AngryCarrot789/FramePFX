@@ -171,7 +171,7 @@ public class DataManager {
     /// </summary>
     /// <param name="element">The element</param>
     /// <param name="inherited">The inherited context data</param>
-    public static void MakeInheritedContextData(AvaloniaObject element, IContextData inherited) {
+    public static void SetDelegateContextData(AvaloniaObject element, IContextData inherited) {
         IControlContextData? data = element.GetValue(ContextDataProperty);
         element.SetValue(ContextDataProperty, data == null ? new InheritingControlContextData(element, inherited) : data.CreateInherited(inherited));
         InvalidateInheritedContext(element);
@@ -181,7 +181,7 @@ public class DataManager {
     /// Makes the element's context data no longer inherit from anything. Only does anything if the current context is actually inheriting
     /// </summary>
     /// <param name="element">The element</param>
-    public static void ClearInheritedContextData(AvaloniaObject element) {
+    public static void ClearDelegateContextData(AvaloniaObject element) {
         IControlContextData? data = element.GetValue(ContextDataProperty);
         if (data is InheritingControlContextData inheriting) {
             element.SetValue(ContextDataProperty, new ControlContextData(element, inheriting));
@@ -189,13 +189,13 @@ public class DataManager {
         }
     }
 
-    public static void SwapInheritedContextData(AvaloniaObject element, IContextData inherited) {
+    public static void SwapDelegateContextData(AvaloniaObject element, IContextData newDelegate) {
         IControlContextData? data = element.GetValue(ContextDataProperty);
         if (data is InheritingControlContextData inheriting) {
-            data = new ControlContextData(element, inheriting).CreateInherited(inherited);
+            data = new ControlContextData(element, inheriting).CreateInherited(newDelegate);
         }
         else {
-            data = new InheritingControlContextData(element, inherited);
+            data = new InheritingControlContextData(element, newDelegate);
         }
 
         element.SetValue(ContextDataProperty, data);

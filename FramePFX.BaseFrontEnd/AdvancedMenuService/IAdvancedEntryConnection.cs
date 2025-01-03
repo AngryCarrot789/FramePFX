@@ -29,7 +29,7 @@ namespace FramePFX.BaseFrontEnd.AdvancedMenuService;
 public interface IAdvancedEntryConnection {
     IContextObject? Entry { get; }
 
-    void OnAdding(IAdvancedContainer container, ItemsControl parent, IContextObject entry);
+    void OnAdding(IAdvancedMenu menu, IAdvancedMenuOrItem parent, IContextObject entry);
     void OnAdded();
     void OnRemoving();
     void OnRemoved();

@@ -31,7 +31,7 @@ public class BaseContextEntry : IContextEntry {
 
     public StretchMode StretchMode { get; }
     
-    public BaseContextEntry(string displayName, string? description, Icon? icon = null, StretchMode stretchMode = StretchMode.None) {
+    public BaseContextEntry(string displayName, string? description = null, Icon? icon = null, StretchMode stretchMode = StretchMode.None) {
         Validate.NotNullOrWhiteSpaces(displayName);
         this.DisplayName = displayName;
         this.Description = description;

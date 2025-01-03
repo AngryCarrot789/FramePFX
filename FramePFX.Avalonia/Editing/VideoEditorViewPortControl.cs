@@ -222,10 +222,12 @@ public class VideoEditorViewPortControl : TemplatedControl, IViewPortElement {
     private void UpdateTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
         if (oldTimeline != null) {
             oldTimeline.RenderManager.FrameRendered -= this.OnFrameAvailable;
+            oldTimeline.RenderManager.BitmapsDisposed -= this.OnRenderManagerDisposed;
         }
 
         if (newTimeline != null) {
             newTimeline.RenderManager.FrameRendered += this.OnFrameAvailable;
+            newTimeline.RenderManager.BitmapsDisposed += this.OnRenderManagerDisposed;
         }
     }
 
@@ -238,6 +240,10 @@ public class VideoEditorViewPortControl : TemplatedControl, IViewPortElement {
         if (this.PART_SkiaViewPort!.BeginRenderWithSurface(manager.ImageInfo)) {
             this.PART_SkiaViewPort!.EndRenderWithSurface(manager.surface);
         }
+    }
+    
+    private void OnRenderManagerDisposed(object? sender, EventArgs e) {
+        this.PART_SkiaViewPort!.ClearRenderWithSurface();
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {

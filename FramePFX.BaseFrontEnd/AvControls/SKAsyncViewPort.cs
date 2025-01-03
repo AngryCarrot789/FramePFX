@@ -236,7 +236,7 @@ public class SKAsyncViewPort : Control {
         if (pixelSize.Width <= 0 || pixelSize.Height <= 0) {
             return false;
         }
-
+        
         this.unscaledImageInfo = frameInfo;
         this.UpdateScaledBitmap(new Vector(unscaledSize.Width == pixelSize.Width ? 96d : (96d * scaleX), unscaledSize.Height == pixelSize.Height ? 96d : (96d * scaleY)));
         this.isUsing2ndRenderingMethod = true;
@@ -250,6 +250,12 @@ public class SKAsyncViewPort : Control {
         this.RenderedBitmap = surface.PeekPixels();
 
         this.DrawRenderIntoBitmap();
+        this.InvalidateVisual();
+    }
+    
+    public void ClearRenderWithSurface() {
+        this.RenderedBitmap?.Dispose();
+        this.RenderedBitmap = null;
         this.InvalidateVisual();
     }
 

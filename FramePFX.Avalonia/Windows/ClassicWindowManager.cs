@@ -18,9 +18,9 @@
 //
 
 using System;
-using Avalonia.Controls;
 using Avalonia.Media;
 using FramePFX.AdvancedMenuService;
+using FramePFX.BaseFrontEnd.Themes.Controls;
 using FramePFX.BaseFrontEnd.Windows;
 
 namespace FramePFX.Avalonia.Windows;
@@ -28,8 +28,8 @@ namespace FramePFX.Avalonia.Windows;
 /// <summary>
 /// Classic desktop window manager, which supports standard windows and popups
 /// </summary>
-public class ClassicWindowManager : WindowManager {
-    public ClassicWindowManager(){
+public class ClassicWindowManager : NewWindowManager {
+    public ClassicWindowManager() {
     }
 
     public override IWindow CreateWindow() {
@@ -41,13 +41,7 @@ public class ClassicWindowManager : WindowManager {
     }
 
     private class ClassicWindowBaseImpl : IWindowBase {
-        private Window? window;
-        private double? MyMinWidth;
-        private double? MyMinHeight;
-        private double? MyMaxWidth;
-        private double? MyMaxHeight;
-        private double? MyWidth;
-        private double? MyHeight;
+        private readonly WindowEx window;
         
         public ContextRegistry ContextRegistry { get; set; }
         
@@ -58,36 +52,38 @@ public class ClassicWindowManager : WindowManager {
         public bool IsVisible { get; private set; }
         
         public double MinWidth {
-            get => this.window?.MinWidth ?? this.MyMinWidth ?? double.NaN;
-            set { if (this.window != null) this.window.MinWidth = value; else this.MyMinWidth = value; }
+            get => this.window.MinWidth;
+            set => this.window.MinWidth = value;
         }
         
         public double MinHeight {
-            get => this.window?.MinHeight ?? this.MyMinHeight ?? double.NaN;
-            set { if (this.window != null) this.window.MinHeight = value; else this.MyMinHeight = value; }
+            get => this.window.MinHeight;
+            set => this.window.MinHeight = value;
         }
         
         public double MaxWidth {
-            get => this.window?.MaxWidth ?? this.MyMaxWidth ?? double.NaN;
-            set { if (this.window != null) this.window.MaxWidth = value; else this.MyMaxWidth = value; }
+            get => this.window.MaxWidth;
+            set => this.window.MaxWidth = value;
         }
         
         public double MaxHeight {
-            get => this.window?.MaxHeight ?? this.MyMaxHeight ?? double.NaN;
-            set { if (this.window != null) this.window.MaxHeight = value; else this.MyMaxHeight = value; }
+            get => this.window.MaxHeight;
+            set => this.window.MaxHeight = value;
         }
         
         public double Width {
-            get => this.window?.Width ?? this.MyWidth ?? double.NaN;
-            set { if (this.window != null) this.window.Width = value; else this.MyWidth = value; }
+            get => this.window.Width;
+            set => this.window.Width = value;
         }
         
         public double Height {
-            get => this.window?.Height ?? this.MyHeight ?? double.NaN;
-            set { if (this.window != null) this.window.Height = value; else this.MyHeight = value; }
+            get => this.window.Height;
+            set => this.window.Height = value;
         }
 
         public ClassicWindowBaseImpl() {
+            this.window = new WindowEx();
+            this.window.Width = 24;
         }
 
         public void CreateWindow() {

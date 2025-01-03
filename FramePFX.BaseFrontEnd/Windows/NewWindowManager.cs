@@ -23,12 +23,12 @@ namespace FramePFX.BaseFrontEnd.Windows;
 /// Manages windows and popup instances to support multiple windows and popups on any cross-platform,
 /// even those that only support a single view (such as a raspberry PI server)
 /// </summary>
-public abstract class WindowManager {
+public abstract class NewWindowManager {
     private readonly List<IWindow> mainWindows;
     private readonly List<IDialog> dialogs;
     private readonly Avalonia.Application app;
     
-    public WindowManager() {
+    public NewWindowManager() {
         this.app = Avalonia.Application.Current ?? throw new InvalidOperationException("No application initialised");
         this.mainWindows = new List<IWindow>();
     }

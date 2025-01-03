@@ -17,15 +17,15 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Collections.Immutable;
 using FramePFX.Icons;
+using FramePFX.Utils.Collections.Observable;
 
 namespace FramePFX.AdvancedMenuService;
 
-public class SubListContextEntry : BaseContextEntry {
-    public ImmutableList<IContextObject> ItemList { get; }
+public class ContextEntryGroup : BaseContextEntry {
+    public ObservableList<IContextObject> Items { get; }
 
-    public SubListContextEntry(string displayName, string? description, IEnumerable<IContextObject> entries, Icon? icon = null, StretchMode stretchMode = StretchMode.None) : base(displayName, description, icon, stretchMode) {
-        this.ItemList = entries.ToImmutableList();
+    public ContextEntryGroup(string displayName, string? description = null, Icon? icon = null, StretchMode stretchMode = StretchMode.None) : base(displayName, description, icon, stretchMode) {
+        this.Items = new ObservableList<IContextObject>();
     }
 }

@@ -25,7 +25,7 @@ using FramePFX.Utils;
 namespace FramePFX.Persistence;
 
 /// <summary>
-/// The service which manages all application-wide persistent configurations
+/// A service which manages persistent configurations
 /// </summary>
 public sealed class PersistentStorageManager {
     private readonly List<PersistentConfiguration> allConfigs;

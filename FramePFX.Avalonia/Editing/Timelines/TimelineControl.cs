@@ -247,7 +247,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             stackPanel.Children.RemoveAt(index + originalCounter);
         }, (sender, oldIndex, newIndex, item) => {
             stackPanel.Children.MoveItem(oldIndex + originalCounter, newIndex + originalCounter);
-        }).ProcessExistingItems();
+        }).AddExistingItems();
     }
     
     public void OnDisconnectedFromEditor() {

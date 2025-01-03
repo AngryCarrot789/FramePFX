@@ -32,7 +32,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.BaseFrontEnd.AdvancedMenuService;
 
-public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
+public class AdvancedCommandMenuItem : AdvancedMenuItem {
     private bool canExecute;
     private TextBlock? InputGestureTextBlock;
 
@@ -53,7 +53,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
 
     protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
 
-    public AdvancedContextCommandMenuItem() {
+    public AdvancedCommandMenuItem() {
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
@@ -93,7 +93,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
             this.CanExecute = false;
         }
         else {
-            IContextData? ctx = this.Container?.CapturedContext;
+            IContextData? ctx = this.OwnerMenu?.CapturedContext;
             string? cmdId = this.Entry?.CommandId;
             Executability state = !string.IsNullOrWhiteSpace(cmdId) && ctx != null ? CommandManager.Instance.CanExecute(cmdId, ctx, true) : Executability.Invalid;
             this.CanExecute = state == Executability.Valid;
@@ -126,7 +126,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
     }
 
     private bool DispatchCommand(string cmdId) {
-        IContextData? context = this.Container?.CapturedContext;
+        IContextData? context = this.OwnerMenu?.CapturedContext;
         if (context == null) {
             return false;
         }

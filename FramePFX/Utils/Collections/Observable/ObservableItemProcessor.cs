@@ -23,6 +23,8 @@ public delegate void ObservableItemProcessorItemEventHandler<in T>(object sender
 
 public delegate void ObservableItemProcessorItemMovedEventHandler<in T>(object sender, int oldIndex, int newIndex, T item);
 
+public delegate void ObservableItemProcessorMultiItemEventHandler<T>(object sender, int index, IList<T> items);
+
 /// <summary>
 /// A helper class for creating observable item processors
 /// </summary>
@@ -169,13 +171,33 @@ public sealed class ObservableItemProcessorIndexing<T> : IDisposable {
     /// <summary>
     /// Invokes our item add handler(s) on all items for the list
     /// </summary>
-    /// <returns></returns>
-    public ObservableItemProcessorIndexing<T> ProcessExistingItems() {
+    public ObservableItemProcessorIndexing<T> AddExistingItems() {
         ObservableItemProcessorItemEventHandler<T>? handler = this.OnItemAdded;
         if (handler != null) {
             int i = -1;
             foreach (T item in this.list)
                 handler(this, ++i, item);
+        }
+
+        return this;
+    }
+    
+    /// <summary>
+    /// Invokes our item remove handler(s) on all items for the list
+    /// </summary>
+    public ObservableItemProcessorIndexing<T> RemoveExistingItems(bool backToFront = true) {
+        ObservableItemProcessorItemEventHandler<T>? handler = this.OnItemRemoved;
+        if (handler != null) {
+            if (backToFront) {
+                for (int i = this.list.Count - 1; i >= 0; i--) {
+                    handler(this, ++i, this.list[i]);
+                }
+            }
+            else {
+                for (int i = 0; i < this.list.Count; i++) {
+                    handler(this, i, this.list[i]);
+                }
+            }
         }
 
         return this;

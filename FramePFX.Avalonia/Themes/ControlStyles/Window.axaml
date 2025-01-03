@@ -164,7 +164,7 @@
                                     <DockPanel Background="Transparent" Margin="0,0,5,0" HorizontalAlignment="Stretch" IsHitTestVisible="False">
                                         <Image Source="{TemplateBinding Icon}"
                                                HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4,4,0,0" Height="24"/>
-                                        <TextBlock FontSize="13" Margin="5,3,0,3" TextAlignment="Left"
+                                        <TextBlock FontSize="13" Margin="5,3,0,3" TextAlignment="{TemplateBinding TitleBarTextAlignment}"
                                                    VerticalAlignment="Center" HorizontalAlignment="Stretch" TextWrapping="NoWrap"
                                                    Foreground="{TemplateBinding Foreground}"
                                                    Text="{TemplateBinding Title}"/>

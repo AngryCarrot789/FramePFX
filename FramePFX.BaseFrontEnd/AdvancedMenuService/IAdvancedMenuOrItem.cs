@@ -17,19 +17,33 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using Avalonia.Controls;
 using FramePFX.AdvancedMenuService;
-using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.BaseFrontEnd.AdvancedMenuService;
 
-public interface IAdvancedContextElement {
-    IContextData? CapturedContext { get; }
+/// <summary>
+/// An interface for either an advanced menu or an advanced menu item
+/// </summary>
+public interface IAdvancedMenuOrItem {
+    /// <summary>
+    /// Gets the advanced menu that owns this menu item. Returns the current instance if we are an <see cref="IAdvancedMenu"/>
+    /// </summary>
+    IAdvancedMenu? OwnerMenu { get; }
 
-    IAdvancedContainer? Container { get; }
+    /// <summary>
+    /// Gets this control's items collection
+    /// </summary>
+    ItemCollection Items { get; }
+
+    /// <summary>
+    /// Returns true when this menu or item is open. When true it means we can generate dynamic items using <see cref="IAdvancedMenu.CapturedContext"/>
+    /// </summary>
+    bool IsOpen { get; }
 
     /// <summary>
     /// Stores the dynamic group for insertion at the given index inside this element's item
-    /// list. Post-processing must be done on this index during generation
+    /// list. Post-processing must be done on this index during generation (at OnLoaded)
     /// </summary>
     /// <param name="groupPlaceholder">The dynamic group</param>
     /// <param name="index">The unprocessed index</param>

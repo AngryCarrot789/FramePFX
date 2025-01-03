@@ -27,7 +27,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.BaseFrontEnd.AdvancedMenuService;
 
-public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem {
+public class AdvancedCustomMenuItem : AdvancedMenuItem {
     private bool canExecute;
 
     public new CustomContextEntry? Entry => (CustomContextEntry?) base.Entry;
@@ -47,7 +47,7 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem {
 
     protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
 
-    public AdvancedContextCustomMenuItem() {
+    public AdvancedCustomMenuItem() {
     }
 
     public override void UpdateCanExecute() {
@@ -58,7 +58,7 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem {
             this.CanExecute = false;
         }
         else if (this.Entry is CustomContextEntry entry) {
-            IContextData ctx = this.Container?.CapturedContext ?? EmptyContext.Instance;
+            IContextData ctx = this.OwnerMenu?.CapturedContext ?? EmptyContext.Instance;
             this.CanExecute = entry.CanExecute(ctx);
         }
         else {
@@ -95,7 +95,7 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem {
     }
 
     private bool DispatchCommand(CustomContextEntry entry) {
-        IContextData context = this.Container?.CapturedContext ?? EmptyContext.Instance;
+        IContextData context = this.OwnerMenu?.CapturedContext ?? EmptyContext.Instance;
         if (!entry.CanExecute(context)) {
             return false;
         }
@@ -118,6 +118,7 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem {
             }
         }
         finally {
+            this.IsExecuting = false;
             this.UpdateCanExecute();
         }
     }

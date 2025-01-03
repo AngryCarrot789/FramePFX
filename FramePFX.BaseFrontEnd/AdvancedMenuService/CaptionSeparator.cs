@@ -39,7 +39,7 @@ public class CaptionSeparator : TemplatedControl, IAdvancedEntryConnection {
     public CaptionSeparator() {
     }
 
-    public void OnAdding(IAdvancedContainer container, ItemsControl parent, IContextObject entry) {
+    public void OnAdding(IAdvancedMenu menu, IAdvancedMenuOrItem parent, IContextObject entry) {
         this.Entry = (CaptionEntry) entry;
     }
 

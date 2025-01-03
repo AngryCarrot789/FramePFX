@@ -30,7 +30,7 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.BaseFrontEnd.AdvancedMenuService;
 
-public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedContextElement {
+public sealed class AdvancedContextMenu : ContextMenu, IAdvancedMenu {
     // We maintain a map of the registries to the context menu. This is to
     // save memory, since we don't have to create a context menu for each handler
     private static readonly Dictionary<ContextRegistry, AdvancedContextMenu> contextMenus;
@@ -54,7 +54,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
     private bool ignoreUpdateNormalisation;
 
     public IContextData? CapturedContext { get; private set; }
-    IAdvancedContainer IAdvancedContextElement.Container => this;
+    IAdvancedMenu IAdvancedMenuOrItem.OwnerMenu => this;
 
     public AdvancedContextMenu() {
         this.captionBinder = new GetSetAutoUpdateAndEventPropertyBinder<ContextRegistry>(ContextCaptionProperty, nameof(this.ContextRegistry.CaptionChanged), (b) => b.Model.Caption, null);
@@ -70,7 +70,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
             return;
 
         this.ignoreUpdateNormalisation = true;
-        MenuService.NormaliseSeparators(this);
+        AdvancedMenuService.NormaliseSeparators(this);
         this.ignoreUpdateNormalisation = false;
     }
 
@@ -80,7 +80,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
     }
 
     protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey) {
-        return new AdvancedContextMenuItem();
+        return new AdvancedMenuItem();
     }
 
     protected override bool NeedsContainerOverride(object? item, int index, out object? recycleKey) {
@@ -109,9 +109,9 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        MenuService.GenerateDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
+        AdvancedMenuService.GenerateDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
         Dispatcher.UIThread.InvokeAsync(() => {
-            MenuService.NormaliseSeparators(this);
+            AdvancedMenuService.NormaliseSeparators(this);
             this.ignoreUpdateNormalisation = false;
         }, DispatcherPriority.Loaded);
 
@@ -124,7 +124,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
 
     protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
-        MenuService.ClearDynamicItems(this, ref this.dynamicInserted);
+        AdvancedMenuService.ClearDynamicItems(this, ref this.dynamicInserted);
         this.captionBinder.Detach();
         if (this.ContextRegistry.IsOpened)
             this.ContextRegistry.OnClosed();
@@ -135,13 +135,13 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
     }
 
     private void ClearContext() {
-        DataManager.ClearInheritedContextData(this);
+        DataManager.ClearDelegateContextData(this);
         this.CapturedContext = null;
         this.currentTarget = null;
     }
 
     private void CaptureContextFromObject(InputElement inputElement) { ;
-        DataManager.MakeInheritedContextData(this, this.CapturedContext = DataManager.GetFullContextData(inputElement));
+        DataManager.SetDelegateContextData(this, this.CapturedContext = DataManager.GetFullContextData(inputElement));
     }
 
     private static void OnContextRegistryChanged(Control target, ContextRegistry? oldValue, ContextRegistry? newValue) {
@@ -175,7 +175,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
                     }
                 }
 
-                MenuService.InsertItemNodes(menu, menu, contextObjects);
+                AdvancedMenuService.InsertItemNodes(menu, contextObjects);
 
                 // int sI = 0;
                 // if (sI++ != 0)
@@ -210,11 +210,11 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
         return this.owners.Count == 0;
     }
 
-    public bool PushCachedItem(Type entryType, Control item) => MenuService.PushCachedItem(this.itemCache, entryType, item);
+    public bool PushCachedItem(Type entryType, Control item) => AdvancedMenuService.PushCachedItem(this.itemCache, entryType, item);
 
-    public Control? PopCachedItem(Type entryType) => MenuService.PopCachedItem(this.itemCache, entryType);
+    public Control? PopCachedItem(Type entryType) => AdvancedMenuService.PopCachedItem(this.itemCache, entryType);
 
-    public Control CreateChildItem(IContextObject entry) => MenuService.CreateChildItem(this, entry);
+    public Control CreateItem(IContextObject entry) => AdvancedMenuService.CreateChildItem(this, entry);
 
     public void StoreDynamicGroup(DynamicGroupPlaceholderContextObject groupPlaceholder, int index) {
         (this.dynamicInsertion ??= new Dictionary<int, DynamicGroupPlaceholderContextObject>())[index] = groupPlaceholder;

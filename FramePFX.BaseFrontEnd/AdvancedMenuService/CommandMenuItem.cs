@@ -155,7 +155,7 @@ public class CommandMenuItem : MenuItem {
         base.OnClick(e);
         Dispatcher.UIThread.Post(async void () => {
             try {
-                await AdvancedContextCommandMenuItem.ExecuteCommandAndHandleError(cmdId, context);
+                await AdvancedCommandMenuItem.ExecuteCommandAndHandleError(cmdId, context);
             }
             catch {
                 // ignored, should be handled above

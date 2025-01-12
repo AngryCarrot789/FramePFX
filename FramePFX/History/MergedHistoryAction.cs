@@ -26,9 +26,9 @@ public class MergedHistoryAction : IHistoryAction {
         this.actions = actions ?? throw new ArgumentNullException(nameof(actions));
     }
 
-    public bool Undo() {
+    public async Task<bool> Undo() {
         for (int i = this.actions.Length - 1; i >= 0; i--) {
-            if (!this.actions[i].Undo()) {
+            if (!await this.actions[i].Undo()) {
                 return false;
             }
         }
@@ -36,13 +36,19 @@ public class MergedHistoryAction : IHistoryAction {
         return true;
     }
 
-    public bool Redo() {
+    public async Task<bool> Redo() {
         for (int i = 0; i < this.actions.Length; i++) {
-            if (!this.actions[i].Redo()) {
+            if (!await this.actions[i].Redo()) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    public void Dispose() {
+        foreach (IHistoryAction t in this.actions) {
+            t.Dispose();
+        }
     }
 }

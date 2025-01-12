@@ -76,14 +76,21 @@ public class HistoryManager {
     }
 
     private void ClearUndoBuffer() {
+        foreach (IHistoryAction t in this.undoList)
+            t.Dispose();
+        
         this.undoList.Clear();
     }
 
     private void ClearRedoBuffer() {
+        foreach (IHistoryAction t in this.redoList)
+            t.Dispose();
+        
         this.redoList.Clear();
     }
 
     private void RemoveFirstUndoable() {
+        this.undoList.First!.Value.Dispose();
         this.undoList.RemoveFirst();
     }
 
@@ -114,28 +121,28 @@ public class HistoryManager {
         }
     }
 
-    public void Undo() => this.PerformUndoOrRedo(true);
+    public Task PerformUndo() => this.PerformUndoOrRedo(true);
 
-    public void Redo() => this.PerformUndoOrRedo(false);
+    public Task PerformRedo() => this.PerformUndoOrRedo(false);
 
-    private void PerformUndoOrRedo(bool isUndo) {
+    private async Task PerformUndoOrRedo(bool isUndo) {
         this.CheckStateForUndoOrRedo(isUndo);
 
         LinkedList<IHistoryAction> srcList = isUndo ? this.undoList : this.redoList;
         LinkedList<IHistoryAction> dstList = isUndo ? this.redoList : this.undoList;
 
-        IHistoryAction action = srcList.Last.Value;
+        IHistoryAction action = srcList.Last!.Value;
 
         bool success = false;
         try {
             try {
                 if (isUndo) {
                     this.IsUndoInProgress = false;
-                    success = action.Undo();
+                    success = await action.Undo();
                 }
                 else {
                     this.IsRedoInProgress = false;
-                    success = action.Redo();
+                    success = await action.Redo();
                 }
             }
             finally {
@@ -148,7 +155,7 @@ public class HistoryManager {
             }
         }
         catch (Exception e) {
-            IMessageDialogService.Instance.ShowMessage((isUndo ? "Undo" : "Redo") + " Error", "An exception occurred while performing history action", e.GetToString());
+            await IMessageDialogService.Instance.ShowMessage((isUndo ? "Undo" : "Redo") + " Error", "An exception occurred while performing history action", e.GetToString());
         }
 
         if (success) {
@@ -179,7 +186,7 @@ public class HistoryManager {
     /// once all completed allow them to be grouped together as a single action
     /// </summary>
     /// <returns></returns>
-    public IDisposable ExecuteMerged() {
+    public IDisposable BeginMergedSection() {
         this.OnBeginExecutionSection();
         return new MergedSection(this);
     }
@@ -195,8 +202,8 @@ public class HistoryManager {
         }
     }
 
-    public class MergedSection : IDisposable {
-        private HistoryManager manager;
+    private class MergedSection : IDisposable {
+        private HistoryManager? manager;
 
         public MergedSection(HistoryManager manager) {
             this.manager = manager;

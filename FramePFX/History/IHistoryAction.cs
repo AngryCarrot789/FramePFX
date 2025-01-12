@@ -24,11 +24,16 @@ public interface IHistoryAction {
     /// Undoes this action
     /// </summary>
     /// <returns>True if the undo was successful, otherwise false, meaning this action stays at the top of the undo stack</returns>
-    bool Undo();
+    Task<bool> Undo();
 
     /// <summary>
     /// Redoes this action
     /// </summary>
     /// <returns>True if the redo was successful, otherwise false, meaning this action stays at the top of the redo stack</returns>
-    bool Redo();
+    Task<bool> Redo();
+
+    /// <summary>
+    /// Disposes this history action. This is called when it is no longer reachable/deleted (e.g. it was undone then another action was executed, meaning the history got cleared)
+    /// </summary>
+    void Dispose();
 }

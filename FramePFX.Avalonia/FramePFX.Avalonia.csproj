@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
@@ -138,7 +138,7 @@
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="xcopy /y &quot;$(SolutionDir)NativeEngineBinaries\*.dll&quot; $(TargetDir)&#xA;"/>
+        <Exec Command="xcopy /y &quot;$(SolutionDir)NativeEngineBinaries\*.dll&quot; $(TargetDir)&#xA;" ContinueOnError="true"/>
         <!-- Allow the ffmpeg copy command to fail. FFmpeg is now optional -->
         <Exec Command="xcopy /y &quot;$(SolutionDir)ffmpeg\bin\*.dll&quot; $(TargetDir)" ContinueOnError="true"/>
     </Target>

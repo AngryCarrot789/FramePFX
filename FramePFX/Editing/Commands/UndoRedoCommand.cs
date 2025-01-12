@@ -48,7 +48,7 @@ public abstract class UndoRedoCommand : Command {
             IMessageDialogService.Instance.ShowMessage("Cannot Undo", "An undo action is already in progress... somehow");
         }
         else {
-            editor.HistoryManager.Undo();
+            editor.HistoryManager.PerformUndo();
         }
     }
 
@@ -62,7 +62,7 @@ public abstract class UndoRedoCommand : Command {
             IMessageDialogService.Instance.ShowMessage("Cannot Redo", "A redo action is already in progress... somehow");
         }
         else {
-            editor.HistoryManager.Redo();
+            editor.HistoryManager.PerformRedo();
         }
     }
 }

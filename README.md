@@ -29,8 +29,9 @@ To cancel the render you just click Cancel on the dialog behind the export progr
 The grey panel below "Exporter: FFmpeg" is encoder-specific details
 ![](FramePFX-DesktopUI_2024-12-07_00.13.06.png)
 
-### Customisable GUI!
-Themes can be customised to your linking (still WIP, cannot be saved as of now, but it can assist in making hard coded XAML themes)
+## Customisable GUI!
+Themes can be customised to your linking. They can be saved to disk and modified in-app. The built-in 
+themes (Dark and Light) should not be modified because changes aren't saved. You should create a copy and modify that copy instead
 ![](FramePFX-DesktopUI_2024-12-29_08.30.49.png)
 
 # Building

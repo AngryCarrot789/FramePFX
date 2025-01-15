@@ -116,7 +116,7 @@
                 </c:GroupBox>
                 <c:GroupBox Grid.Column="4" BorderThickness="0" Header="Property Editor" BorderBrush="{DynamicResource PanelBorderBrush}"
                             avalonia:UIInputManager.FocusPath="EditorWindow/PropertyEditor" Focusable="True">
-                    <Border Background="{DynamicResource PanelBackground3}">
+                    <Border Background="{DynamicResource PanelBackground2}">
                         <propertyEditing:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
                     </Border>
                 </c:GroupBox>

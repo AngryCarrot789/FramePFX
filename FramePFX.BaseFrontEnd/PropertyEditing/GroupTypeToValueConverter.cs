@@ -25,12 +25,12 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing;
 
-public class GroupTypeToStyleConverter : IValueConverter {
-    public ControlTheme PrimaryExpander { get; set; }
-    public ControlTheme SecondaryExpander { get; set; }
-    public ControlTheme NoExpanderStyle { get; set; }
+public class GroupTypeToValueConverter : IValueConverter {
+    public object PrimaryExpander { get; set; }
+    public object SecondaryExpander { get; set; }
+    public object NoExpanderStyle { get; set; }
 
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
         if (value == AvaloniaProperty.UnsetValue || !(value is GroupType groupType)) {
             return AvaloniaProperty.UnsetValue;
         }
@@ -43,7 +43,13 @@ public class GroupTypeToStyleConverter : IValueConverter {
         }
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         throw new NotImplementedException();
     }
+}
+
+public class GroupTypeToThicknessConverter : GroupTypeToValueConverter {
+    public new Thickness PrimaryExpander { get => (Thickness) base.PrimaryExpander; set => base.PrimaryExpander = value; }
+    public new Thickness SecondaryExpander { get => (Thickness) base.SecondaryExpander; set => base.SecondaryExpander = value; }
+    public new Thickness NoExpanderStyle { get => (Thickness) base.NoExpanderStyle; set => base.NoExpanderStyle = value; }
 }

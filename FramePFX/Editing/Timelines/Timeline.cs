@@ -26,6 +26,7 @@ using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Logging;
 using FramePFX.Services;
 using FramePFX.Utils;
 using FramePFX.Utils.BTE;
@@ -40,6 +41,8 @@ public delegate void TimelineTrackMovedEventHandler(Timeline timeline, Track tra
 public delegate void TimelineEventHandler(Timeline timeline);
 
 public delegate void PlayHeadChangedEventHandler(Timeline timeline, long oldValue, long newValue);
+
+public delegate void TimelineScrubEventHandler(Timeline timeline, PlayHeadType type);
 
 public class Timeline : ITransferableData, IServiceable, IDestroy {
     public static readonly ContextRegistry ContextRegistry = new ContextRegistry("Timeline");
@@ -178,6 +181,12 @@ public class Timeline : ITransferableData, IServiceable, IDestroy {
 
     public ServiceManager ServiceManager { get; }
 
+    /// <summary>
+    /// Gets the play head being scrubbed currently. This is used to delay expensive
+    /// operations (when a play head value changes) until the scrubbing ends
+    /// </summary>
+    public PlayHeadType ScrubbingPlayHead { get; private set; }
+
     public event TimelineTrackIndexEventHandler? TrackAdded;
     public event TimelineTrackIndexEventHandler? TrackRemoved;
     public event TimelineTrackMovedEventHandler? TrackMoved;
@@ -187,6 +196,8 @@ public class Timeline : ITransferableData, IServiceable, IDestroy {
     public event PlayHeadChangedEventHandler? StopHeadChanged;
     public event TimelineEventHandler? IsLoopRegionEnabledChanged;
     public event TimelineEventHandler? LoopRegionChanged;
+    public event TimelineScrubEventHandler? BeginScrub;
+    public event TimelineScrubEventHandler? EndScrub;
 
     private readonly List<Track> tracks;
     private long maxDuration;
@@ -424,6 +435,25 @@ public class Timeline : ITransferableData, IServiceable, IDestroy {
         if (frame >= this.maxDuration) {
             this.MaxDuration = frame + 1000;
         }
+    }
+
+    public void BeginScrubPlayHead(PlayHeadType type) {
+        if (this.ScrubbingPlayHead != PlayHeadType.None)
+            throw new InvalidOperationException("Already scrubbing");
+
+        this.ScrubbingPlayHead = type;
+        this.BeginScrub?.Invoke(this, type);
+        AppLogger.Instance.WriteLine("Begin Scrub Play Head: " + type);
+    }
+
+    public void EndScrubPlayHead(PlayHeadType type) {
+        if (this.ScrubbingPlayHead != type) {
+            throw new InvalidOperationException("Attempt to end scrubbing on a different playhead type");
+        }
+
+        this.EndScrub?.Invoke(this, type);
+        this.ScrubbingPlayHead = PlayHeadType.None;
+        AppLogger.Instance.WriteLine("End Scrub Play Head: " + type);
     }
 
     internal static void InternalSetMainTimelineProjectReference(Timeline timeline, Project project) {

@@ -19,12 +19,14 @@
 
 using System.Numerics;
 using FFmpeg.AutoGen;
+using FramePFX.Editing;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.NewResourceHelper;
+using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips.Video;
-using FramePFX.FFmpegWrapper;
 using FramePFX.Logging;
 using FramePFX.Plugins.FFmpegMedia.Resources;
+using FramePFX.Plugins.FFmpegMedia.Wrappers;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -80,6 +82,20 @@ public class AVMediaVideoClip : VideoClip {
         };
     }
 
+    protected override void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
+        base.OnTimelineChanged(oldTimeline, newTimeline);
+        if (oldTimeline != null)
+            oldTimeline.EndScrub -= this.OnTimelineScrubEnded;
+        if (newTimeline != null)
+            newTimeline.EndScrub += this.OnTimelineScrubEnded;
+    }
+
+    private void OnTimelineScrubEnded(Timeline timeline, PlayHeadType type) {
+        if (type == PlayHeadType.PlayHead && this.FrameSpan.Intersects(timeline.PlayHeadPosition)) {
+            this.InvalidateRender();
+        }
+    }
+
     public override Vector2? GetRenderSize() {
         if (MediaKey.TryGetResource(this, out ResourceAVMedia? resource) && resource.GetResolution() is SKSizeI size)
             return new Vector2(size.Width, size.Height);
@@ -88,11 +104,9 @@ public class AVMediaVideoClip : VideoClip {
     }
 
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
-        if (!MediaKey.TryGetResource(this, out ResourceAVMedia? resource))
+        if (this.Timeline!.ScrubbingPlayHead == PlayHeadType.PlayHead || !MediaKey.TryGetResource(this, out ResourceAVMedia? resource)) {
             return false;
-
-        // if (!this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia? resource))
-        //     return false;
+        }
 
         if (resource.stream == null || resource.Demuxer == null)
             return false;

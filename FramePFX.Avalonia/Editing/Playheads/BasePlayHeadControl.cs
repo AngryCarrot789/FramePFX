@@ -24,6 +24,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using FramePFX.Avalonia.Editing.Timelines;
+using FramePFX.Editing;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.UI;
 
@@ -61,7 +62,7 @@ public abstract class BasePlayHeadControl : TemplatedControl {
         set => this.SetValue(AdditionalOffsetProperty, value);
     }
 
-    private Timeline? myTimeline;
+    protected Timeline? myTimeline;
     private long myFrame;
     private double myZoom;
 
@@ -75,7 +76,10 @@ public abstract class BasePlayHeadControl : TemplatedControl {
                 return;
 
             switch (this.PlayHeadType) {
-                case PlayHeadType.PlayHead: this.myTimeline.PlayHeadPosition = value; break;
+                case PlayHeadType.PlayHead: 
+                    using (this.myTimeline.RenderManager.UseSlowRenderDispatch())
+                        this.myTimeline.PlayHeadPosition = value; 
+                break;
                 case PlayHeadType.StopHead: this.myTimeline.StopHeadPosition = value; break;
             }
         }

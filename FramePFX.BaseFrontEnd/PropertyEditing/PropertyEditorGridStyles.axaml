@@ -174,9 +174,10 @@
         <Style Selector="^:expanded /template/ ContentPresenter#ExpandSite">
             <Setter Property="IsVisible" Value="true"/>
         </Style>
-        <!-- <Style Selector="^:expanded /template/ Border#PART_BorderThing"> -->
-        <!--     <Setter Property="CornerRadius" Value="2,2,0,0"/> -->
-        <!-- </Style> -->
+        <Style Selector="^:expanded /template/ Border#PART_BorderThing">
+            <!-- <Setter Property="CornerRadius" Value="2,2,0,0"/> -->
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        </Style>
         <Style Selector="^[IsEnabled=False]">
             <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
         </Style>

@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using FramePFX.Services.Messaging;
@@ -29,6 +30,7 @@ public delegate void ResourceSlotResourceChangedEventHandler(IResourceHolder own
 
 public class ResourceHelper {
     private Dictionary<ResourceSlot, ResourceItem>? references;
+    private Dictionary<ResourceItem, List<ResourceSlot>>? itemToSlotRefs;
     private Dictionary<int, SlotInstanceData>? paramData;
     private List<(ResourceSlot, ulong)>? resourcesToLoad; // used for both serialisation and project ref change 
     private ResourceManager? manager; // the current manager reference
@@ -107,9 +109,19 @@ public class ResourceHelper {
         ResourceItem? oldResource = null;
         if (this.references != null && this.references.TryGetValue(slot, out oldResource)) {
             ResourceItem.RemoveReference(oldResource, this.Owner);
+            if (this.itemToSlotRefs != null && this.itemToSlotRefs.TryGetValue(oldResource, out List<ResourceSlot>? oldList)) {
+                oldList.Remove(slot);
+            }
         }
 
         (this.references ??= new Dictionary<ResourceSlot, ResourceItem>())[slot] = resource;
+        this.itemToSlotRefs ??= new Dictionary<ResourceItem, List<ResourceSlot>>();
+        if (!this.itemToSlotRefs.TryGetValue(resource, out List<ResourceSlot>? list))
+            this.itemToSlotRefs[resource] = list = new List<ResourceSlot>();
+
+        if (!list.Contains(slot))
+            list.Add(slot);
+        
         ResourceItem.AddReference(resource, this.Owner);
         InternalEndValueChange(slot, this.Owner, oldResource, resource);
     }
@@ -118,6 +130,8 @@ public class ResourceHelper {
         if (this.references != null && this.references.TryGetValue(slot, out ResourceItem? oldResource)) {
             InternalBeginValueChange(slot, this);
             this.references.Remove(slot);
+            if (this.itemToSlotRefs != null && this.itemToSlotRefs.TryGetValue(oldResource, out List<ResourceSlot>? list))
+                list.Remove(slot);
             ResourceItem.RemoveReference(oldResource, this.Owner);
             InternalEndValueChange(slot, this.Owner, oldResource, null);
         }
@@ -146,6 +160,18 @@ public class ResourceHelper {
 
     public bool IsValueChanging(ResourceSlot slot) {
         return this.TryGetParameterData(slot, out SlotInstanceData? data) && data.isValueChanging;
+    }
+
+    /// <summary>
+    /// Returns all slots referencing the resource item. In most
+    /// cases, this will return zero or one item, rarely more than one though.
+    /// </summary>
+    /// <param name="item">The resource</param>
+    /// <returns>The slots</returns>
+    public IEnumerable<ResourceSlot> GetSlotsFromResource(ResourceItem item) {
+        return this.itemToSlotRefs != null && this.itemToSlotRefs.TryGetValue(item, out List<ResourceSlot>? list) 
+            ? list.ToList() 
+            : ReadOnlyCollection<ResourceSlot>.Empty;
     }
 
     private bool TryGetParameterData(ResourceSlot slot, [NotNullWhen(true)] out SlotInstanceData? data) {
@@ -254,13 +280,23 @@ public class ResourceHelper {
         if (ReferenceEquals(this.manager, manager))
             return;
 
-        if (this.manager != null)
+        if (this.manager != null) {
             this.OnResourceManagerUnloaded();
+            this.manager.ResourceRemoved -= this.OnResourceRemovedFromManager;
+        }
 
-        if (manager != null)
+        if (manager != null) {
             this.OnResourceManagerLoaded(manager, notFoundIds, limitReachedResources);
+            manager.ResourceRemoved += this.OnResourceRemovedFromManager;
+        }
     }
 
+    private void OnResourceRemovedFromManager(ResourceManager manager, ResourceItem item) {
+        foreach (ResourceSlot slot in this.GetSlotsFromResource(item)) {
+            this.ClearResource(slot);
+        }
+    }
+    
     public void WriteToRootBTE(BTEDictionary data) {
         if (this.references == null)
             return;

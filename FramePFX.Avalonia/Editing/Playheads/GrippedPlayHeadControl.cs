@@ -44,6 +44,8 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
         this.PART_ThumbHead = e.NameScope.Find("PART_ThumbHead") as Thumb;
         this.PART_ThumbBody = e.NameScope.Find("PART_ThumbBody") as Thumb;
         if (this.PART_ThumbHead != null) {
+            this.PART_ThumbHead.DragStarted += this.PART_ThumbHeadOnDragStarted;
+            this.PART_ThumbHead.DragCompleted += this.PART_ThumbHeadOnDragCompleted;
             this.PART_ThumbHead.DragDelta += this.PART_ThumbOnDragDelta;
             
             this.PART_ThumbHead.AddHandler(KeyDownEvent, this.OnKey, RoutingStrategies.Tunnel, true);
@@ -51,10 +53,20 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
         }
 
         if (this.PART_ThumbBody != null) {
+            this.PART_ThumbBody.DragStarted += this.PART_ThumbHeadOnDragStarted;
+            this.PART_ThumbBody.DragCompleted += this.PART_ThumbHeadOnDragCompleted;
             this.PART_ThumbBody.DragDelta += this.PART_ThumbOnDragDelta;
             this.PART_ThumbBody.AddHandler(KeyDownEvent, this.OnKey, RoutingStrategies.Tunnel, true);
             this.PART_ThumbBody.AddHandler(KeyUpEvent, this.OnKey, RoutingStrategies.Tunnel, true);
         }
+    }
+
+    private void PART_ThumbHeadOnDragStarted(object? sender, VectorEventArgs e) {
+        this.myTimeline?.BeginScrubPlayHead(this.PlayHeadType);
+    }
+    
+    private void PART_ThumbHeadOnDragCompleted(object? sender, VectorEventArgs e) {
+        this.myTimeline?.EndScrubPlayHead(this.PlayHeadType);
     }
 
     private void OnKey(object? sender, KeyEventArgs e) {

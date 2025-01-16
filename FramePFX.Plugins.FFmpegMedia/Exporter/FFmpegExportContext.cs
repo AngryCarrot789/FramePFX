@@ -25,8 +25,8 @@ using FramePFX.Editing.Automation;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
-using FramePFX.FFmpegWrapper;
 using FramePFX.Logging;
+using FramePFX.Plugins.FFmpegMedia.Wrappers;
 using FramePFX.Utils;
 using SkiaSharp;
 

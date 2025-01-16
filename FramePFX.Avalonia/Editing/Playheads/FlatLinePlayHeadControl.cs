@@ -52,6 +52,10 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
     protected override void OnPointerReleased(PointerReleasedEventArgs e) {
         base.OnPointerReleased(e);
         e.Handled = true;
+        if (this.dragState == StateActive) {
+            this.myTimeline?.EndScrubPlayHead(this.PlayHeadType);
+        }
+        
         this.SetDragState(StateNone);
         if (ReferenceEquals(e.Pointer.Captured, this))
             e.Pointer.Capture(null);
@@ -61,6 +65,10 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
         base.OnPointerMoved(e);
         Point mPos = e.GetPosition(this);
         if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) {
+            if (this.dragState == StateActive) {
+                this.myTimeline?.EndScrubPlayHead(this.PlayHeadType);
+            }
+
             this.SetDragState(StateNone);
             if (ReferenceEquals(e.Pointer.Captured, this))
                 e.Pointer.Capture(null);
@@ -78,6 +86,7 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
             }
 
             this.SetDragState(StateActive);
+            this.myTimeline?.BeginScrubPlayHead(this.PlayHeadType);
         }
 
         if (this.dragState == StateNone) {

@@ -162,6 +162,7 @@ public partial class App : global::Avalonia.Application {
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
         ((ApplicationImpl) Application.Instance).StartupPhaseImpl = ApplicationStartupPhase.Stopping;
+        Application.Instance.PluginLoader.OnApplicationExiting();
         
         PersistentStorageManager manager = Application.Instance.PersistentStorageManager;
 
@@ -173,7 +174,6 @@ public partial class App : global::Avalonia.Application {
         }
 
         manager.SaveAll();
-        Application.Instance.PluginLoader.OnApplicationExiting();
         ApplicationImpl.InternalOnExiting(e.ApplicationExitCode);
     }
 }

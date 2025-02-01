@@ -30,6 +30,7 @@ public class DataParameterEnumInfo<TEnum> where TEnum : struct, Enum {
     public static readonly ReadOnlyCollection<TEnum> EnumValues = Enum.GetValues<TEnum>().ToList().AsReadOnly();
     public static readonly IReadOnlySet<TEnum> EnumValuesSet = new HashSet<TEnum>(EnumValues);
     public static readonly ReadOnlyCollection<TEnum> EnumValuesOrderedByName = Enum.GetValues<TEnum>().OrderBy(x => x.ToString()).ToList().AsReadOnly();
+    public static readonly TEnum DefaultValue = default(TEnum);
     
     /// <summary>
     /// Returns a list of allowed enum values which are also mapped to a readable string name

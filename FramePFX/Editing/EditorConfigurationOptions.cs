@@ -27,11 +27,11 @@ namespace FramePFX.Editing;
 /// </summary>
 public sealed class EditorConfigurationOptions : PersistentConfiguration {
     public static EditorConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<EditorConfigurationOptions>();
-    
+
     public static readonly PersistentProperty<string> TitleBarPrefixProperty = PersistentProperty.RegisterString<EditorConfigurationOptions>(nameof(TitleBarPrefix), "Bootleg sony vegas (FramePFX v2.0.1)", x => x.titleBar, (x, y) => x.titleBar = y, false);
     public static readonly PersistentProperty<ulong> TitleBarBrushProperty = PersistentProperty.RegisterParsable<ulong, EditorConfigurationOptions>(nameof(TitleBarBrush), (ulong) SKColors.Red, x => (ulong) x.titleBarBrush, (x, y) => x.titleBarBrush = (SKColor) y, false);
     public static readonly PersistentProperty<bool> UseIconAntiAliasingProperty = PersistentProperty.RegisterBool<EditorConfigurationOptions>(nameof(UseIconAntiAliasing), false, x => x.useIconAntiAliasing, (x, y) => x.useIconAntiAliasing = y, false);
-    
+
     private string titleBar = null!;
     private SKColor titleBarBrush;
     private bool useIconAntiAliasing;
@@ -49,7 +49,7 @@ public sealed class EditorConfigurationOptions : PersistentConfiguration {
         get => (SKColor) TitleBarBrushProperty.GetValue(this);
         set => TitleBarBrushProperty.SetValue(this, (ulong) value);
     }
-    
+
     /// <summary>
     /// Gets or sets if antialiasing should be used to render icons. Default is true.
     /// Changing this value may require a restart to affect all icons
@@ -63,7 +63,7 @@ public sealed class EditorConfigurationOptions : PersistentConfiguration {
         add => TitleBarPrefixProperty.AddValueChangeHandler(this, value);
         remove => TitleBarPrefixProperty.RemoveValueChangeHandler(this, value);
     }
-    
+
     public event PersistentPropertyInstanceValueChangeEventHandler<ulong>? TitleBarBrushChanged {
         add => TitleBarBrushProperty.AddValueChangeHandler(this, value);
         remove => TitleBarBrushProperty.RemoveValueChangeHandler(this, value);

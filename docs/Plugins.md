@@ -1,8 +1,8 @@
 # Plugin System Overview
 A recent update allows support for plugins, either core projects or dynamically loaded plugins.
 
-### Core projects
-These are not really plugins, but instead modules. They are projects referenced by the main project and are loaded before dynamic plugins.
+### Core plugins
+These are more like 'modules' of the application. They are projects referenced by the main project and are loaded before dynamic plugins.
 
 For example, the FFmpegMedia plugin is a core plugin, and implements exporting   
 and playback of media files. This core plugin is only loaded when FFmpeg is available
@@ -17,24 +17,41 @@ The only dynamic plugin is `CircleClipPlugin`, which is a test plugin which adds
 
 So far, plugins are able to do a fair amount of things, such as:
 - Registering custom exporters (see FFmpegMedia plugin which adds an FFmpeg exporter, to export .mp4 files)
-- Custom configuration pages (still slightly WIP; no built-in way to save data to disk)
+- Custom configuration pages, and files (using built in persistent storage system)
 - Custom data parameters and property editor slots  (aka rows)
 - Custom clips (see FFmpegMedia plugin which adds a video clip to play videos)
 - Custom commands
 - Adding context menu entries to clip, track and resource context menus
 - Resource drop-in-timeline handling
 - Handling native files dropped in resource manager
+- Custom timeline and viewport toolbar buttons
 
 ... And a few others. There's still lots that cannot be done yet. A few of the main things are:
-- Cannot add menus to the editor's top-level menu
 - Custom panels in the UI
 - Access to the keyframe UI system, thought I can't see why a plugin would want to access this
+
+# Plugin lifetime
+This is the order of API methods that are called into a plugin:
+- `OnCreated`: Invoked just after the constructor is invoked and the properties (Descriptor, PluginLoader and folder) are set.
+- `RegisterCommands`: Register your commands here.
+- `RegisterServices`: Register your services here
+- `RegisterConfigurations`: Register your persistent configs
+- `GetXamlResources`: Add the path of your .axaml files (relative to your plugin project) that should be loaded and added to the application's `MergedDictionaries` list
+- `OnApplicationLoaded`: Invoked once all application states are ready. No editor window will be open at this point.
+- `OnApplicationExiting`: Invoked once the application is about to exit. This is called before persistent configs are saved, so here is where you can synchronize them with the application if you're not already doing it dynamically
+
+Remarks on `OnApplicationLoaded`: This is where you can register application event handlers, your UI controls, custom clips, custom resources, exporters, context menu entries, property editor slot controls, and lots more. 
+This method is async so there is no rush to do things quickly here.
+
+See `FFmpegMediaPlugin` for examples on things to register and hook into.
+
+
 
 # FramePFX API
 This section describes the main APIs of FramePFX. This is still being updated
 
 ## Property Editor
-The property editor system is a highly customisable framework, which also makes it somewhat complicated to use.
+The property editor system is a highly customisable framework, which unfortunately also makes it somewhat complicated to use.
 
 The main power of the custom property editor system is supporting multiple objects being modified at once. We call these "Handlers".
 
@@ -51,9 +68,9 @@ The property editor consists of rows that we call "Slots". A slot typically cons
 For example, this is the property editor slot used to modify the `Line Spacing` of a text clip, which is also animatable:
 
 ```csharp  
-new ParameterFloatPropertyEditorSlot(   // The slot which manages animatable float parameters  
+new ParameterFloatPropertyEditorSlot(   // Built-in slot which manages animatable float parameters  
     TextVideoClip.LineSpacingParameter, // The specific parameter we want to modify
-    typeof(TextVideoClip),              // The type of object the slot is applicable to (multiselection requires this) 
+    typeof(TextVideoClip),              // The type of object the slot is applicable to, typically the Owner of the parameter 
     "Line Spacing",                     // A readable display name string, on the left column 
     DragStepProfile.Pixels)             // The NumberDragger's increment behaviour. Pixels is fine tuned
 {   
@@ -64,7 +81,7 @@ new ParameterFloatPropertyEditorSlot(   // The slot which manages animatable flo
 
 This example is for an automatable parameter though, and you might not need animatable parameters, in which case,  you can use `DataParameterFloatPropertyEditorSlot`  for a `DataParameterFloat`.
 
-You can register a custom property editor slot's UI control via the `BasePropertyEditorSlotControl.Registry`, like so:
+You can register your own custom property editor slot UI controls via the registry object `BasePropertyEditorSlotControl.Registry`, like so:
 ```csharp  
 // The model/control naming convention isn't strict, it's just good practice
 Registry.RegisterType<MyCustomPropertyEditorSlot>(  
@@ -78,9 +95,16 @@ Slot controls may be recycled, so it's important to override the `OnConnected` a
 A lot of the system is documented in code, so for specific things like slot selection and multiple   
 handlers with differing values, I recommend reading the source code to get a better understanding
 
-To specify the handlers that a slot can modify, you call `SetHandlers(IReadOnlyList<object>)` on the slot, and, if the slot supports the number of  
-handlers and also the underlying types of the handler object(s), then it sets `IsCurrentlyApplicable` to true, and the slot can work as normal,  
-and the `Handlers` property is updated with the objects that can be modified. `ClearHandlers` will obviously clear the handlers and the slot is no longer applicable.
+To specify the handlers that a slot can modify, you call `SetHandlers(IReadOnlyList<object>)` on the slot, and, if the slot supports the number of
+handlers and also the underlying types of the handler object(s), then it sets `IsCurrentlyApplicable` to true, and the slot can work as normal,
+and the `Handlers` property is updated with the objects that can be modified.  
+`ClearHandlers` will obviously clear the handlers and makes the slot no longer applicable.
+
+`SetHandlers` is a recursive method, so it only needs to get called on the root object that you want to set the handlers of. `PropertyEditor` contains the 'root' slot which is what you can call `SetHandlers` on. 
+However, the main property editor in the UI has 2 sub-root slots, one for clips and one for tracks. Therefore, `SetHandlers` should not be invoked on the root of the `VideoEditorPropertyEditor` object.
+
+Should you wish to add your own slot to the main UI, maybe your plugin adds a 2nd window and you want selected objects in that window to be reflected
+in the main UI's property editor, you should add that slot to the `VideoEditorPropertyEditor`'s root, and managed the handlers of the slot you added.
 
 ## Automatable and Data Parameters
 FramePFX provides two parameter subsystems: data parameters, and automatable parameters.
@@ -128,6 +152,73 @@ Registry.RegisterType<MyConfigurationPage>(
 
 By doing this, you allow the UI to create your control when it tries to present your page. Page controls may be recycled, so it's important to override the `OnConnected` and `OnDisconnected` methods and add/remove event handlers or bindings accordingly to and from the page model.
 
+## Persistent configurations (aka config files)
+FramePFX has a built-in system for loading and saving configurations (PSP, or persistent storage system), saving you from having to manage a file path and file IO yourself.
+
+You create a type that derives from `PersistentConfiguration`. Then you can register persistent properties via the `PersistentProperty` class.
+
+For example, say you want to save the location of the editor window:
+
+```csharp
+public sealed class EditorWindowConfigurationOptions : PersistentConfiguration {
+    // This lets us get/set the instance of this configuration, so that we can update
+    // the PosX/PosY properties when the window moves.
+    public static EditorWindowConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<EditorWindowConfigurationOptions>();
+    
+    // Register the persistent properties.
+    public static readonly PersistentProperty<int> PosXProperty = PersistentProperty.RegisterParsable<int, EditorWindowConfigurationOptions>(nameof(PosX), 0, o => o.posX, (o, val) => o.posX = val, false);
+    public static readonly PersistentProperty<int> PosYProperty = PersistentProperty.RegisterParsable<int, EditorWindowConfigurationOptions>(nameof(PosY), 0, o => o.posY, (o, val) => o.posY = val, false);
+    
+    // Value backing fields
+    private int posX, posY;
+    
+    // Get/Set helpers
+    public int PosX {
+        get => PosXProperty.GetValue(this);
+        set => PosXProperty.SetValue(this, value);
+    }
+    public int PosY {
+        get => PosYProperty.GetValue(this);
+        set => PosYProperty.SetValue(this, value);
+    }
+    
+    // Value change helpers. There are other ways of adding value change handlers too
+    public event PersistentPropertyInstanceValueChangeEventHandler<int>? PosXChanged {
+        add => PosXProperty.AddValueChangeHandler(this, value);
+        remove => PosXProperty.RemoveValueChangeHandler(this, value);
+    }
+    
+    public event PersistentPropertyInstanceValueChangeEventHandler<int>? PosYChanged {
+        add => PosYProperty.AddValueChangeHandler(this, value);
+        remove => PosYProperty.RemoveValueChangeHandler(this, value);
+    }
+    
+    public EditorWindowConfigurationOptions() {
+        IVideoEditorService.Instance.VideoEditorCreatedOrShown += OnVideoEditorCreatedOrShown;
+    }
+    
+    private void OnVideoEditorCreatedOrShown(IVideoEditorWindow window, bool isbeforeshow) {
+        if (!isbeforeshow) { // when false, the window is actually visible
+            window.WindowPosition = new SKPointI(this.PosX, this.PosY);
+        }
+    }
+}
+```
+
+Then to register the config, override `RegisterConfigurations` in your plugin class.
+```csharp
+// The manager is the application's PSM, 
+// accessible directly via Application.Instance.PersistentStorageManager
+public override void RegisterConfigurations(PersistentStorageManager manager) {
+    // Register our config.
+    //   'editor' is the area. Areas are just files. There can be multiple configs per area.
+    //   'windowinfo' is the config name in the area.
+    manager.Register(new EditorWindowConfigurationOptions(), "editor", "windowinfo");
+}
+```
+
+If you're modifying the main FramePFX source code, you register configs in the `OnFrameworkInitializationCompleted` method
+
 ## Registering exporters
 
 #### Defining the exporter
@@ -157,7 +248,7 @@ Creating a custom clip is very simple. Your clip should derive from `VideoClip` 
 
 Video clips have two main methods: `bool PrepareRenderFrame(PreRenderContext rc, long frame)` and `void RenderFrame(RenderContext rc, ref SKRect renderArea)`.
 
-The prepare render frame method indicates to the rendering system whether or not the clip should be rendered. For example, if a resource reference required by the clip is not linked, then this method returns false. This method is invoked on the main thread
+The prepare render frame method indicates to the rendering system whether the clip should be rendered. For example, if a resource reference required by the clip is not linked, then this method returns false. This method is invoked on the main thread
 
 The render frame method is invoked on a background rendering thread, and is what should render the clip. You can access the skia canvas via `rc.Canvas`. the `ref renderArea` is used to tell the rendering system the affected pixel area, as an optimisation. For example, if you draw a 10x10 square starting at 5,5, then you would do: `renderArea = rc.TranslateRect(new SKRect(5, 5, 15, 15));`. The method `rc.TranslateRect` translates the rect into the effective rectangle based on the current `TotalMatrix` of the canvas
 

@@ -1,10 +1,6 @@
-using FramePFX.DataTransfer;
 using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
-using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.Core;
-using FramePFX.PropertyEditing.DataTransfer;
-using FramePFX.Utils.Accessing;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing;
 

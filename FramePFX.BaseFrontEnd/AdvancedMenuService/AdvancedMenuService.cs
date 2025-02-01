@@ -20,7 +20,6 @@
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
-using FFmpeg.AutoGen;
 using FramePFX.AdvancedMenuService;
 using FramePFX.Interactivity.Contexts;
 

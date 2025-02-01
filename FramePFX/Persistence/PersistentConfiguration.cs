@@ -73,7 +73,11 @@ public abstract class PersistentConfiguration {
         return PersistentProperty.GetProperties(this.GetType(), true);
     }
 
-    public virtual void OnLoaded() {
+    /// <summary>
+    /// Invoked when this configuration is loaded from the disk. Typically, this is only invoked on application startup,
+    /// but if a config supports dynamic reloading, then this is invoked after the data is reloaded
+    /// </summary>
+    protected internal virtual void OnLoaded() {
         
     }
 

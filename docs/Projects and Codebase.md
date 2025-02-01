@@ -5,10 +5,11 @@ except the UI elements act like the presenters, and models are just on their own
 
 When a model needs to access UI-specifics (e.g. a command wants to expand a node in the resource tree),
 it does that through interfaces. The general pattern is `I<Model>Element` or `I<Model>UIElement`, e.g. `IResourceTreeElement`.
+This allows backend code to change the UI directly.
 
 # Projects
 FramePFX contains 3 main projects: `FramePFX`, `FramePFX.BaseFrontEnd` and `FramePFX.Avalonia`:
-- `FramePFX`: This is the 'core' project, and contains the entire FramePFX API
+- `FramePFX`: This is the 'core' project or the backend, and contains the entire FramePFX API
 - `FramePFX.BaseFrontEnd`: This project references avalonia libraries, and contains most of the base UI 
   components (such as binding utilities, model->control bi-dictionaries, and lots more).
   The reason for the base front end project is so that plugins may access and interact directly with avalonia,
@@ -17,7 +18,7 @@ FramePFX contains 3 main projects: `FramePFX`, `FramePFX.BaseFrontEnd` and `Fram
   the timeline, track, clip controls, resources, and dialogs (e.g. export dialogs).
 
   As time goes on, this project should ideally get smaller to a point, since we want to move as much over to the base front end to maximize
-  what plugins can do. Core plugins cannot reference the avalonia project due to cyclic dependency problems
+  what plugins can do. Core plugins cannot reference this project due to cyclic dependency problems.
 
 ## Control model Connection and Disconnection
 
@@ -29,14 +30,18 @@ query data from the models, etc.
 
 The order is something along the line of this:
 
-- *model with a list (e.g. Track) adds a new item, (e.g. new Clip)*
-- View creates a new control (or retrieves a cached item; recycling, for performance)
+- A model object containing a list (e.g. Track) adds a new item, (e.g. new Clip)
+- View receives some sort of ItemAdded event, creates a new control (or retrieves a recycled item)
 - `OnAdding` is called on the control, passing in the model and sometimes the owner control.
-- Clip control is added to the parent's internal items list
-- The control's styling and template may be explicitly applied (because avalonia does not apply them until they are measured)
-- `OnAdded` is called on the control.
+- The new control is added to the parent's internal items list
+- The control's styling and template may be explicitly applied (because avalonia does not apply them until they are measured, so doing this lets us access template controls in OnAdded)
+- `OnAdded` is called on the control. It might 'connect' (via binding utilities CLR event handlers) data between the model and UI. The data parameter system makes this process easier with built-in helpers.
+
+And then later on maybe,
 - *Clip is removed from the track*
-- `OnRemoving` is invoked on the clip control, it might unregistered events handlers.
+- View receives some sort of ItemRemoved event
+- `OnRemoving` is invoked on the clip control, it might unregister events handlers.
 - Clip is removed from the owner track
-- `OnRemoved` is invoked. The clip control clears references to the model and owner track control
+- `OnRemoved` is invoked. The clip control clears references to the model and owner track control. 
+  The control may then be appended to a list of recycled controls, since creating new control instances can be expensive
 

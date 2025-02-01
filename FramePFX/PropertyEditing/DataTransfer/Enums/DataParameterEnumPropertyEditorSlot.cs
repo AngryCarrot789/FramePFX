@@ -37,7 +37,7 @@ public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyE
         get => this.value;
         set {
             if (!DataParameterEnumInfo<TEnum>.EnumValuesSet.Contains(value))
-                value = DataParameterEnumInfo<TEnum>.EnumValues[0];
+                value = DataParameterEnumInfo<TEnum>.DefaultValue;
 
             if (EqualityComparer<TEnum>.Default.Equals(value, this.value))
                 return;
@@ -52,7 +52,7 @@ public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyE
         }
     }
 
-    public TEnum? DefaultValue => ReferenceEquals(this.AllowedValues, DataParameterEnumInfo<TEnum>.EnumValues) ? DataParameterEnumInfo<TEnum>.EnumValues[0] : this.AllowedValues.FirstOrDefault();
+    public TEnum? DefaultValue => ReferenceEquals(this.AllowedValues, DataParameterEnumInfo<TEnum>.EnumValues) ? DataParameterEnumInfo<TEnum>.DefaultValue : this.AllowedValues.FirstOrDefault();
 
     public new DataParameter<TEnum> Parameter => (DataParameter<TEnum>) base.Parameter;
 
@@ -65,6 +65,6 @@ public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyE
 
     public override void QueryValueFromHandlers() {
         TEnum? val = CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out TEnum? d) ? d : default;
-        this.value = val.HasValue && DataParameterEnumInfo<TEnum>.EnumValuesSet.Contains(val.Value) ? val.Value : DataParameterEnumInfo<TEnum>.EnumValues[0];
+        this.value = val.HasValue && DataParameterEnumInfo<TEnum>.EnumValuesSet.Contains(val.Value) ? val.Value : DataParameterEnumInfo<TEnum>.DefaultValue;
     }
 }

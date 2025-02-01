@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
@@ -185,34 +186,42 @@ public class VideoEditorViewPortControl : TemplatedControl, IViewPortElement {
 
     private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor) {
         if (oldEditor != null) {
-            oldEditor.ProjectChanged -= this.OnProjectChanged;
+            VideoEditorListener listener = VideoEditorListener.GetInstance(oldEditor);
+            listener.ProjectUnloaded -= this.OnProjectUnloaded;
+            listener.ProjectLoaded -= this.OnProjectLoaded;
+            if (oldEditor.Project != null) {
+                this.OnProjectUnloaded(oldEditor, oldEditor.Project);
+            }
         }
-
+        
         if (newEditor != null) {
-            newEditor.ProjectChanged += this.OnProjectChanged;
-            this.SetProject(newEditor.Project);
+            VideoEditorListener listener = VideoEditorListener.GetInstance(oldEditor);
+            listener.ProjectUnloaded += this.OnProjectUnloaded;
+            listener.ProjectLoaded += this.OnProjectLoaded;
+            if (newEditor.Project != null) {
+                this.OnProjectLoaded(newEditor, newEditor.Project);
+            }
         }
     }
 
-    private void OnProjectChanged(VideoEditor editor, Project? oldProject, Project? newProject) {
-        this.SetProject(newProject);
+    private void OnProjectUnloaded(VideoEditor editor, Project project) {
+        Debug.Assert(project == this.activeProject);
+        
+        project.Settings.ResolutionChanged -= this.UpdateResolution;
+        project.ActiveTimelineChanged -= this.OnProjectActiveTimelineChanged;
+        this.UpdateTimelineChanged(project.ActiveTimeline, null);
+        
+        this.activeProject = null;
     }
-
-    private void SetProject(Project? project) {
-        Project? oldProject = this.activeProject;
-        if (oldProject != null) {
-            oldProject.Settings.ResolutionChanged -= this.UpdateResolution;
-            oldProject.ActiveTimelineChanged -= this.OnProjectActiveTimelineChanged;
-            this.UpdateTimelineChanged(oldProject.ActiveTimeline, null);
-        }
-
+    
+    private void OnProjectLoaded(VideoEditor editor, Project project) {
+        Debug.Assert(this.activeProject == null);
         this.activeProject = project;
-        if (project != null) {
-            project.Settings.ResolutionChanged += this.UpdateResolution;
-            project.ActiveTimelineChanged += this.OnProjectActiveTimelineChanged;
-            this.UpdateTimelineChanged(null, project.ActiveTimeline);
-            this.UpdateResolution(project.Settings);
-        }
+        
+        project.Settings.ResolutionChanged += this.UpdateResolution;
+        project.ActiveTimelineChanged += this.OnProjectActiveTimelineChanged;
+        this.UpdateTimelineChanged(null, project.ActiveTimeline);
+        this.UpdateResolution(project.Settings);
     }
 
     private void OnProjectActiveTimelineChanged(Project project, Timeline? oldTimeline, Timeline? newTimeline) {

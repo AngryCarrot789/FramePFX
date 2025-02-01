@@ -47,7 +47,7 @@ public class ThemeConfigurationOptionsImpl : ThemeConfigurationOptions {
         ThemesProperty.DescriptionLines.Add("A 'basedOn' theme must exist before being used");
     }
 
-    public override void OnLoaded() {
+    protected override void OnLoaded() {
         this.LoadModelsIntoThemes(ThemeManager.Instance);
     }
 

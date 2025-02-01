@@ -117,7 +117,7 @@ public abstract class BaseResource : IDestroy, IDisplayName {
     }
 
     public static BaseResource ReadSerialisedWithType(BTEDictionary dictionary) {
-        string registryId = dictionary.GetString(nameof(FactoryId), null);
+        string? registryId = dictionary.GetString(nameof(FactoryId), null);
         if (string.IsNullOrEmpty(registryId))
             throw new Exception("Missing the registry ID for item");
         BTEDictionary data = dictionary.GetDictionary("Data");

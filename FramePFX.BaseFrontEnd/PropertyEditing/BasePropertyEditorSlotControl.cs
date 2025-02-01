@@ -81,10 +81,10 @@ public abstract class BasePropertyEditorSlotControl : TemplatedControl {
         Registry.RegisterType<ParameterVector2PropertyEditorSlot>(() => new ParameterVector2PropertyEditorSlotControl());
         Registry.RegisterType<ParameterBoolPropertyEditorSlot>(() => new ParameterBoolPropertyEditorSlotControl());
         
-        RegisterEnumProperty<StartupConfigurationOptions.EnumStartupBehaviour, ApplicationConfigurationManager.DataParameterStartupBehaviourPropertyEditorSlot>();
+        RegisterEnumControl<StartupConfigurationOptions.EnumStartupBehaviour, ApplicationConfigurationManager.DataParameterStartupBehaviourPropertyEditorSlot>();
     }
 
-    public static void RegisterEnumProperty<TEnum, TSlot>() where TEnum : struct, Enum where TSlot : DataParameterEnumPropertyEditorSlot<TEnum> {
+    public static void RegisterEnumControl<TEnum, TSlot>() where TEnum : struct, Enum where TSlot : DataParameterEnumPropertyEditorSlot<TEnum> {
         Registry.RegisterType<TSlot>(() => new EnumDataParameterPropertyEditorSlotControl<TEnum>());
     }
 

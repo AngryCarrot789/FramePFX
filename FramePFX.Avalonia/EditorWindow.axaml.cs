@@ -70,6 +70,19 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
     IViewPortElement IVideoEditorWindow.ViewPort => this.PART_ViewPort;
 
+    public SKPointI WindowPosition {
+        get => new SKPointI(this.Position.X, this.Position.Y);
+        set => this.Position = new PixelPoint(value.X, value.Y);
+    }
+
+    public SKSize WindowSize {
+        get => new SKSize((float) this.Width, (float) this.Height);
+        set {
+            this.Width = value.Width;
+            this.Height = value.Height;
+        }
+    }
+
     public TopLevelMenuRegistry ToolBarRegistry { get; }
     private readonly ContextEntryGroup themesSubList;
 
@@ -169,14 +182,20 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         base.OnLoaded(e);
         this.ThePropertyEditor.PropertyEditor = this.PropertyEditor;
         using (MultiChangeToken myDataBatch = DataManager.GetContextData(this).BeginChange()) {
-            this.VideoEditor.ProjectChanged += this.OnProjectChanged;
-            this.VideoEditor.IsExportingChanged += this.OnIsExportingChanged;
+            VideoEditorListener listener = VideoEditorListener.GetInstance(this.VideoEditor);
+            
+            listener.ProjectUnloaded += this.OnProjectUnloaded;
+            listener.ProjectLoaded += this.OnProjectLoaded;
+            listener.IsExportingChanged += this.OnIsExportingChanged;
             TemplateUtils.Apply(this.PART_ViewPort);
             this.PART_ViewPort.Owner = this;
             this.PART_ViewPort.VideoEditor = this.VideoEditor;
-            this.OnProjectChanged(null, this.VideoEditor.Project);
-            this.OnIsExportingChanged(this.VideoEditor);
             myDataBatch.Context.Set(DataKeys.VideoEditorKey, this.VideoEditor);
+            
+            if (this.VideoEditor.Project is Project project)
+                this.OnProjectLoaded(this.VideoEditor, project);
+            
+            this.OnIsExportingChanged(this.VideoEditor);
         }
 
         DataManager.GetContextData(this.PART_TimelinePresenterGroupBox).Set(DataKeys.TimelineUIKey, this.TheTimeline);
@@ -317,11 +336,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         this.PART_EditorWindowContent.IsEnabled = !editor.IsExporting;
     }
 
-    private void OnProjectChanged(VideoEditor editor, Project oldproject, Project newproject) {
-        this.OnProjectChanged(oldproject, newproject);
-    }
-
-    private void OnProjectChanged(Project? oldProject, Project? newProject) {
+    private void OnProjectUnloaded(VideoEditor editor, Project oldProject) {
         if (oldProject != null) {
             oldProject.ActiveTimelineChanged -= this.OnActiveTimelineChanged;
             oldProject.ProjectFilePathChanged -= this.OnProjectFilePathChanged;
@@ -329,23 +344,27 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
             oldProject.IsModifiedChanged -= this.OnProjectModifiedChanged;
         }
 
-        if (newProject != null) {
-            newProject.ActiveTimelineChanged += this.OnActiveTimelineChanged;
-            newProject.ProjectFilePathChanged += this.OnProjectFilePathChanged;
-            newProject.ProjectNameChanged += this.OnProjectNameChanged;
-            newProject.IsModifiedChanged += this.OnProjectModifiedChanged;
-        }
+        this.activeProject = null;
+        DataManager.GetContextData(this).Set(DataKeys.ProjectKey, null);
+        this.PART_ResourcePanelControl.ResourceManager = null;
+        this.OnActiveTimelineChanged(oldProject?.ActiveTimeline, null);
+        this.UpdateWindowTitle(null);
 
-        this.activeProject = newProject;
-        DataManager.GetContextData(this).Set(DataKeys.ProjectKey, newProject);
-        this.PART_ResourcePanelControl.ResourceManager = newProject?.ResourceManager;
-        this.OnActiveTimelineChanged(oldProject?.ActiveTimeline, newProject?.ActiveTimeline);
-        this.UpdateWindowTitle(newProject);
+        VideoEditorPropertyEditorHelper.OnProjectChanged(this);
+    }
 
-        // DataManager.GetContextData(this).Set(DataKeys.ResourceTreeSelectionManagerKey, this.PART_ResourcePanelControl.MultiSelectionManager);
-        // DataManager.GetContextData(this).Set(DataKeys.TrackSelectionManagerKey, newProject);
-        // DataManager.GetContextData(this).Set(DataKeys.ClipSelectionManagerKey, newProject);
-        // DataManager.GetContextData(this).Set(DataKeys.TimelineClipSelectionManagerKey, newProject);
+    private void OnProjectLoaded(VideoEditor editor, Project project) {
+        project.ActiveTimelineChanged += this.OnActiveTimelineChanged;
+        project.ProjectFilePathChanged += this.OnProjectFilePathChanged;
+        project.ProjectNameChanged += this.OnProjectNameChanged;
+        project.IsModifiedChanged += this.OnProjectModifiedChanged;
+
+        this.activeProject = project;
+        DataManager.GetContextData(this).Set(DataKeys.ProjectKey, project);
+        this.PART_ResourcePanelControl.ResourceManager = project.ResourceManager;
+        this.OnActiveTimelineChanged(null, project.ActiveTimeline);
+        this.UpdateWindowTitle(project);
+
         VideoEditorPropertyEditorHelper.OnProjectChanged(this);
 
         Application.Instance.Dispatcher.InvokeAsync(() => {

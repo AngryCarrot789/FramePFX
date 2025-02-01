@@ -6,7 +6,6 @@ using FramePFX.AdvancedMenuService;
 using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Shortcuts.Avalonia;
 using FramePFX.Interactivity.Contexts;
-using FramePFX.Utils.Collections.Observable;
 
 namespace FramePFX.BaseFrontEnd.AdvancedMenuService;
 

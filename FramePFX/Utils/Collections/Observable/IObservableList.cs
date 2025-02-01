@@ -17,9 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Collections.Specialized;
-using System.ComponentModel;
-
 namespace FramePFX.Utils.Collections.Observable;
 
 public delegate void ObservableListMultipleItemsEventHandler<T>(IObservableList<T> list, IList<T> items, int index);

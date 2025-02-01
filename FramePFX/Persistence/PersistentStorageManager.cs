@@ -25,7 +25,7 @@ using FramePFX.Utils;
 namespace FramePFX.Persistence;
 
 /// <summary>
-/// A service which manages persistent configurations
+/// A service which manages persistent configurations for the persistent storage system
 /// </summary>
 public sealed class PersistentStorageManager {
     private readonly List<PersistentConfiguration> allConfigs;
@@ -220,7 +220,7 @@ public sealed class PersistentStorageManager {
         List<KeyValuePair<string, XmlElement>> distinct = theList.DistinctBy(x => x.Key).ToList();
         
         if (distinct.Count != theList.Count) {
-            AppLogger.Instance.WriteLine($"Ignoring duplicate property entries in configuration '{config.Name}'");
+            AppLogger.Instance.WriteLine($"Ignoring {theList.Count - distinct.Count} duplicate property entries in configuration '{config.Name}'");
         }
 
         Dictionary<string, XmlElement> propertyToElementMap = distinct.ToDictionary();

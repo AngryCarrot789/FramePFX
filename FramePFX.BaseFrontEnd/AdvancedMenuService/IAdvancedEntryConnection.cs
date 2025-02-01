@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using Avalonia.Controls;
 using FramePFX.AdvancedMenuService;
 
 namespace FramePFX.BaseFrontEnd.AdvancedMenuService;

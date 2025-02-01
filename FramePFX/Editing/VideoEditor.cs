@@ -33,13 +33,6 @@ using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editing;
 
-public delegate void ProjectChangedEventHandler(VideoEditor editor, Project oldProject, Project newProject);
-
-/// <summary>
-/// A general delegate for parameter-less events containing only a reference to the video editor that fired the event
-/// </summary>
-public delegate void VideoEditorEventHandler(VideoEditor editor);
-
 /// <summary>
 /// The model class for an editor window
 /// </summary>
@@ -70,12 +63,9 @@ public class VideoEditor : IServiceable, IDestroy {
                 return;
 
             this.isExporting = value;
-            this.IsExportingChanged?.Invoke(this);
+            VideoEditorListener.GetInstance(this).InternalOnIsExportingChanged(this);
         }
     }
-
-    public event ProjectChangedEventHandler? ProjectChanged;
-    public event VideoEditorEventHandler? IsExportingChanged;
 
     public VideoEditor() {
         this.HistoryManager = new HistoryManager();
@@ -191,7 +181,10 @@ public class VideoEditor : IServiceable, IDestroy {
         if (project == null)
             throw new ArgumentNullException(nameof(project));
 
+        VideoEditorListener listener = VideoEditorListener.GetInstance(this);
         this.Project = project;
+        listener.InternalOnProjectLoading(this, project);
+        
         project.Settings.FrameRateChanged += this.OnProjectFrameRateChanged;
 
         Project.OnOpened(this, project);
@@ -201,28 +194,33 @@ public class VideoEditor : IServiceable, IDestroy {
         project.ActiveTimeline.RenderManager.UpdateFrameInfo(settings);
 
         this.Playback.SetFrameRate(settings.FrameRate);
-        this.ProjectChanged?.Invoke(this, null, project);
+        
+        listener.InternalOnProjectLoaded(this, project);
+        
         Application.Instance.Dispatcher.InvokeAsync(() => {
             this.Project?.ActiveTimeline.InvalidateRender();
         }, DispatchPriority.Background);
     }
 
     public void CloseProject() {
-        Project? oldProject = this.Project;
-        if (oldProject == null) {
+        Project? myProject = this.Project;
+        if (myProject == null)
             throw new Exception("There is no project opened");
-        }
 
+        VideoEditorListener listener = VideoEditorListener.GetInstance(this);
+        listener.InternalOnProjectUnloading(this, myProject);
+        
         if (this.Playback.PlayState != PlayState.Stop) {
             this.Playback.Stop();
         }
 
-        PlaybackManager.InternalOnActiveTimelineChanged(this.Playback, oldProject.ActiveTimeline, null);
-        oldProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
-        this.Project = null;
-        this.ProjectChanged?.Invoke(this, oldProject, null);
-        Project.OnClosed(this, oldProject);
+        PlaybackManager.InternalOnActiveTimelineChanged(this.Playback, myProject.ActiveTimeline, null);
+        myProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
         this.HistoryManager.Clear();
+        listener.InternalOnProjectUnloaded(this, myProject);
+        
+        this.Project = null;
+        Project.OnClosed(this, myProject);
     }
 
     private void OnProjectFrameRateChanged(ProjectSettings settings) {

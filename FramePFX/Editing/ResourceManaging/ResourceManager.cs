@@ -109,7 +109,7 @@ public class ResourceManager : IDestroy {
         this.IsResourceInUsePredicate = this.EntryExists;
     }
 
-    public ulong GetNextId() {
+    private ulong GetNextId() {
         // assuming a CPU can somehow call GetNextId() 3 billion times in 1 second, it
         // would take roughly 97 years to reach ulong.MaxValue. LOL
         // That is unless it gets set maliciously either via modifying the
@@ -182,23 +182,6 @@ public class ResourceManager : IDestroy {
     public void Clear() {
         ResourceFolder.ClearHierarchy(this.RootContainer, true);
     }
-
-    #region Static Helper Functions
-
-    // For the most part, these functions below should never return false due the the fact that a user would
-    // need millions of added resources. Their system would run out of RAM before these functions fail
-
-    public static bool GetDisplayNameForMediaStream(Predicate<string?> accept, [NotNullWhen(true)] out string? output, string filePath, string streamName) {
-        if (!TextIncrement.GenerateFileString(accept, filePath, out string? file)) {
-            output = null;
-            return false;
-        }
-
-        return TextIncrement.GetIncrementableString(accept, $"{file}::{streamName}", out output, 10000, canAcceptInitialInput: false);
-    }
-
-    #endregion
-
 
     internal static void InternalProcessResourceOnAttached(BaseResource resource, ResourceManager manager) {
         manager.Project.MarkModified();

@@ -19,6 +19,7 @@
 
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.PropertyEditing;
+using SkiaSharp;
 
 namespace FramePFX.Editing.UI;
 
@@ -40,6 +41,16 @@ public interface IVideoEditorWindow {
     /// Gets our view port UI
     /// </summary>
     IViewPortElement ViewPort { get; }
+
+    /// <summary>
+    /// Gets or sets the window position
+    /// </summary>
+    SKPointI WindowPosition { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the window size
+    /// </summary>
+    SKSize WindowSize { get; set; }
 
     /// <summary>
     /// Gets our video editor model

@@ -72,15 +72,16 @@ public class FFmpegMediaPlugin : Plugin {
             await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, h);
         });
 
-        // Register our custom but blank control for the resource list item content 
+        // Register our custom but blank control for the resource list item content. At some point we may add a mini view port to it so,
+        // we can easily scrub through the video. We could also just select a random frame and draw it. But for now, it contains nothing
         ResourceExplorerListItemContent.Registry.RegisterType<ResourceAVMedia>(() => new RELIC_AVMedia());
         
         // Register our invalid entry control for the resource loader dialog system, which shows the user
         // the error encountered and also the media's file path, so they can change it if they wanted to
         InvalidResourceEntryControl.Registry.RegisterType<InvalidMediaPathEntry>(() => new InvalidMediaPathEntryControl());
-
+        
         // Register an enum type with the property editor registry, so that we can use DataParameterAVCodecIDPropertyEditorSlot.
-        BasePropertyEditorSlotControl.RegisterEnumProperty<AVCodecID, DataParameterAVCodecIDPropertyEditorSlot>();
+        BasePropertyEditorSlotControl.RegisterEnumControl<AVCodecID, DataParameterAVCodecIDPropertyEditorSlot>();
 
         // Register FFmpeg exporter
         ExporterRegistry.Instance.RegisterExporter(new ExporterKey("exporter_ffmpeg", "FFmpeg"), new FFmpegExporterInfo());

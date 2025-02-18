@@ -25,17 +25,16 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
-using FramePFX.BaseFrontEnd.AdvancedMenuService;
-using FramePFX.BaseFrontEnd.Bindings;
-using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.ResourceManaging;
+using PFXToolKitUI.Avalonia.AdvancedMenuService;
+using PFXToolKitUI.Avalonia.Bindings;
+using PFXToolKitUI.Avalonia.Interactivity;
 using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.UI;
-using FramePFX.Interactivity;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Services.Messaging;
-using FramePFX.Utils;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 

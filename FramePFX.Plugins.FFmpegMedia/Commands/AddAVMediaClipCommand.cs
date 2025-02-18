@@ -21,11 +21,11 @@ using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
-using FramePFX.Interactivity;
-using FramePFX.Interactivity.Contexts;
 using FramePFX.Plugins.FFmpegMedia.Clips;
 using FramePFX.Plugins.FFmpegMedia.Resources;
-using FramePFX.Services.Messaging;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Interactivity.Contexts;
+using PFXToolKitUI.Services.Messaging;
 
 namespace FramePFX.Plugins.FFmpegMedia.Commands;
 

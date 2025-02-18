@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<Plugin EntryPoint="FramePFX.Plugins.CircleClipPlugin.MyCircleClipPlugin" 
+<Plugin EntryPoint="FramePFX.Plugins.CircleClipPlugin.MyCircleClipPlugin"
         EntryPointLibraryPath="FramePFX.Plugins.CircleClipPlugin.dll">
     <!-- We only need plugin.xml for fully dynamic plugins, loaded from the plugins folder -->
 </Plugin>

@@ -22,9 +22,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using FramePFX.BaseFrontEnd.Themes.Controls;
 using FramePFX.Editing.ResourceManaging.Autoloading;
-using FramePFX.Utils;
+using PFXToolKitUI.Avalonia.Themes.Controls;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
 

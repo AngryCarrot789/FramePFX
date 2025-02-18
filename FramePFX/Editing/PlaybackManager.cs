@@ -21,9 +21,10 @@ using System.Diagnostics;
 using Fractions;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
-using FramePFX.Logging;
 using FramePFX.Natives;
-using FramePFX.Utils;
+using PFXToolKitUI;
+using PFXToolKitUI.Logging;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing;
 
@@ -170,7 +171,7 @@ public class PlaybackManager {
         double fps = frameRate.ToDouble();
         if (double.IsNaN(fps) || double.IsInfinity(fps))
             fps = 1.0;
-        
+
         this.intervalTicks = (long) Math.Round(Time.TICK_PER_SECOND_D / fps);
         this.audioSamplesPerFrame = (int) Math.Ceiling(44100.0 / fps);
     }
@@ -252,7 +253,7 @@ public class PlaybackManager {
     private void InvalidateVisualForStop() {
         // There's a chance this method gets called after the app has shutdown when a user closes the main window.
         using BugTrack.EmptyToken reallyBadImplementation = BugTrack.ReallyBadImplementation(this, "Task cancelled when closing main window");
-        
+
         // Checking phase does not help since the render thread is way too fast to respond to
         // the stop command, and therefore, the phase will almost always be Running
         if (Application.Instance.IsBeforePhase(ApplicationStartupPhase.Stopping)) {

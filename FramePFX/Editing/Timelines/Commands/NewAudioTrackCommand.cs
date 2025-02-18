@@ -17,10 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.CommandSystem;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Services.Messaging;
-using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Interactivity.Contexts;
+using PFXToolKitUI.Services.Messaging;
 
 namespace FramePFX.Editing.Timelines.Commands;
 

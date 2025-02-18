@@ -19,8 +19,8 @@
 
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Core;
-using FramePFX.PropertyEditing;
-using FramePFX.Utils;
+using PFXToolKitUI.PropertyEditing;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.PropertyEditors;
 

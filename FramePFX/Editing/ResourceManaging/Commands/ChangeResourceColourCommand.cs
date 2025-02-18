@@ -17,9 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
 using FramePFX.Editing.ResourceManaging.Resources;
-using FramePFX.Services.ColourPicking;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Services.ColourPicking;
 using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;

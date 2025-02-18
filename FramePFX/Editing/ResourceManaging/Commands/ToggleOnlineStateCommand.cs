@@ -18,9 +18,9 @@
 // 
 
 using System.Diagnostics.CodeAnalysis;
-using FramePFX.CommandSystem;
 using FramePFX.Editing.ResourceManaging.UI;
-using FramePFX.Interactivity.Contexts;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Interactivity.Contexts;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 

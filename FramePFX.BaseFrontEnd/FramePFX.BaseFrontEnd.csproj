@@ -23,29 +23,20 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FramePFX\FramePFX.csproj" />
+        <ProjectReference Include="..\FramePFX\FramePFX.csproj"/>
+        <ProjectReference Include="..\PFXToolKitUI.Avalonia\PFXToolKitUI.Avalonia.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <AdditionalFiles Include="AvControls\ControlStyles.axaml" />
-      <AdditionalFiles Include="Configurations\ConfigurationDialog.axaml" />
-      <AdditionalFiles Include="Configurations\ConfigurationPanelControl.axaml" />
-      <AdditionalFiles Include="Configurations\Pages\Basic\BaseConfigurationPageThemes.axaml" />
-      <AdditionalFiles Include="Configurations\Trees\ConfigurationTreeThemes.axaml" />
-      <AdditionalFiles Include="PropertyEditing\PropertyEditorGridStyles.axaml" />
-      <AdditionalFiles Include="PropertyEditing\PropertyEditorSlotContentStyles.axaml" />
-      <AdditionalFiles Include="ResourceManaging\Autoloading\InvalidResourceEntryThemes.axaml" />
-      <AdditionalFiles Include="ResourceManaging\Autoloading\ResourceLoaderDialog.axaml" />
-      <AdditionalFiles Include="Services\Messages\Controls\DoubleUserInputControl.axaml" />
-      <AdditionalFiles Include="Services\Messages\Controls\MessageBoxDialog.axaml" />
-      <AdditionalFiles Include="Services\Messages\Controls\SingleUserInputControl.axaml" />
+        <AdditionalFiles Include="ResourceManaging\Autoloading\InvalidResourceEntryThemes.axaml"/>
+        <AdditionalFiles Include="ResourceManaging\Autoloading\ResourceLoaderDialog.axaml"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Services\UserInputs\UserInputDialog.axaml.cs">
-        <DependentUpon>UserInputDialog.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
+      <UpToDateCheckInput Remove="Services\Colours\ColourUserInputControl.axaml" />
+      <UpToDateCheckInput Remove="Shortcuts\Dialogs\KeyStrokeUserInputControl.axaml" />
+      <UpToDateCheckInput Remove="Shortcuts\Dialogs\MouseStrokeUserInputControl.axaml" />
+      <UpToDateCheckInput Remove="Shortcuts\Trees\ShortcutTreeThemes.axaml" />
     </ItemGroup>
 
 </Project>

@@ -31,7 +31,7 @@ public interface IVideoEditorWindow {
     /// Gets the timeline UI
     /// </summary>
     ITimelineElement TimelineElement { get; }
-    
+
     /// <summary>
     /// Gets out resource manager UI
     /// </summary>
@@ -46,7 +46,7 @@ public interface IVideoEditorWindow {
     /// Gets or sets the window position
     /// </summary>
     SKPointI WindowPosition { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the window size
     /// </summary>
@@ -56,7 +56,7 @@ public interface IVideoEditorWindow {
     /// Gets our video editor model
     /// </summary>
     VideoEditor VideoEditor { get; }
-    
+
     /// <summary>
     /// Gets the main property editor for the video editor
     /// </summary>
@@ -66,12 +66,12 @@ public interface IVideoEditorWindow {
     /// Gets whether the editor window is in the process of being closed
     /// </summary>
     bool IsClosing { get; }
-    
+
     /// <summary>
     /// Gets whether this editor window is currently closed
     /// </summary>
     bool IsClosed { get; }
-    
+
     /// <summary>
     /// Gets whether the editor is being closed or is already closed
     /// </summary>

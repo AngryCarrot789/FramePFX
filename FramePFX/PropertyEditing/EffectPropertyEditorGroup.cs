@@ -20,6 +20,7 @@
 using System.Diagnostics;
 using FramePFX.Editing.PropertyEditors;
 using FramePFX.Editing.Timelines.Effects;
+using PFXToolKitUI.PropertyEditing;
 
 namespace FramePFX.PropertyEditing;
 

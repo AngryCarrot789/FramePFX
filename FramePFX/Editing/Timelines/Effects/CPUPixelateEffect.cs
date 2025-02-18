@@ -23,7 +23,7 @@ using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Utils;
 using FramePFX.Natives;
-using FramePFX.Utils.Accessing;
+using PFXToolKitUI.Utils.Accessing;
 using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Effects;

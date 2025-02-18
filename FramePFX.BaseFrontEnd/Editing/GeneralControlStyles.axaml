@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Editing;assembly=FramePFX.BaseFrontEnd">
+                    xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Editing">
     <DataTemplate x:Key="PlayStateButton_PlayContentTemplate">
         <Polygon Width="15" Height="15" Points="0,15 0,0 15,7.5" Fill="{DynamicResource ABrush.Glyph.Static}" UseLayoutRounding="True"/>
     </DataTemplate>

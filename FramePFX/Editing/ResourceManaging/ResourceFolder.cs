@@ -129,7 +129,7 @@ public sealed class ResourceFolder : BaseResource {
         this.items.RemoveAt(index);
         InternalOnItemRemoved(item, this);
         this.ResourceRemoved?.Invoke(this, item, index);
-        
+
         if (destroy)
             item.Destroy();
     }

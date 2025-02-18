@@ -17,8 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Icons;
-using FramePFX.Themes;
+using PFXToolKitUI.Icons;
+using PFXToolKitUI.Themes;
 using SkiaSharp;
 
 namespace FramePFX;
@@ -28,13 +28,13 @@ public static class AutomationIcons {
     // an Ellipse's Fill property, and converters don't let you use dynamic resource... issues
     public static readonly Icon IconLED_Active = IconManager.Instance.RegisterEllipseIcon(
         "AutomationLED_Active",
-        BrushManager.Instance.GetDynamicThemeBrush("ABrush.PFX.Automation.Active.Fill"), 
-        BrushManager.Instance.CreateConstant(SKColors.Black), 
+        BrushManager.Instance.GetDynamicThemeBrush("ABrush.PFX.Automation.Active.Fill"),
+        BrushManager.Instance.CreateConstant(SKColors.Black),
         3, 3, 1.0);
-    
+
     public static readonly Icon IconLED_Override = IconManager.Instance.RegisterEllipseIcon(
         "AutomationLED_Override",
-        BrushManager.Instance.GetDynamicThemeBrush("ABrush.PFX.Automation.Override.Fill"), 
-        BrushManager.Instance.CreateConstant(SKColors.Black), 
+        BrushManager.Instance.GetDynamicThemeBrush("ABrush.PFX.Automation.Override.Fill"),
+        BrushManager.Instance.CreateConstant(SKColors.Black),
         3, 3, 1.0);
 }

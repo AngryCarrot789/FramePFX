@@ -17,14 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.ResourceManaging.UI;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Services.ColourPicking;
-using FramePFX.Services.FilePicking;
-using FramePFX.Utils;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Interactivity.Contexts;
+using PFXToolKitUI.Services.ColourPicking;
+using PFXToolKitUI.Services.FilePicking;
+using PFXToolKitUI.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;

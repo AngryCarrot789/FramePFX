@@ -17,21 +17,22 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Persistence;
-using FramePFX.PropertyEditing.DataTransfer.Enums;
-using FramePFX.Themes;
+using PFXToolKitUI;
+using PFXToolKitUI.Persistence;
+using PFXToolKitUI.PropertyEditing.DataTransfer.Enums;
+using PFXToolKitUI.Themes;
 
 namespace FramePFX.Editing;
 
 public class StartupConfigurationOptions : PersistentConfiguration {
     public static StartupConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<StartupConfigurationOptions>();
-    
+
     public static readonly PersistentProperty<EnumStartupBehaviour> StartupBehaviourProperty = PersistentProperty.RegisterEnum<EnumStartupBehaviour, StartupConfigurationOptions>(nameof(StartupBehaviour), EnumStartupBehaviour.OpenStartupWindow, x => x.startupBehaviour, (x, y) => x.startupBehaviour = y, true);
     public static readonly PersistentProperty<string> StartupThemeProperty = PersistentProperty.RegisterString<StartupConfigurationOptions>(nameof(StartupTheme), "Dark", x => x.startupTheme ?? "", (x, y) => x.startupTheme = y, true);
-    
+
     private EnumStartupBehaviour startupBehaviour;
     private string? startupTheme;
-    
+
     /// <summary>
     /// Gets or sets the application's startup behaviour
     /// </summary>
@@ -39,7 +40,7 @@ public class StartupConfigurationOptions : PersistentConfiguration {
         get => StartupBehaviourProperty.GetValue(this);
         set => StartupBehaviourProperty.SetValue(this, value);
     }
-    
+
     public string StartupTheme {
         get => StartupThemeProperty.GetValue(this);
         set => StartupThemeProperty.SetValue(this, value);

@@ -30,20 +30,12 @@
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.3"/>
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0"/>
 
-        <PackageReference Condition="$(DefineConstants.Contains(ENABLE_XAML_HOT_RELOAD))" Include="Avalonia.Markup.Xaml.Loader" Version="11.2.3" />
-        <PackageReference Condition="$(DefineConstants.Contains(ENABLE_XAML_HOT_RELOAD))" Include="HotAvalonia" Version="2.1.0" />
-        <PackageReference Include="HotAvalonia.Extensions" Version="2.1.0" PrivateAssets="All" />
+        <PackageReference Condition="$(DefineConstants.Contains(ENABLE_XAML_HOT_RELOAD))" Include="Avalonia.Markup.Xaml.Loader" Version="11.2.3"/>
+        <PackageReference Condition="$(DefineConstants.Contains(ENABLE_XAML_HOT_RELOAD))" Include="HotAvalonia" Version="2.1.0"/>
+        <PackageReference Include="HotAvalonia.Extensions" Version="2.1.0" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup>
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Bold.ttf"/>
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-ExtraBold.ttf"/>
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-ExtraLight.ttf"/>
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Light.ttf"/>
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Medium.ttf"/>
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Regular.ttf"/>
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-SemiBold.ttf"/>
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-VariableFont_wght.ttf"/>
         <None Remove="Keymap.xml"/>
         <Content Include="Keymap.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -64,38 +56,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="Services\Startups\StartupWindow.axaml" />
-        <AdditionalFiles Include="Themes\Colours\SoftDark.axaml" />
-        <AdditionalFiles Include="Themes\ControlColours.axaml" />
-        <AdditionalFiles Include="Themes\Controls.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\Button.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ButtonSpinner.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\CheckBox.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ComboBox.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ComboBoxItem.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ContextMenus.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\GridSplitter.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\GroupBox.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ListBox.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ListBoxItem.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\Menu.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\MenuFlyoutPresenter.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\MenuItem.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ProgressBar.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\RadioButton.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\RepeatButton.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ScrollBar.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ScrollViewer.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\Separator.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\Slider.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\TabControl.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\TabItem.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\TextBox.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\Thumb.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\ToggleButton.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\TreeView.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\TreeViewItem.axaml" />
-        <AdditionalFiles Include="Themes\ControlStyles\Window.axaml" />
+        <AdditionalFiles Include="Services\Startups\StartupWindow.axaml"/>
     </ItemGroup>
 
     <ItemGroup>

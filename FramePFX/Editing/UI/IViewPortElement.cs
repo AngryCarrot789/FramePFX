@@ -27,9 +27,9 @@ public interface IViewPortElement {
     bool DrawSelectedElements { get; set; }
 
     bool PanToCursorOnUserZoom { get; set; }
-    
+
     bool UseTransparentCheckerBoardBackground { get; set; }
-    
+
     event ViewPortElementEventHandler? DrawSelectedElementsChanged;
     event ViewPortElementEventHandler? PanToCursorOnUserZoomChanged;
     event ViewPortElementEventHandler? UseTransparentCheckerBoardBackgroundChanged;

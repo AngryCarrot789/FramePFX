@@ -20,9 +20,9 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using FramePFX.Services.Messaging;
-using FramePFX.Utils;
 using FramePFX.Utils.BTE;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.ResourceManaging.NewResourceHelper;
 
@@ -104,7 +104,7 @@ public class ResourceHelper {
     private void SetResourceInternal(ResourceSlot slot, ResourceItem resource) {
         Validate.NotNull(slot);
         Validate.NotNull(resource);
-        
+
         InternalBeginValueChange(slot, this);
         ResourceItem? oldResource = null;
         if (this.references != null && this.references.TryGetValue(slot, out oldResource)) {
@@ -121,7 +121,7 @@ public class ResourceHelper {
 
         if (!list.Contains(slot))
             list.Add(slot);
-        
+
         ResourceItem.AddReference(resource, this.Owner);
         InternalEndValueChange(slot, this.Owner, oldResource, resource);
     }
@@ -169,8 +169,8 @@ public class ResourceHelper {
     /// <param name="item">The resource</param>
     /// <returns>The slots</returns>
     public IEnumerable<ResourceSlot> GetSlotsFromResource(ResourceItem item) {
-        return this.itemToSlotRefs != null && this.itemToSlotRefs.TryGetValue(item, out List<ResourceSlot>? list) 
-            ? list.ToList() 
+        return this.itemToSlotRefs != null && this.itemToSlotRefs.TryGetValue(item, out List<ResourceSlot>? list)
+            ? list.ToList()
             : ReadOnlyCollection<ResourceSlot>.Empty;
     }
 
@@ -296,7 +296,7 @@ public class ResourceHelper {
             this.ClearResource(slot);
         }
     }
-    
+
     public void WriteToRootBTE(BTEDictionary data) {
         if (this.references == null)
             return;

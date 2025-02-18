@@ -24,32 +24,27 @@ using Avalonia.Controls.ApplicationLifetimes;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
 using FramePFX.Editing.UI;
-using FramePFX.Services.FilePicking;
-using FramePFX.Services.Messaging;
 using FramePFX.Services.VideoEditors;
-using FramePFX.Tasks;
-using FramePFX.Utils;
+using PFXToolKitUI;
+using PFXToolKitUI.Services.FilePicking;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Tasks;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Avalonia.Services.Startups;
 
 public class StartupManagerImpl : StartupManager {
     private StartupWindow? myWindow;
-    
+
     public StartupManagerImpl() {
     }
-    
+
     private async Task HandleNormalStartup() {
         switch (StartupConfigurationOptions.Instance.StartupBehaviour) {
-            case StartupConfigurationOptions.EnumStartupBehaviour.OpenStartupWindow:
-                this.OpenStartupWindow();
-                break;
-            case StartupConfigurationOptions.EnumStartupBehaviour.OpenDemoProject:
-                await this.OnOpenDemoProject();
-                break;
-            case StartupConfigurationOptions.EnumStartupBehaviour.OpenEmptyProject:
-                await this.OnOpenEmptyEditor();
-                break;
-            default: this.OpenStartupWindow(); break;
+            case StartupConfigurationOptions.EnumStartupBehaviour.OpenStartupWindow: this.OpenStartupWindow(); break;
+            case StartupConfigurationOptions.EnumStartupBehaviour.OpenDemoProject:   await this.OnOpenDemoProject(); break;
+            case StartupConfigurationOptions.EnumStartupBehaviour.OpenEmptyProject:  await this.OnOpenEmptyEditor(); break;
+            default:                                                                 this.OpenStartupWindow(); break;
         }
     }
 
@@ -62,7 +57,7 @@ public class StartupManagerImpl : StartupManager {
                 // ignored, probably already closed?
             }
         }
-        
+
         this.myWindow = new StartupWindow(this);
         this.myWindow.Show();
         if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
@@ -73,22 +68,22 @@ public class StartupManagerImpl : StartupManager {
     protected override Task OnOpenDemoProject() {
         VideoEditor editor = new VideoEditor();
         editor.LoadDefaultProject();
-        
+
         ActivityManager.Instance.RunTask(() => {
             IActivityProgress progress = ActivityManager.Instance.GetCurrentProgressOrEmpty();
             progress.IsIndeterminate = true;
             progress.Caption = "Open empty editor";
             progress.Text = "Opening editor...";
-            
+
             return Application.Instance.Dispatcher.InvokeAsync(() => {
                 OpenEditorAsMainWindow(editor);
             });
         });
-        
+
         if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
         }
-        
+
         this.Close();
         return Task.CompletedTask;
     }
@@ -100,14 +95,14 @@ public class StartupManagerImpl : StartupManager {
             progress.IsIndeterminate = true;
             progress.Caption = "Open empty editor";
             progress.Text = "Opening editor...";
-            
+
             return Application.Instance.Dispatcher.InvokeAsync(() => OpenEditorAsMainWindow(editor));
         });
-        
+
         if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
         }
-            
+
         this.Close();
         return Task.CompletedTask;
     }

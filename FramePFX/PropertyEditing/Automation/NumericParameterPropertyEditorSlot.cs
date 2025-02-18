@@ -17,8 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+
 using FramePFX.Editing.Automation.Params;
-using FramePFX.Interactivity.Formatting;
+using PFXToolKitUI.Interactivity.Formatting;
 
 namespace FramePFX.PropertyEditing.Automation;
 

@@ -8,12 +8,12 @@
                 <KeyStroke Key="Space"/>
             </Shortcut>
         </Group>
-        
+
         <!-- Shortcuts for the property editor panel -->
         <Group Name="PropertyEditor" Description="The video editor's property editor area">
 
         </Group>
-        
+
         <!-- Shortcuts for the view port panel -->
         <Group Name="ResourceManager" Description="The video editor's resource manager area">
             <Shortcut Name="DeleteItems" CommandId="commands.resources.DeleteResources" Description="Deletes all of the selected resources">
@@ -29,7 +29,7 @@
                 <KeyStroke Mods="CTRL" Key="R"/>
             </Shortcut>
         </Group>
-        
+
         <!-- Shortcuts for the timeline panel -->
         <Group Name="Timeline" Description="The video editor's timeline area">
             <!-- Shortcuts for specifically the timeline sequence -->
@@ -43,7 +43,7 @@
                             <KeyStroke Mods="CTRL" Key="R"/>
                         </Shortcut>
                     </Group>
-                    
+
                     <!-- The nature of the keymap system requires us to do this kind of thing 
                          to execute the same command with different key strokes -->
                     <Shortcut Name="RenameTrack1_F2" CommandId="commands.editor.RenameTrack">
@@ -53,7 +53,7 @@
                         <KeyStroke Mods="CTRL" Key="R"/>
                     </Shortcut>
                 </Group>
-                
+
                 <Shortcut Name="DeleteSelectedClips" CommandId="commands.editor.DeleteClips">
                     <KeyStroke Key="Delete"/>
                 </Shortcut>
@@ -86,9 +86,9 @@
             <!-- Shortcuts for specifically the track control surface -->
             <Group Name="ControlSurfaces" Description="The control surface of a timeline, which is on the left side and contains items used to modify tracks">
                 <Group Name="Item" Description="A control surface item, which contains the controls used to modify a track">
-                    
+
                 </Group>
-                
+
                 <Shortcut Name="SelectAllTracks" CommandId="commands.generic.SelectAllTracksCommand">
                     <KeyStroke Mods="CTRL" Key="A"/>
                 </Shortcut>
@@ -199,10 +199,10 @@
         <Shortcut Name="ToggleClipAutomation" CommandId="commands.editor.ToggleClipAutomationCommand">
             <KeyStroke Key="C"/>
         </Shortcut>
-        <Shortcut Name="OpenEditorSettings" CommandId="commands.editor.OpenEditorSettings">
+        <Shortcut Name="OpenEditorSettings" CommandId="commands.mainWindow.OpenEditorSettings">
             <KeyStroke Mods="CTRL+ALT" Key="S"/>
         </Shortcut>
-        <Shortcut Name="OpenProjectSettings" CommandId="commands.editor.OpenProjectSettings">
+        <Shortcut Name="OpenProjectSettings" CommandId="commands.mainWindow.OpenProjectSettings">
             <KeyStroke Mods="CTRL+ALT+SHIFT" Key="S"/>
         </Shortcut>
         <!-- ################################################################################################### -->

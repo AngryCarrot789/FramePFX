@@ -22,9 +22,9 @@ using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Effects;
-using FramePFX.Interactivity;
-using FramePFX.Services.Messaging;
-using FramePFX.Utils;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.Timelines;
 

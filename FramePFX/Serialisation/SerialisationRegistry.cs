@@ -18,7 +18,8 @@
 // 
 
 using FramePFX.Utils.BTE;
-using FramePFX.Utils.Collections;
+using PFXToolKitUI;
+using PFXToolKitUI.Utils.Collections;
 
 namespace FramePFX.Serialisation;
 

@@ -24,9 +24,9 @@ using System.Diagnostics;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
-using FramePFX.BaseFrontEnd;
+using PFXToolKitUI.Avalonia;
 using FramePFX.Editing.Timelines.Clips;
-using FramePFX.Utils;
+using PFXToolKitUI.Utils;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
@@ -93,10 +93,10 @@ public class ClipStoragePanel : Panel, IEnumerable<TimelineClipControl> {
     public void RemoveClipInternal(int index, bool canCache = true, bool deselected = true) {
         TimelineClipControl control = (TimelineClipControl) this.Children[index];
         Debug.Assert(control.Track != null);
-        
+
         if (deselected)
             control.Track.SelectionManager.Unselect(control);
-        
+
         this.itemMap.RemoveMapping(control.ClipModel!, control);
         control.OnDisconnecting();
         this.Children.RemoveAt(index);
@@ -107,7 +107,7 @@ public class ClipStoragePanel : Panel, IEnumerable<TimelineClipControl> {
 
     public void ClearClipsInternal(bool canCache = true) {
         this.TrackControl!.SelectionManager.Clear();
-        
+
         int count = this.Children.Count;
         for (int i = count - 1; i >= 0; i--) {
             this.RemoveClipInternal(i, canCache, false);

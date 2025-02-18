@@ -20,10 +20,10 @@
 using System.Diagnostics;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.ResourceManaging.UI;
-using FramePFX.Interactivity;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Logging;
-using FramePFX.Utils;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Interactivity.Contexts;
+using PFXToolKitUI.Logging;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.ResourceManaging;
 
@@ -33,7 +33,7 @@ public class ResourceDropRegistry {
     public const string DropTypeText = "PFXResManResources_DropType";
 
     private static readonly List<FileDropInFolderEventHandler> fileDropInFolderHandlers = new List<FileDropInFolderEventHandler>();
-    
+
     public static event FileDropInFolderEventHandler? FileDropInFolder {
         add {
             if (value != null)
@@ -44,7 +44,7 @@ public class ResourceDropRegistry {
                 fileDropInFolderHandlers.Remove(value);
         }
     }
-    
+
     static ResourceDropRegistry() {
         // Handle simple image file drop
         FileDropInFolder += (folder, resources, path, extension) => {

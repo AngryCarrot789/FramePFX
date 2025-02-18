@@ -1,0 +1,18 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:b="clr-namespace:FramePFX.BaseFrontEnd.Configurations">
+    <ControlTheme x:Key="{x:Type b:BasicEditorWindowConfigurationPageControl}" TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
+                <StackPanel Margin="10">
+                    <DockPanel>
+                        <TextBlock Text="Editor Title Bar: " DockPanel.Dock="Left" VerticalAlignment="Center" Padding="5,2"/>
+                        <TextBox x:Name="PART_TitleBarTextBox" VerticalContentAlignment="Center" Padding="4"/>
+                    </DockPanel>
+                    <CheckBox Content="Use icon anti-aliasing" x:Name="PART_ToggleUseAliasing" VerticalAlignment="Center" Padding="4"
+                              ToolTip.Tip="Changing this option does not effect every icon until a restart"/>
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

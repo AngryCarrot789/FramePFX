@@ -17,7 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.BaseFrontEnd.CommandUsages;
+using PFXToolKitUI.Avalonia.CommandUsages;
 
 namespace FramePFX.Avalonia.Editing.CommandUsages;
 

@@ -17,8 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Toolbars;
-using FramePFX.Utils.Collections.Observable;
+using PFXToolKitUI.Toolbars;
+using PFXToolKitUI.Utils.Collections.Observable;
 
 namespace FramePFX.Editing.Toolbars;
 
@@ -33,7 +33,7 @@ public sealed class ControlSurfaceListToolBarManager : BaseToolBarManager {
 
     public ControlSurfaceListToolBarManager() {
         this.Buttons = new ObservableList<ToolBarButton>();
-        
+
         // Setup standard buttons
         this.Buttons.Add(new AddTrackToolBarButton() { Button = { ToolTip = "Adds a new video track" } });
     }

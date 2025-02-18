@@ -25,7 +25,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using FramePFX.Editing.ResourceManaging;
-using FramePFX.Interactivity;
+using PFXToolKitUI.Interactivity;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 

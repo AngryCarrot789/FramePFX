@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using FramePFX.Editing.UI;
-using FramePFX.Interactivity;
+using PFXToolKitUI.Interactivity;
 
 namespace FramePFX.Avalonia.Editing.Timelines.Selection;
 

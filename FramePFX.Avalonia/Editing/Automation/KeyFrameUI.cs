@@ -23,7 +23,7 @@ using Avalonia;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
-using FramePFX.Utils;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Avalonia.Editing.Automation;
 

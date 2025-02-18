@@ -18,9 +18,9 @@
 // 
 
 using Avalonia.Controls.Primitives;
-using FramePFX.BaseFrontEnd.CommandUsages;
+using PFXToolKitUI.Avalonia.CommandUsages;
 using FramePFX.Editing.Timelines;
-using FramePFX.Interactivity.Contexts;
+using PFXToolKitUI.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.Editing.CommandUsages;
 

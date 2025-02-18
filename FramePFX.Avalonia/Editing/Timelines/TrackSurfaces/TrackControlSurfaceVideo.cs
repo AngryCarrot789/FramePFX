@@ -20,9 +20,9 @@
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using FramePFX.Avalonia.Editing.Automation;
-using FramePFX.BaseFrontEnd.AvControls.Dragger;
 using FramePFX.BaseFrontEnd.Bindings;
-using FramePFX.BaseFrontEnd.Utils;
+using PFXToolKitUI.Avalonia.AvControls.Dragger;
+using PFXToolKitUI.Avalonia.Utils;
 using FramePFX.Editing.Timelines.Tracks;
 
 namespace FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;

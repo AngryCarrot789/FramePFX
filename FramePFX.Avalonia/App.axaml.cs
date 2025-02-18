@@ -26,15 +26,16 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
-using FramePFX.BaseFrontEnd;
-using FramePFX.BaseFrontEnd.Themes;
+using PFXToolKitUI.Avalonia;
+using PFXToolKitUI.Avalonia.Themes;
 using FramePFX.Editing;
-using FramePFX.Persistence;
-using FramePFX.Plugins;
-using FramePFX.Services.Messaging;
 using FramePFX.Services.VideoEditors;
-using FramePFX.Themes;
 using HotAvalonia;
+using PFXToolKitUI;
+using PFXToolKitUI.Persistence;
+using PFXToolKitUI.Plugins;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Themes;
 
 namespace FramePFX.Avalonia;
 
@@ -49,7 +50,7 @@ public partial class App : global::Avalonia.Application {
         this.EnableHotReload();
         AvaloniaXamlLoader.Load(this);
         AvCore.OnApplicationInitialised();
-        ApplicationImpl.InternalSetupApplicationInstance(this);
+        FramePFXApplicationImpl.InternalSetupApplicationInstance(this);
     }
 
     public override async void OnFrameworkInitializationCompleted() {
@@ -80,10 +81,10 @@ public partial class App : global::Avalonia.Application {
         using (progress.CompletionState.PushCompletionRange(0.0, 0.7)) {
             // Let the app crash in debug mode so that the IDE can spot the exception
             try {
-                await ApplicationImpl.InternalInitialiseImpl(progress);
+                await FramePFXApplicationImpl.InternalInitialiseImpl(progress);
             }
             catch (Exception ex) when (!Debugger.IsAttached) {
-                await new FramePFX.BaseFrontEnd.Services.MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.ToString());
+                await new PFXToolKitUI.Avalonia.Services.MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.ToString());
                 global::Avalonia.Threading.Dispatcher.UIThread.InvokeShutdown();
                 return;
             }
@@ -91,7 +92,7 @@ public partial class App : global::Avalonia.Application {
 
         await progress.ProgressAndSynchroniseAsync("Loading plugins", 0.7);
         using (progress.CompletionState.PushCompletionRange(0.7, 0.9)) {
-            await ApplicationImpl.InternalLoadPluginsImpl(progress);
+            await FramePFXApplicationImpl.InternalLoadPluginsImpl(progress);
         }
 
         {
@@ -147,13 +148,13 @@ public partial class App : global::Avalonia.Application {
         }
 
         StartupConfigurationOptions.Instance.ApplyTheme();
-        
+
         await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
-        await ApplicationImpl.InternalOnFullyInitialised();
+        await FramePFXApplicationImpl.InternalOnFullyInitialised();
         await Application.Instance.PluginLoader.OnApplicationLoaded();
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             (progress as AppSplashScreen)?.Close();
-            ((ApplicationImpl) Application.Instance).StartupPhaseImpl = ApplicationStartupPhase.Running;
+            ((FramePFXApplicationImpl) Application.Instance).StartupPhaseImpl = ApplicationStartupPhase.Running;
             await progress.ProgressAndSynchroniseAsync("Startup completed", 1.0);
             await StartupManager.Instance.OnApplicationStartupWithArgs(envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
             desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;
@@ -161,9 +162,9 @@ public partial class App : global::Avalonia.Application {
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
-        ((ApplicationImpl) Application.Instance).StartupPhaseImpl = ApplicationStartupPhase.Stopping;
+        ((FramePFXApplicationImpl) Application.Instance).StartupPhaseImpl = ApplicationStartupPhase.Stopping;
         Application.Instance.PluginLoader.OnApplicationExiting();
-        
+
         PersistentStorageManager manager = Application.Instance.PersistentStorageManager;
 
         // Should be inactive at this point realistically, but just in case, clear it all since we're exiting
@@ -174,6 +175,6 @@ public partial class App : global::Avalonia.Application {
         }
 
         manager.SaveAll();
-        ApplicationImpl.InternalOnExiting(e.ApplicationExitCode);
+        FramePFXApplicationImpl.InternalOnExiting(e.ApplicationExitCode);
     }
 }

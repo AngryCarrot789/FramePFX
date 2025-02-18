@@ -17,9 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.DataTransfer;
-using FramePFX.PropertyEditing;
-using FramePFX.Utils;
+using PFXToolKitUI.DataTransfer;
+using PFXToolKitUI.PropertyEditing;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.Exporting;
 

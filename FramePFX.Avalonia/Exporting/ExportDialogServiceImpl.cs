@@ -19,7 +19,7 @@
 
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using FramePFX.BaseFrontEnd;
+using PFXToolKitUI.Avalonia;
 using FramePFX.Editing.Exporting;
 
 namespace FramePFX.Avalonia.Exporting;

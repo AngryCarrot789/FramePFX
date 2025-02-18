@@ -17,7 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.Utils;
+using PFXToolKitUI.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editing;

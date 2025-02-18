@@ -21,6 +21,7 @@ using System.Collections.Immutable;
 using Avalonia.Controls;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Autoloading;
+using PFXToolKitUI.Avalonia;
 
 namespace FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
 

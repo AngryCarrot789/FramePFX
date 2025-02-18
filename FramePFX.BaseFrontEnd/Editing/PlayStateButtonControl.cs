@@ -20,12 +20,14 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using FramePFX.BaseFrontEnd.Interactivity;
-using FramePFX.CommandSystem;
 using FramePFX.Editing;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Utils.Commands;
-using FramePFX.Utils.RDA;
+using PFXToolKitUI;
+using PFXToolKitUI.Avalonia.Interactivity;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Interactivity.Contexts;
+using PFXToolKitUI.Utils.Commands;
+using PFXToolKitUI.Utils.RDA;
+using Application = PFXToolKitUI.Application;
 
 namespace FramePFX.BaseFrontEnd.Editing;
 

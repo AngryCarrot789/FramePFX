@@ -17,17 +17,16 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.AdvancedMenuService;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Clips.Video;
-using FramePFX.Interactivity.Contexts;
+using PFXToolKitUI.AdvancedMenuService;
 
 namespace FramePFX.Editing.ContextRegistries;
 
 public static class ClipContextRegistry {
     public static readonly ContextRegistry Registry = new ContextRegistry("Clips");
-    
+
     static ClipContextRegistry() {
         FixedContextGroup modGeneric = Registry.GetFixedGroup("modify.general");
         modGeneric.AddHeader("General");

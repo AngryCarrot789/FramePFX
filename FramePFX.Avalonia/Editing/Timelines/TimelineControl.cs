@@ -32,22 +32,24 @@ using Avalonia.Markup.Xaml.MarkupExtensions;
 using FramePFX.Avalonia.Editing.Playheads;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
-using FramePFX.Avalonia.Editing.Toolbars;
-using FramePFX.BaseFrontEnd;
-using FramePFX.BaseFrontEnd.AdvancedMenuService;
-using FramePFX.BaseFrontEnd.AvControls;
-using FramePFX.BaseFrontEnd.Interactivity;
-using FramePFX.BaseFrontEnd.Interactivity.Contexts;
-using FramePFX.BaseFrontEnd.Utils;
+using PFXToolKitUI.Avalonia;
+using PFXToolKitUI.Avalonia.AdvancedMenuService;
+using PFXToolKitUI.Avalonia.AvControls;
+using PFXToolKitUI.Avalonia.Interactivity;
+using PFXToolKitUI.Avalonia.Interactivity.Contexts;
+using PFXToolKitUI.Avalonia.Utils;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Toolbars;
 using FramePFX.Editing.UI;
-using FramePFX.Interactivity;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Toolbars;
-using FramePFX.Utils;
-using FramePFX.Utils.Collections.Observable;
+using FramePFX.PropertyEditing;
+using PFXToolKitUI;
+using PFXToolKitUI.Avalonia.Toolbars.Toolbars;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Toolbars;
+using PFXToolKitUI.Utils;
+using PFXToolKitUI.Utils.Collections.Observable;
+using Application = PFXToolKitUI.Application;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
@@ -144,7 +146,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     public event UITimelineModelChanged? TimelineModelChanging;
     public event UITimelineModelChanged? TimelineModelChanged;
     public event AvaloniaPropertyChangedEventHandler<double>? ZoomChanged;
-    
+
     private StackPanel? PART_ToolBar_West;
     private StackPanel? PART_ToolBar_East;
     private StackPanel? PART_TrackControlSurfaceToolBar;
@@ -160,11 +162,12 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     }
 
     static TimelineControl() {
+        
+        
         TimelineProperty.Changed.AddClassHandler<TimelineControl, Timeline?>((d, e) => d.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         IsTrackAutomationVisibleProperty.Changed.AddClassHandler<TimelineControl, bool>((d, e) => d.OnIsTrackAutomationVisibilityChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         IsClipAutomationVisibleProperty.Changed.AddClassHandler<TimelineControl, bool>((d, e) => d.OnIsClipAutomationVisibilityChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         ZoomProperty.Changed.AddClassHandler<TimelineControl, double>((d, e) => d.ZoomChanged?.Invoke(d, e));
-
     }
 
     ITrackElement ITimelineElement.GetTrackFromModel(Track track) => this.trackElementMap.GetControl(track);
@@ -216,10 +219,10 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     public void OnConnectedToEditor(EditorWindow window) {
         this.EditorOwner = window;
         TemplateUtils.Apply(this);
-        
+
         TimelineToolBarManager tlManager = TimelineToolBarManager.GetInstance(window.VideoEditor);
         ControlSurfaceListToolBarManager csManager = ControlSurfaceListToolBarManager.GetInstance(window.VideoEditor);
-        
+
         this.disposeWestButtonListHandler = CreateToolbarBinder(tlManager.WestButtons, this.PART_ToolBar_West!);
         this.disposeEastButtonListHandler = CreateToolbarBinder(tlManager.EastButtons, this.PART_ToolBar_East!);
         this.disposeControlSurfaceListHandler = CreateToolbarBinder(csManager.Buttons, this.PART_TrackControlSurfaceToolBar!);
@@ -240,7 +243,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             btnImpl.Button.BorderThickness = default;
             btnImpl.Button.Bind(BackgroundProperty, new DynamicResourceExtension("ABrush.Tone6.Background.Static"));
             btnImpl.Button.Background = null;
-            
+
             stackPanel.Children.Insert(index + originalCounter, btnImpl.Button);
             item.UpdateCanExecuteLater();
         }, (sender, index, item) => {
@@ -249,7 +252,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             stackPanel.Children.MoveItem(oldIndex + originalCounter, newIndex + originalCounter);
         }).AddExistingItems();
     }
-    
+
     public void OnDisconnectedFromEditor() {
         this.EditorOwner = null;
         this.disposeWestButtonListHandler!.Dispose();
@@ -639,7 +642,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
             using (MultiChangeToken batch = DataManager.GetContextData(this.SurfaceControl).BeginChange())
                 batch.Context.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.SurfaceControl.TrackElement = this);
-            
+
             using (MultiChangeToken batch = DataManager.GetContextData(this.TrackControl).BeginChange())
                 batch.Context.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.TrackControl.TrackElement = this);
         }

@@ -19,9 +19,10 @@
 
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using FramePFX.BaseFrontEnd.Bindings;
-using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing.PropertyEditors;
+using PFXToolKitUI.Avalonia.Bindings;
+using PFXToolKitUI.Avalonia.PropertyEditing;
+using PFXToolKitUI.Avalonia.Utils;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Core;
 

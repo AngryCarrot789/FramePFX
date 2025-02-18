@@ -21,9 +21,9 @@ using System.Numerics;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
-using FramePFX.Interactivity.Formatting;
-using FramePFX.PropertyEditing.DataTransfer;
-using FramePFX.Utils;
+using PFXToolKitUI.Interactivity.Formatting;
+using PFXToolKitUI.PropertyEditing.DataTransfer;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.PropertyEditing.Automation;
 

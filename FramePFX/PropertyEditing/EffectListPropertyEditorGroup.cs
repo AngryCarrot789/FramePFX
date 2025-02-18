@@ -19,6 +19,7 @@
 
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Effects;
+using PFXToolKitUI.PropertyEditing;
 
 namespace FramePFX.PropertyEditing;
 

@@ -22,12 +22,11 @@ using Avalonia;
 using Avalonia.Controls.Primitives;
 using FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
-using FramePFX.BaseFrontEnd.Bindings;
-using FramePFX.BaseFrontEnd.Interactivity;
-using FramePFX.BaseFrontEnd.Utils;
+using PFXToolKitUI.Avalonia.Bindings;
+using PFXToolKitUI.Avalonia.Interactivity;
+using PFXToolKitUI.Avalonia.Utils;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.UI;
-using FramePFX.Interactivity.Contexts;
 using IResourceTreeElement = FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging;

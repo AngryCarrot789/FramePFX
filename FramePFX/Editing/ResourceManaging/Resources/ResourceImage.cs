@@ -20,8 +20,8 @@
 using System.Runtime.InteropServices;
 using FramePFX.Editing.ResourceManaging.Autoloading;
 using FramePFX.Editing.ResourceManaging.Events;
-using FramePFX.Logging;
-using FramePFX.Utils;
+using PFXToolKitUI.Logging;
+using PFXToolKitUI.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Resources;

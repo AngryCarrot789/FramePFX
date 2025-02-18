@@ -21,6 +21,7 @@ using FramePFX.Editing;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
+using PFXToolKitUI.Avalonia.Bindings;
 
 namespace FramePFX.BaseFrontEnd.Bindings;
 

@@ -1,0 +1,68 @@
+﻿<controls:WindowEx x:Class="PFXToolKitUI.Avalonia.Services.Messages.Controls.MessageBoxDialog"
+                   xmlns="https://github.com/avaloniaui"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   xmlns:controls="clr-namespace:PFXToolKitUI.Avalonia.Themes.Controls"
+                   mc:Ignorable="d"
+                   Width="350" Height="150"
+                   Title="Caption Here"
+                   TitleBarBrush="{DynamicResource ABrush.Tone4.Background.Static}"
+                   WindowStartupLocation="CenterOwner">
+    <DockPanel x:Name="PART_DockPanelRoot" Background="{DynamicResource ABrush.Tone2.Background.Static}">
+        <StackPanel x:Name="PART_MessageContainer" DockPanel.Dock="Top" Margin="10,10,10,0">
+            <TextBlock x:Name="PART_Header" Padding="0,0,0,2" Text="Message Here" FontSize="16" Foreground="{DynamicResource ABrush.ColourfulGlyph.Static}" FontWeight="Medium"/>
+            <Separator/>
+        </StackPanel>
+        <Border DockPanel.Dock="Bottom"
+                Background="{DynamicResource ABrush.Tone4.Background.Static}"
+                BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
+                BorderThickness="0,1,0,0"
+                Height="42">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0" Spacing="10">
+                <Button x:Name="PART_YesOkButton" Content="Yes" Width="72" Height="24" CornerRadius="3" FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}">
+                    <Button.Styles>
+                        <Style Selector="Button[IsPointerOver=True]">
+                            <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource ABrush.AccentTone2.Background.Static}"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                        </Style>
+                        <Style Selector="Button[IsFocused=True]">
+                            <Setter Property="BorderBrush" Value="{DynamicResource ABrush.AccentTone2.Background.Static}"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+                <Button x:Name="PART_NoButton" Content="No" Width="72" Height="24" CornerRadius="3" FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}">
+                    <Button.Styles>
+                        <Style Selector="Button[IsPointerOver=True]">
+                            <Setter Property="Background" Value="Red"/>
+                            <Setter Property="BorderBrush" Value="Red"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                        </Style>
+                        <Style Selector="Button[IsFocused=True]">
+                            <Setter Property="BorderBrush" Value="Red"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+                <Button x:Name="PART_CancelButton" Content="Cancel" Width="72" Height="24" CornerRadius="3" FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}">
+                    <Button.Styles>
+                        <Style Selector="Button[IsPointerOver=True]">
+                            <Setter Property="Background" Value="Red"/>
+                            <Setter Property="BorderBrush" Value="Red"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                        </Style>
+                        <Style Selector="Button[IsFocused=True]">
+                            <Setter Property="BorderBrush" Value="Red"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </StackPanel>
+        </Border>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="Transparent">
+            <TextBox x:Name="PART_Message" Text="Label Here" Padding="0,5" Margin="10,8,10,10" IsReadOnly="True" Background="Transparent" BorderThickness="0"/>
+        </ScrollViewer>
+    </DockPanel>
+</controls:WindowEx>

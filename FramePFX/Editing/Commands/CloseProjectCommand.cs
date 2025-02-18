@@ -17,10 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.CommandSystem;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Services.Messaging;
-using FramePFX.Tasks;
+using PFXToolKitUI;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Tasks;
 
 namespace FramePFX.Editing.Commands;
 

@@ -17,9 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
-using FramePFX.Toolbars;
-using FramePFX.Utils;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Toolbars;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.Toolbars;
 

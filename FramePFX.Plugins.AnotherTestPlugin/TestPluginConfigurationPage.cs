@@ -17,11 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Configurations;
-using FramePFX.DataTransfer;
-using FramePFX.PropertyEditing.DataTransfer;
-using FramePFX.Services.Messaging;
-using FramePFX.Utils.Accessing;
+using PFXToolKitUI.Configurations;
+using PFXToolKitUI.DataTransfer;
+using PFXToolKitUI.PropertyEditing.DataTransfer;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Utils.Accessing;
 
 namespace FramePFX.Plugins.AnotherTestPlugin;
 
@@ -41,11 +41,11 @@ public class TestPluginConfigurationPage : PropertyEditorConfigurationPage {
         get => this.coolString;
         set => DataParameter.SetValueHelper(this, CoolStringParameter, ref this.coolString, value);
     }
-    
+
     public TestPluginConfigurationPage() {
         this.coolString = CoolStringParameter.GetDefaultValue(this);
         CoolStringParameter.AddValueChangedHandler(this, this.OnStringChanged);
-        this.PropertyEditor.Root.AddItem(new DataParameterStringPropertyEditorSlot(CoolStringParameter, typeof(TestPluginConfigurationPage), "Very Cool String") {AnticipatedLineCount = 4});
+        this.PropertyEditor.Root.AddItem(new DataParameterStringPropertyEditorSlot(CoolStringParameter, typeof(TestPluginConfigurationPage), "Very Cool String") { AnticipatedLineCount = 4 });
     }
 
     private void OnStringChanged(DataParameter parameter, ITransferableData owner) => this.MarkModified();

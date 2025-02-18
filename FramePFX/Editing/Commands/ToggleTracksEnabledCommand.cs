@@ -17,11 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Timelines.Tracks;
-using FramePFX.Interactivity.Contexts;
+using PFXToolKitUI.CommandSystem;
 
 namespace FramePFX.Editing.Commands;
 

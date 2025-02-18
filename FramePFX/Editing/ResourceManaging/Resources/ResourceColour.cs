@@ -18,7 +18,7 @@
 //
 
 using FramePFX.Editing.ResourceManaging.Events;
-using FramePFX.Utils;
+using PFXToolKitUI.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Resources;

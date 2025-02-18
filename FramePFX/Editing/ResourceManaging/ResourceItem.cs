@@ -17,10 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.DataTransfer;
 using FramePFX.Editing.ResourceManaging.Autoloading;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.ResourceManaging.NewResourceHelper;
+using PFXToolKitUI.DataTransfer;
 
 namespace FramePFX.Editing.ResourceManaging;
 
@@ -240,7 +240,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     public override void Destroy() {
         if (this.IsOnline)
             this.Disable(false);
-        
+
         base.Destroy();
     }
 

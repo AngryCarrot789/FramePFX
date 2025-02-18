@@ -18,9 +18,9 @@
 // 
 
 using Avalonia.Controls.Primitives;
-using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.UI;
+using PFXToolKitUI.Avalonia.Utils;
 
 namespace FramePFX.BaseFrontEnd.ResourceManaging;
 

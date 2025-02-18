@@ -18,7 +18,7 @@
 // 
 
 using FramePFX.Editing.ResourceManaging.Autoloading;
-using FramePFX.Utils;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Plugins.FFmpegMedia.Resources;
 

@@ -21,6 +21,6 @@ The render phase is like this:
 This is a simple but still performant rendering technique over say rendering all clips sequentially on the main thread (which is what I used to do).
 This may change in the future if I come up with a better system, but for now, it works pretty well
 
-
 ## Audio
+
 Audio playback is done via portaudio. Currently, it is sort of implemented but not active due to crackling issues

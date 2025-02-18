@@ -19,9 +19,9 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FramePFX.Editing.ResourceManaging.Events;
-using FramePFX.Utils;
 using FramePFX.Utils.BTE;
-using FramePFX.Utils.Destroying;
+using PFXToolKitUI.Utils;
+using PFXToolKitUI.Utils.Destroying;
 
 namespace FramePFX.Editing.ResourceManaging;
 

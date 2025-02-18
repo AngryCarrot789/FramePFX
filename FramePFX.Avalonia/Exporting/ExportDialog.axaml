@@ -1,14 +1,14 @@
 <controls:WindowEx xmlns="https://github.com/avaloniaui"
-            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-            xmlns:dragger="clr-namespace:FramePFX.BaseFrontEnd.AvControls.Dragger;assembly=FramePFX.BaseFrontEnd"
-            xmlns:controls="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
-            xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
-            mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-            x:Class="FramePFX.Avalonia.Exporting.ExportDialog"
-            Height="450" Width="400"
-            Title="Export Media">
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   xmlns:dragger="clr-namespace:PFXToolKitUI.Avalonia.AvControls.Dragger;assembly=PFXToolKitUI.Avalonia"
+                   xmlns:controls="clr-namespace:PFXToolKitUI.Avalonia.Themes.Controls;assembly=PFXToolKitUI.Avalonia"
+                   xmlns:propertyEditing="clr-namespace:PFXToolKitUI.Avalonia.PropertyEditing;assembly=PFXToolKitUI.Avalonia"
+                   mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                   x:Class="FramePFX.Avalonia.Exporting.ExportDialog"
+                   Height="450" Width="400"
+                   Title="Export Media">
     <Grid>
         <Grid ColumnDefinitions="5,75,*,5" RowDefinitions="5,Auto,5,Auto,5,Auto,5,*,Auto">
             <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="File Path" Grid.Column="1" Grid.Row="1"/>
@@ -24,14 +24,14 @@
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Begin Frame" Padding="0,0,0,2" HorizontalAlignment="Center"/>
                     <dragger:NumberDragger x:Name="PART_BeginFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10"
-                                      Padding="0,1" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
-                                      Theme="{StaticResource NumberDraggerAbletonTheme}"/>
+                                           Padding="0,1" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
+                                           Theme="{StaticResource NumberDraggerAbletonTheme}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="End Frame" Padding="0,0,0,2" HorizontalAlignment="Center"/>
                     <dragger:NumberDragger x:Name="PART_EndFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10"
-                                      Padding="0,1" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
-                                      Theme="{StaticResource NumberDraggerAbletonTheme}"/>
+                                           Padding="0,1" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
+                                           Theme="{StaticResource NumberDraggerAbletonTheme}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="Duration" Padding="0,0,0,2" HorizontalAlignment="Center"/>

@@ -20,11 +20,11 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
-using FramePFX.BaseFrontEnd.Bindings;
 using FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
-using FramePFX.BaseFrontEnd.Utils;
-using FramePFX.Services.Messaging;
-using FramePFX.Utils.Commands;
+using PFXToolKitUI.Avalonia.Bindings;
+using PFXToolKitUI.Avalonia.Utils;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Utils.Commands;
 
 namespace FramePFX.Plugins.FFmpegMedia.Resources.Controls;
 

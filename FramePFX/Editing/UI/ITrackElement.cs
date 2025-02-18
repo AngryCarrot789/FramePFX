@@ -19,7 +19,7 @@
 
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Tracks;
-using FramePFX.Interactivity;
+using PFXToolKitUI.Interactivity;
 
 namespace FramePFX.Editing.UI;
 

@@ -22,7 +22,7 @@ using System.Linq;
 using FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 using FramePFX.Editing.ResourceManaging;
-using FramePFX.Interactivity;
+using PFXToolKitUI.Interactivity;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging;
 

@@ -19,7 +19,7 @@
 
 using Avalonia;
 using Avalonia.Controls.Primitives;
-using FramePFX.BaseFrontEnd.Bindings;
+using PFXToolKitUI.Avalonia.Bindings;
 using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Avalonia.Editing.Playheads;

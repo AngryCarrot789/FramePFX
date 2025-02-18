@@ -18,14 +18,15 @@
 // 
 
 using Fractions;
-using FramePFX.DataTransfer;
 using FramePFX.Editing;
 using FramePFX.Editing.UI;
-using FramePFX.Interactivity.Formatting;
-using FramePFX.PropertyEditing.DataTransfer;
-using FramePFX.Utils;
-using FramePFX.Utils.Accessing;
-using FramePFX.Utils.Destroying;
+using PFXToolKitUI.Configurations;
+using PFXToolKitUI.DataTransfer;
+using PFXToolKitUI.Interactivity.Formatting;
+using PFXToolKitUI.PropertyEditing.DataTransfer;
+using PFXToolKitUI.Utils;
+using PFXToolKitUI.Utils.Accessing;
+using PFXToolKitUI.Utils.Destroying;
 using SkiaSharp;
 
 namespace FramePFX.Configurations;
@@ -46,7 +47,7 @@ public class ProjectConfigurationManager : ConfigurationManager, IDestroy {
     /// Since this is static, care must be taken to remove handlers when no longer needed
     /// </summary>
     public static event SetupProjectConfigurationEventHandler? SetupProjectConfiguration;
-    
+
     public ProjectConfigurationManager(Project project, IVideoEditorWindow editorUi) {
         this.Project = project;
         this.VideoEditor = editorUi;
@@ -56,7 +57,6 @@ public class ProjectConfigurationManager : ConfigurationManager, IDestroy {
     }
 
     public void Destroy() {
-        
     }
 
     public static ProjectConfigurationManager GetInstance(Project project, IVideoEditorWindow videoEditor) {

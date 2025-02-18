@@ -25,16 +25,15 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using FramePFX.BaseFrontEnd;
-using FramePFX.BaseFrontEnd.AdvancedMenuService;
-using FramePFX.BaseFrontEnd.Interactivity;
+using PFXToolKitUI.Avalonia;
+using PFXToolKitUI.Avalonia.AdvancedMenuService;
+using PFXToolKitUI.Avalonia.Interactivity;
 using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.ResourceManaging.UI;
-using FramePFX.Interactivity;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Services.Messaging;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Services.Messaging;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
@@ -72,9 +71,9 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, IResourc
     BaseResource IResourceTreeOrNode.Resource => this.rootFolder;
 
     public IResourceManagerElement ManagerUI { get; set; }
-    
+
     ISelectionManager<BaseResource> IResourceTreeElement.Selection => this.SelectionManager;
-    
+
     public ResourceTreeSelectionManager SelectionManager { get; }
 
     public ResourceTreeView() {
@@ -85,7 +84,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, IResourc
         DragDrop.SetAllowDrop(this, true);
         DataManager.GetContextData(this).Set(DataKeys.ResourceTreeUIKey, this);
     }
-    
+
     IResourceTreeNodeElement IResourceTreeElement.GetNode(BaseResource resource) => this.itemMap.GetControl(resource);
 
     protected override void OnLoaded(RoutedEventArgs e) {
@@ -97,7 +96,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, IResourc
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
-    
+
     protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
         if (e.Handled || e.Source is ResourceTreeViewItem) {

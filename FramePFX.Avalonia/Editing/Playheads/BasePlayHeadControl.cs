@@ -76,9 +76,9 @@ public abstract class BasePlayHeadControl : TemplatedControl {
                 return;
 
             switch (this.PlayHeadType) {
-                case PlayHeadType.PlayHead: 
+                case PlayHeadType.PlayHead:
                     using (this.myTimeline.RenderManager.UseSlowRenderDispatch())
-                        this.myTimeline.PlayHeadPosition = value; 
+                        this.myTimeline.PlayHeadPosition = value;
                 break;
                 case PlayHeadType.StopHead: this.myTimeline.StopHeadPosition = value; break;
             }

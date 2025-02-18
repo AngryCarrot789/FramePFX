@@ -1,12 +1,12 @@
 <controls:WindowEx xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
-        mc:Ignorable="d" Width="450" Height="150"
-        x:Class="FramePFX.Avalonia.Services.Startups.StartupWindow"
-        Title="Welcome to FramePFX!"
-        WindowStartupLocation="CenterScreen">
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   xmlns:controls="clr-namespace:PFXToolKitUI.Avalonia.Themes.Controls;assembly=PFXToolKitUI.Avalonia"
+                   mc:Ignorable="d" Width="450" Height="150"
+                   x:Class="FramePFX.Avalonia.Services.Startups.StartupWindow"
+                   Title="Welcome to FramePFX!"
+                   WindowStartupLocation="CenterScreen">
     <Grid RowDefinitions="Auto,5,*,Auto" Margin="10">
         <TextBlock Text="Select an action below" FontSize="16" FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center"/>
         <Grid ColumnDefinitions="4*,5,3*,5,5*" Grid.Row="2">

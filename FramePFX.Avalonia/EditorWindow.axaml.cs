@@ -27,31 +27,33 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
-using FramePFX.AdvancedMenuService;
-using FramePFX.Avalonia.Editing.Toolbars;
-using FramePFX.BaseFrontEnd.AvControls;
-using FramePFX.BaseFrontEnd.Interactivity;
-using FramePFX.BaseFrontEnd.Interactivity.Contexts;
-using FramePFX.BaseFrontEnd.Themes.Controls;
-using FramePFX.BaseFrontEnd.Utils;
+using PFXToolKitUI.Avalonia.AvControls;
+using PFXToolKitUI.Avalonia.Interactivity;
+using PFXToolKitUI.Avalonia.Interactivity.Contexts;
+using PFXToolKitUI.Avalonia.Themes.Controls;
+using PFXToolKitUI.Avalonia.Utils;
 using FramePFX.Editing;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Toolbars;
 using FramePFX.Editing.UI;
-using FramePFX.Icons;
-using FramePFX.Interactivity;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Persistence;
 using FramePFX.PropertyEditing;
-using FramePFX.Tasks;
-using FramePFX.Themes;
-using FramePFX.Toolbars;
-using FramePFX.Utils;
-using FramePFX.Utils.Collections.Observable;
-using FramePFX.Utils.RDA;
+using PFXToolKitUI;
+using PFXToolKitUI.AdvancedMenuService;
+using PFXToolKitUI.Avalonia.Toolbars.Toolbars;
+using PFXToolKitUI.Icons;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Interactivity.Contexts;
+using PFXToolKitUI.Persistence;
+using PFXToolKitUI.Tasks;
+using PFXToolKitUI.Themes;
+using PFXToolKitUI.Toolbars;
+using PFXToolKitUI.Utils;
+using PFXToolKitUI.Utils.Collections.Observable;
+using PFXToolKitUI.Utils.RDA;
 using SkiaSharp;
+using Application = PFXToolKitUI.Application;
 
 namespace FramePFX.Avalonia;
 
@@ -133,8 +135,8 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         fileEntry.Items.Add(new CommandContextEntry("commands.editor.SaveProjectAs", "Save Project As..."));
         fileEntry.Items.Add(new CommandContextEntry("commands.editor.CloseProject", "Close Project"));
         fileEntry.Items.Add(new SeparatorEntry());
-        fileEntry.Items.Add(new CommandContextEntry("commands.editor.OpenEditorSettings", "Preferences"));
-        fileEntry.Items.Add(new CommandContextEntry("commands.editor.OpenProjectSettings", "Project Settings"));
+        fileEntry.Items.Add(new CommandContextEntry("commands.mainWindow.OpenEditorSettings", "Preferences"));
+        fileEntry.Items.Add(new CommandContextEntry("commands.mainWindow.OpenProjectSettings", "Project Settings"));
         fileEntry.Items.Add(new SeparatorEntry());
         fileEntry.Items.Add(new CommandContextEntry("commands.editor.Export", "Export"));
         fileEntry.Items.Add(new CommandContextEntry("commands.generic.ExportActiveTimelineCommand", "Export Active Timeline"));
@@ -183,7 +185,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         this.ThePropertyEditor.PropertyEditor = this.PropertyEditor;
         using (MultiChangeToken myDataBatch = DataManager.GetContextData(this).BeginChange()) {
             VideoEditorListener listener = VideoEditorListener.GetInstance(this.VideoEditor);
-            
+
             listener.ProjectUnloaded += this.OnProjectUnloaded;
             listener.ProjectLoaded += this.OnProjectLoaded;
             listener.IsExportingChanged += this.OnIsExportingChanged;
@@ -191,10 +193,10 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
             this.PART_ViewPort.Owner = this;
             this.PART_ViewPort.VideoEditor = this.VideoEditor;
             myDataBatch.Context.Set(DataKeys.VideoEditorKey, this.VideoEditor);
-            
+
             if (this.VideoEditor.Project is Project project)
                 this.OnProjectLoaded(this.VideoEditor, project);
-            
+
             this.OnIsExportingChanged(this.VideoEditor);
         }
 
@@ -278,13 +280,13 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
                 await Application.Instance.Dispatcher.InvokeAsync(() => {
                     prog.Text = "Removing those 10 items";
                 });
-                
+
                 for (int i = indices.Count - 1; i >= 0; i--) {
                     await Application.Instance.Dispatcher.InvokeAsync(() => {
                         this.entry.Items.RemoveAt(indices[i]);
                         prog.CompletionState.OnProgress(0.1);
                     });
-                    
+
                     await Task.Delay(500);
                 }
             }).Task;

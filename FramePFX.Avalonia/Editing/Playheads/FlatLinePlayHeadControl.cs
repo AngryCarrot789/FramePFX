@@ -55,7 +55,7 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
         if (this.dragState == StateActive) {
             this.myTimeline?.EndScrubPlayHead(this.PlayHeadType);
         }
-        
+
         this.SetDragState(StateNone);
         if (ReferenceEquals(e.Pointer.Captured, this))
             e.Pointer.Capture(null);
@@ -112,7 +112,7 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
                             newFrame = snapFrame;
                         }
                     }
-                    
+
                     this.Frame = Math.Min(newFrame, timeline.MaxDuration - 1);
                 }
             }

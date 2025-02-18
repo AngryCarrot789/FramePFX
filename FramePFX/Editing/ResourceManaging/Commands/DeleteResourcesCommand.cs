@@ -18,11 +18,10 @@
 // 
 
 using System.Diagnostics;
-using FramePFX.CommandSystem;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Editing.Timelines;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Services.Messaging;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Services.Messaging;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
@@ -35,7 +34,7 @@ public class DeleteResourcesCommand : Command {
         if (DataKeys.ResourceTreeUIKey.IsPresent(e.ContextData) || DataKeys.ResourceListUIKey.IsPresent(e.ContextData)) {
             return Executability.Valid;
         }
-        
+
         return Executability.Invalid;
     }
 
@@ -43,7 +42,7 @@ public class DeleteResourcesCommand : Command {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? videoEditor)) {
             return;
         }
-        
+
         List<BaseResource> selection;
         if (DataKeys.ResourceTreeUIKey.TryGetContext(e.ContextData, out IResourceTreeElement? tree)) {
             selection = tree.Selection.SelectedItems.ToList();
@@ -102,11 +101,11 @@ public class DeleteResourcesCommand : Command {
                     if (continuePlaying) {
                         videoEditor.Playback.Play();
                     }
-                    
+
                     return;
                 }
             }
-            
+
             foreach (BaseResource item in selection) {
                 // Since the tree's selected items will be unordered (hash set), we might end up removing
                 // a folder containing some selected items, so parent will be null since it deletes the hierarchy

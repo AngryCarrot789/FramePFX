@@ -37,7 +37,7 @@ public class ProjectSettings {
             this.myFrameRate = value;
         }
     }
-    
+
     private double? frameRateDouble;
 
     public SKSizeI Resolution {
@@ -67,7 +67,7 @@ public class ProjectSettings {
     /// <summary>
     /// Gets a cached double-value of the frame rate
     /// </summary>
-    public double FrameRateDouble => this.frameRateDouble ??= this.FrameRate.ToDouble(); 
+    public double FrameRateDouble => this.frameRateDouble ??= this.FrameRate.ToDouble();
 
     public int SampleRate = 44100;
     public int BufferSize = 2048;

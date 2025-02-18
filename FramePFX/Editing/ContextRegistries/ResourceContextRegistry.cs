@@ -18,12 +18,11 @@
 // 
 
 using System.Text;
-using FramePFX.AdvancedMenuService;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.ResourceManaging.UI;
-using FramePFX.Interactivity.Contexts;
+using PFXToolKitUI.AdvancedMenuService;
 
 namespace FramePFX.Editing.ContextRegistries;
 

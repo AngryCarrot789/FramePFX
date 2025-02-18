@@ -30,10 +30,10 @@ public static class SnapHelper {
         foreach (Track track in timeline.Tracks) {
             track.CollectClipsInSpan(clips, range);
         }
-        
+
         return SnapPlayHeadToClipEdge(clips, playHead, out newPlayHead);
     }
-    
+
     public static bool SnapPlayHeadToClipEdge(List<Clip> clips, long playHead, out long newPlayHead) {
         long snapFrame = playHead;
         long closest = long.MaxValue;

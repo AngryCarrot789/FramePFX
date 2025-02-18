@@ -22,11 +22,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
-using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Automation;
+using PFXToolKitUI.Avalonia.PropertyEditing;
+using PFXToolKitUI.Avalonia.Utils;
+using PFXToolKitUI.PropertyEditing;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 

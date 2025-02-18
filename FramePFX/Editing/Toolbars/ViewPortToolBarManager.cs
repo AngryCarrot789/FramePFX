@@ -18,9 +18,8 @@
 // 
 
 using FramePFX.Editing.UI;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Toolbars;
-using FramePFX.Utils.Collections.Observable;
+using PFXToolKitUI.Toolbars;
+using PFXToolKitUI.Utils.Collections.Observable;
 
 namespace FramePFX.Editing.Toolbars;
 
@@ -46,12 +45,12 @@ public class ViewPortToolBarManager : BaseToolBarManager {
         this.EastButtons = new ObservableList<ToolBarButton>();
 
         this.WestButtons.Add(new ToggleZoomToCursorToolBarButton() { Button = { ToolTip = "If enabled, pans towards your cursor when zooming in and pans away when zooming out. When false, zooms into the center of the screen" } });
-        
+
         this.CenterButtons.Add(new TimelineToolBarManager.TogglePlayStateButtonImpl() { Button = { ToolTip = "Play or pause playback" } });
         this.CenterButtons.Add(new TimelineToolBarManager.SetPlayStateButtonImpl(PlayState.Play) { Button = { ToolTip = "Start playback" } });
         this.CenterButtons.Add(new TimelineToolBarManager.SetPlayStateButtonImpl(PlayState.Pause) { Button = { ToolTip = "Pause playback, keeping the play head at the current frame" } });
         this.CenterButtons.Add(new TimelineToolBarManager.SetPlayStateButtonImpl(PlayState.Stop) { Button = { ToolTip = "Stop playback, returning the play head to the stop head location" } });
-        
+
         this.EastButtons.Add(new ToggleUseCheckerboardToolBarButton() { Button = { ToolTip = "Toggles whether to use a checkerboard or black background", } });
     }
 
@@ -72,7 +71,7 @@ public class ViewPortToolBarManager : BaseToolBarManager {
             if (this.editor != null) {
                 this.editor.ViewPort.PanToCursorOnUserZoom = !this.editor.ViewPort.PanToCursorOnUserZoom;
             }
-            
+
             return Task.CompletedTask;
         }
 
@@ -110,7 +109,7 @@ public class ViewPortToolBarManager : BaseToolBarManager {
             }
         }
     }
-    
+
     public class ToggleUseCheckerboardToolBarButton : ToolBarButton {
         private IVideoEditorWindow? editor;
 
@@ -124,7 +123,7 @@ public class ViewPortToolBarManager : BaseToolBarManager {
             if (this.editor != null) {
                 this.editor.ViewPort.UseTransparentCheckerBoardBackground = !this.editor.ViewPort.UseTransparentCheckerBoardBackground;
             }
-            
+
             return Task.CompletedTask;
         }
 

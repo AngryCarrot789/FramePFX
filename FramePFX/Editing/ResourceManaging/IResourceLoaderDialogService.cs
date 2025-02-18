@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using PFXToolKitUI;
+
 namespace FramePFX.Editing.ResourceManaging;
 
 /// <summary>

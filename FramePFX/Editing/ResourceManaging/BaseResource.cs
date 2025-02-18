@@ -18,10 +18,10 @@
 //
 
 using FramePFX.Editing.Factories;
-using FramePFX.Interactivity;
 using FramePFX.Serialisation;
 using FramePFX.Utils.BTE;
-using FramePFX.Utils.Destroying;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Utils.Destroying;
 
 namespace FramePFX.Editing.ResourceManaging;
 
@@ -74,8 +74,6 @@ public abstract class BaseResource : IDestroy, IDisplayName {
             if (!string.IsNullOrEmpty(resource.DisplayName))
                 data.SetString(nameof(resource.DisplayName), resource.DisplayName);
         });
-
-        
     }
 
     /// <summary>

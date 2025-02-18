@@ -4,12 +4,12 @@
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
             xmlns:rm="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
-            xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
+            xmlns:avalonia="clr-namespace:PFXToolKitUI.Avalonia.Shortcuts.Avalonia;assembly=PFXToolKitUI.Avalonia"
             xmlns:e="clr-namespace:FramePFX.Avalonia.Editing"
-            xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
-            xmlns:ams="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd"
-            xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
-            xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
+            xmlns:c="clr-namespace:PFXToolKitUI.Avalonia.Themes.Controls;assembly=PFXToolKitUI.Avalonia"
+            xmlns:ams="clr-namespace:PFXToolKitUI.Avalonia.AdvancedMenuService;assembly=PFXToolKitUI.Avalonia"
+            xmlns:propertyEditing="clr-namespace:PFXToolKitUI.Avalonia.PropertyEditing;assembly=PFXToolKitUI.Avalonia"
+            xmlns:cu="clr-namespace:PFXToolKitUI.Avalonia.CommandUsages;assembly=PFXToolKitUI.Avalonia"
             mc:Ignorable="d"
             x:Class="FramePFX.Avalonia.EditorWindow"
             Background="{DynamicResource PanelBackground0}"
@@ -24,7 +24,7 @@
         <Grid.RowDefinitions>
             <!-- Top menu row -->
             <RowDefinition Height="Auto"/>
-            
+
             <!-- Main content rows -->
             <RowDefinition Height="*"/>
 
@@ -37,7 +37,7 @@
             This is used to implement a kind of "contextual" non-context menu item
         -->
         <ams:AdvancedTopLevelMenu x:Name="PART_TopLevelMenu" Grid.Row="0"
-                                  BorderBrush="{DynamicResource PanelBorderBrush}" 
+                                  BorderBrush="{DynamicResource PanelBorderBrush}"
                                   BorderThickness="0,0,0,1"
                                   Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type c:WindowEx}, Mode=FindAncestor}}"/>
         <Grid Grid.Row="1">
@@ -77,7 +77,7 @@
                             <Grid Margin="4" x:Name="PART_ToolBarPanel" SizeChanged="PART_ToolBarPanel_OnSizeChanged">
                                 <StackPanel x:Name="PART_ToolBar_West" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Left"
                                             SizeChanged="PART_ToolBar_West_OnSizeChanged">
-                                    <Button Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" 
+                                    <Button Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left"
                                             Padding="1,0,0,0" Click="FitToScale_Click"/>
                                 </StackPanel>
                                 <StackPanel x:Name="PART_ToolBar_Center" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4" SizeChanged="PART_ToolBar_Center_OnSizeChanged">
@@ -93,15 +93,15 @@
                             <Grid>
                                 <ComboBox x:Name="PART_RenderQualityComboBox" HorizontalAlignment="Left" BorderThickness="0" ToolTip.Tip="Rendering quality"/>
                                 <Button Content="Edit Project Settings" HorizontalAlignment="Right" Padding="15,0" BorderThickness="0"
-                                        cu:CommandUsageManager.SimpleButtonCommandId="commands.editor.OpenProjectSettings"
+                                        cu:CommandUsageManager.SimpleButtonCommandId="commands.mainWindow.OpenProjectSettings"
                                         ToolTip.Tip="Opens the project's settings in a dialog"/>
                             </Grid>
                         </Border>
                         <Grid Background="Transparent">
                             <e:VideoEditorViewPortControl x:Name="PART_ViewPort"
-                                                           Background="Transparent"
-                                                           Focusable="True"
-                                                           avalonia:UIInputManager.FocusPath="EditorWindow/Canvas">
+                                                          Background="Transparent"
+                                                          Focusable="True"
+                                                          avalonia:UIInputManager.FocusPath="EditorWindow/Canvas">
                                 <e:VideoEditorViewPortControl.Styles>
                                     <Style Selector="e|VideoEditorViewPortControl[IsFocused=false]">
                                         <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>

@@ -24,7 +24,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using FramePFX.BaseFrontEnd.ResourceManaging;
-using FramePFX.BaseFrontEnd.Utils;
+using PFXToolKitUI.Avalonia.Utils;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Resources;
 using SkiaSharp;

@@ -20,12 +20,13 @@
 using System;
 using System.Threading.Tasks;
 using Avalonia.Controls.Primitives;
-using FramePFX.BaseFrontEnd.AvControls;
 using FramePFX.BaseFrontEnd.ResourceManaging;
-using FramePFX.BaseFrontEnd.Utils;
+using PFXToolKitUI.Avalonia.AvControls;
+using PFXToolKitUI.Avalonia.Utils;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.Resources;
-using FramePFX.Utils.RDA;
+using PFXToolKitUI;
+using PFXToolKitUI.Utils.RDA;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems;
 

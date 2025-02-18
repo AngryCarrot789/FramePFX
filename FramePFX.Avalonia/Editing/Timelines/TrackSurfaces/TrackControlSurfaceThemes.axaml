@@ -1,13 +1,14 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:s="clr-namespace:FramePFX.Avalonia.Editing.Timelines.TrackSurfaces"
-                    xmlns:f="clr-namespace:FramePFX.Interactivity.Formatting;assembly=FramePFX-core"
-                    xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:dragger="clr-namespace:FramePFX.BaseFrontEnd.AvControls.Dragger;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:avalonia="clr-namespace:PFXToolKitUI.Avalonia.Shortcuts.Avalonia;assembly=PFXToolKitUI.Avalonia"
+                    xmlns:dragger="clr-namespace:PFXToolKitUI.Avalonia.AvControls.Dragger;assembly=PFXToolKitUI.Avalonia"
+                    xmlns:cu="clr-namespace:PFXToolKitUI.Avalonia.CommandUsages;assembly=PFXToolKitUI.Avalonia"
                     xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandUsages"
-                    xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Converters;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:a="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd">
+                    xmlns:c="clr-namespace:PFXToolKitUI.Avalonia.Converters;assembly=PFXToolKitUI.Avalonia"
+                    xmlns:a="clr-namespace:PFXToolKitUI.Avalonia.AvControls;assembly=PFXToolKitUI.Avalonia"
+                    xmlns:f="clr-namespace:PFXToolKitUI.Interactivity.Formatting;assembly=PFXToolKitUI"
+                    xmlns:converters="clr-namespace:FramePFX.BaseFrontEnd.Converters;assembly=FramePFX.BaseFrontEnd">
     <f:UnitToPercentFormatter x:Key="OpacityUnitPercentageFormatter" NonEditingRoundedPlaces="1" EditingRoundedPlaces="4"/>
     <ControlTheme x:Key="TrackListExpandToggleButtonStyle" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
         <Setter Property="Background" Value="Transparent"/>
@@ -136,8 +137,8 @@
         <Setter Property="VerticalAlignment" Value="Stretch"/>
     </ControlTheme>
 
-    <c:AutomationBrushConverter x:Key="AutomationBrushConverter"/>
-    
+    <converters:AutomationBrushConverter x:Key="AutomationBrushConverter"/>
+
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceVideo}" TargetType="{x:Type s:TrackControlSurfaceVideo}" BasedOn="{StaticResource {x:Type s:TrackControlSurface}}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceVideo}">
@@ -167,13 +168,13 @@
                                               VerticalAlignment="Top" Content="V" BorderBrush="Black"
                                               Height="17" Width="17" Theme="{StaticResource StaticBorderToggleButtonTheme}"/>
                                 <dragger:NumberDragger Width="55" Height="17" BorderBrush="Black"
-                                                 VerticalAlignment="Top"
-                                                 Minimum="0" Maximum="1" Margin="2,0,0,0"
-                                                 TinyChange="0.0001" SmallChange="0.001"
-                                                 NormalChange="0.002" LargeChange="0.01"
-                                                 Theme="{StaticResource NumberDraggerAbletonTheme}"
-                                                 x:Name="PART_OpacitySlider" Padding="0,1,0,0"
-                                                 ValueFormatter="{StaticResource OpacityUnitPercentageFormatter}"/>
+                                                       VerticalAlignment="Top"
+                                                       Minimum="0" Maximum="1" Margin="2,0,0,0"
+                                                       TinyChange="0.0001" SmallChange="0.001"
+                                                       NormalChange="0.002" LargeChange="0.01"
+                                                       Theme="{StaticResource NumberDraggerAbletonTheme}"
+                                                       x:Name="PART_OpacitySlider" Padding="0,1,0,0"
+                                                       ValueFormatter="{StaticResource OpacityUnitPercentageFormatter}"/>
                             </StackPanel>
                             <TextBlock DockPanel.Dock="Right" Margin="0,1,4,0"
                                        Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DisplayName}"

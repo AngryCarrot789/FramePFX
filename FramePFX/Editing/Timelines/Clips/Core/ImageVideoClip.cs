@@ -45,7 +45,7 @@ public class ImageVideoClip : VideoClip {
                 ((ResourceImage) oldResource).ImageChanged -= clip.OnImageResourceChanged;
             if (newResource != null)
                 ((ResourceImage) newResource).ImageChanged += clip.OnImageResourceChanged;
-            
+
             clip.SignalDisposeImage();
             clip.OnRenderSizeChanged();
         };

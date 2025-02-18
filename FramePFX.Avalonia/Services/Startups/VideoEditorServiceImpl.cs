@@ -21,6 +21,7 @@ using FramePFX.Editing;
 using FramePFX.Editing.Toolbars;
 using FramePFX.Editing.UI;
 using FramePFX.Services.VideoEditors;
+using PFXToolKitUI;
 
 namespace FramePFX.Avalonia.Services.Startups;
 

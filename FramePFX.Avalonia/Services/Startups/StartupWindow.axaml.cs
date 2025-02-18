@@ -18,14 +18,14 @@
 // 
 
 using Avalonia.Interactivity;
-using FramePFX.BaseFrontEnd.Themes.Controls;
+using PFXToolKitUI.Avalonia.Themes.Controls;
 using FramePFX.Services.VideoEditors;
 
 namespace FramePFX.Avalonia.Services.Startups;
 
 public partial class StartupWindow : WindowEx {
     private readonly StartupManager startupManager;
-    
+
     public StartupWindow(StartupManager startupManager) {
         this.InitializeComponent();
         this.startupManager = startupManager;

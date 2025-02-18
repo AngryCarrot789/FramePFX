@@ -47,7 +47,7 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
             this.PART_ThumbHead.DragStarted += this.PART_ThumbHeadOnDragStarted;
             this.PART_ThumbHead.DragCompleted += this.PART_ThumbHeadOnDragCompleted;
             this.PART_ThumbHead.DragDelta += this.PART_ThumbOnDragDelta;
-            
+
             this.PART_ThumbHead.AddHandler(KeyDownEvent, this.OnKey, RoutingStrategies.Tunnel, true);
             this.PART_ThumbHead.AddHandler(KeyUpEvent, this.OnKey, RoutingStrategies.Tunnel, true);
         }
@@ -64,7 +64,7 @@ public class GrippedPlayHeadControl : BasePlayHeadControl {
     private void PART_ThumbHeadOnDragStarted(object? sender, VectorEventArgs e) {
         this.myTimeline?.BeginScrubPlayHead(this.PlayHeadType);
     }
-    
+
     private void PART_ThumbHeadOnDragCompleted(object? sender, VectorEventArgs e) {
         this.myTimeline?.EndScrubPlayHead(this.PlayHeadType);
     }

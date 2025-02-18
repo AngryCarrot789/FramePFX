@@ -19,13 +19,13 @@
 
 using System.Numerics;
 using Avalonia.Controls.Primitives;
-using FramePFX.BaseFrontEnd.AvControls.Dragger;
-using FramePFX.BaseFrontEnd.Bindings;
-using FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
-using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.PropertyEditing.Automation;
-using FramePFX.PropertyEditing.DataTransfer;
+using PFXToolKitUI.Avalonia.AvControls.Dragger;
+using PFXToolKitUI.Avalonia.Bindings;
+using PFXToolKitUI.Avalonia.PropertyEditing.DataTransfer;
+using PFXToolKitUI.Avalonia.Utils;
+using PFXToolKitUI.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 

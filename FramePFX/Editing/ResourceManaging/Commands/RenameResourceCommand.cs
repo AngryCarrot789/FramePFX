@@ -17,10 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
 using FramePFX.Editing.ResourceManaging.UI;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Services.UserInputs;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Services.UserInputs;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 

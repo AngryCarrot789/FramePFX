@@ -17,14 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.CommandSystem;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.ResourceManaging;
-using FramePFX.Services.FilePicking;
-using FramePFX.Services.Messaging;
-using FramePFX.Tasks;
-using FramePFX.Utils;
-using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
+using PFXToolKitUI;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Services.FilePicking;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Tasks;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.Commands;
 

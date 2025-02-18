@@ -35,6 +35,6 @@ public class ResourceTypeFactory : ReflectiveObjectFactory<BaseResource> {
     public BaseResource NewResource(string id) {
         return base.NewInstance(id);
     }
-    
+
     public new void RegisterType(string id, Type type) => base.RegisterType(id, type);
 }

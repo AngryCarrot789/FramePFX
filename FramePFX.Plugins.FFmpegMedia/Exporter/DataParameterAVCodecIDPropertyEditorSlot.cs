@@ -18,8 +18,8 @@
 // 
 
 using FFmpeg.AutoGen;
-using FramePFX.DataTransfer;
-using FramePFX.PropertyEditing.DataTransfer.Enums;
+using PFXToolKitUI.DataTransfer;
+using PFXToolKitUI.PropertyEditing.DataTransfer.Enums;
 
 namespace FramePFX.Plugins.FFmpegMedia.Exporter;
 

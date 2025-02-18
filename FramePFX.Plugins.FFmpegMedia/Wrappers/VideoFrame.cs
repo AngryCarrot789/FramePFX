@@ -164,7 +164,7 @@ public unsafe class VideoFrame : MediaFrame {
         this.ValidateNotDisposed();
         if (this.frame == null)
             throw new ObjectDisposedException("this", "This object is disposed due to a null frame");
-        
+
         FFUtils.CheckError(ffmpeg.av_hwframe_transfer_data(dest.Handle, this.frame, 0), "Failed to transfer data from hardware frame");
     }
 

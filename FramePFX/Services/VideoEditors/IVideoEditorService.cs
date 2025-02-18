@@ -19,6 +19,7 @@
 
 using FramePFX.Editing;
 using FramePFX.Editing.UI;
+using PFXToolKitUI;
 
 namespace FramePFX.Services.VideoEditors;
 
@@ -29,14 +30,14 @@ public delegate void VideoEditorCreationEventHandler(IVideoEditorWindow window, 
 /// </summary>
 public interface IVideoEditorService {
     public static IVideoEditorService Instance => Application.Instance.ServiceManager.GetService<IVideoEditorService>();
-    
+
     /// <summary>
     /// Creates a new video editor window using the given video editor model
     /// </summary>
     /// <param name="editor"></param>
     /// <returns></returns>
     IVideoEditorWindow OpenVideoEditor(VideoEditor editor);
-    
+
     /// <summary>
     /// An event fired when any video editor is created and also fired again when it is shown
     /// </summary>

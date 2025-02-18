@@ -18,9 +18,9 @@
 //
 
 using Avalonia.Controls.Primitives;
-using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing.ResourceManaging.Autoloading;
 using FramePFX.Editing.ResourceManaging.Resources;
+using PFXToolKitUI.Avalonia.Utils;
 
 namespace FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
 

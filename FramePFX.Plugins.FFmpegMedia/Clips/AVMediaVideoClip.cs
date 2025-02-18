@@ -24,10 +24,10 @@ using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips.Video;
-using FramePFX.Logging;
 using FramePFX.Plugins.FFmpegMedia.Resources;
 using FramePFX.Plugins.FFmpegMedia.Wrappers;
-using FramePFX.Utils;
+using PFXToolKitUI.Logging;
+using PFXToolKitUI.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Plugins.FFmpegMedia.Clips;
@@ -68,7 +68,7 @@ public class AVMediaVideoClip : VideoClip {
                     clip.scaler = null;
                 }
             }
-            
+
             clip.OnRenderSizeChanged();
             // if (newResource != null && !clip.IsAutomated(MediaScaleParameter) && clip.Project?.Settings is ProjectSettings settings) {
             //     Vector2 scale = MediaScaleParameter.GetCurrentValue(clip);

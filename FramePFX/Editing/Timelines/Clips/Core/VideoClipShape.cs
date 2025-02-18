@@ -24,7 +24,7 @@ using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
-using FramePFX.Utils.Accessing;
+using PFXToolKitUI.Utils.Accessing;
 using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Clips.Core;
@@ -58,7 +58,7 @@ public class VideoClipShape : VideoClip {
             if (newItem != null)
                 newItem.ColourChanged += this.OnColourChanged;
         });
-        
+
         this.UpdateAutomaticScaleAndRotationOrigin(true);
     }
 

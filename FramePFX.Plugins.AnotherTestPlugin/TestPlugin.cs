@@ -19,6 +19,9 @@
 
 using FramePFX.Configurations;
 using FramePFX.Editing.Exporting;
+using PFXToolKitUI;
+using PFXToolKitUI.Configurations;
+using PFXToolKitUI.Plugins;
 
 namespace FramePFX.Plugins.AnotherTestPlugin;
 
@@ -26,14 +29,14 @@ public class TestPlugin : Plugin {
     public override Task OnApplicationLoaded() {
         // Register a test exporter
         ExporterRegistry.Instance.RegisterExporter(new ExporterKey("testplugin.TestExporter", "Test Exporter (do not use)"), new TestExporterInfo());
-        
+
         // Register a test configuration page in the editor section
         ApplicationConfigurationManager.Instance.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Test Plugin Settings", Id = "config.testplugineditorsettings", Page = new TestPluginConfigurationPage()
         });
-        
+
         ProjectConfigurationManager.SetupProjectConfiguration += ProjectConfigurationManagerOnSetupProjectConfiguration;
-        
+
         IConfigurationDialogService e;
         IExportDialogService d;
         return Task.CompletedTask;
@@ -49,10 +52,9 @@ public class TestPlugin : Plugin {
         public override BaseExportContext CreateContext(ExportSetup setup) {
             return new TestExportContext(this, setup);
         }
-        
+
         private class TestExportContext : BaseExportContext {
             public TestExportContext(BaseExporterInfo exporter, ExportSetup setup) : base(exporter, setup) {
-                
             }
 
             public override void Export(IExportProgress progress, CancellationToken cancellation) {

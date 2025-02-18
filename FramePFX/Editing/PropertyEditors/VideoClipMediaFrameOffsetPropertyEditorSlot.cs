@@ -19,7 +19,7 @@
 
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Video;
-using FramePFX.PropertyEditing;
+using PFXToolKitUI.PropertyEditing;
 
 namespace FramePFX.Editing.PropertyEditors;
 

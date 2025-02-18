@@ -25,7 +25,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using Avalonia.Collections;
 using FramePFX.Editing.ResourceManaging;
-using FramePFX.Interactivity;
+using PFXToolKitUI.Interactivity;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 

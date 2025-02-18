@@ -22,11 +22,12 @@ using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Timelines.Tracks;
-using FramePFX.Interactivity.Formatting;
 using FramePFX.PropertyEditing.Automation;
-using FramePFX.PropertyEditing.Core;
-using FramePFX.PropertyEditing.DataTransfer;
-using FramePFX.PropertyEditing.DataTransfer.Automatic;
+using PFXToolKitUI.Interactivity.Formatting;
+using PFXToolKitUI.PropertyEditing;
+using PFXToolKitUI.PropertyEditing.Core;
+using PFXToolKitUI.PropertyEditing.DataTransfer;
+using PFXToolKitUI.PropertyEditing.DataTransfer.Automatic;
 
 namespace FramePFX.PropertyEditing;
 

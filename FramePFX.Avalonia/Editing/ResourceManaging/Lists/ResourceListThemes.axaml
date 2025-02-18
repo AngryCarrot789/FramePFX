@@ -1,10 +1,10 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:e="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists"
-                    xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:avControls="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:resourceManaging="clr-namespace:FramePFX.BaseFrontEnd.ResourceManaging;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:contentItems="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems">
+                    xmlns:avalonia="clr-namespace:PFXToolKitUI.Avalonia.Shortcuts.Avalonia;assembly=PFXToolKitUI.Avalonia"
+                    xmlns:avControls="clr-namespace:PFXToolKitUI.Avalonia.AvControls;assembly=PFXToolKitUI.Avalonia"
+                    xmlns:contentItems="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems"
+                    xmlns:resourceManaging="clr-namespace:FramePFX.BaseFrontEnd.ResourceManaging;assembly=FramePFX.BaseFrontEnd">
     <ControlTheme x:Key="{x:Type e:ResourceExplorerListBox}" TargetType="{x:Type e:ResourceExplorerListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="Transparent"/>

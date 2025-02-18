@@ -20,8 +20,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using FramePFX.Editing.Automation.Keyframes;
-using FramePFX.Utils;
-using FramePFX.Utils.Accessing;
+using PFXToolKitUI.Utils;
+using PFXToolKitUI.Utils.Accessing;
 
 namespace FramePFX.Editing.Automation.Params;
 

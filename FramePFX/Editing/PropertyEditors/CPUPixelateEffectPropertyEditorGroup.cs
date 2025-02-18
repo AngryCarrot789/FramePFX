@@ -20,7 +20,7 @@
 using FramePFX.Editing.Timelines.Effects;
 using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Automation;
-using FramePFX.PropertyEditing.DataTransfer;
+using PFXToolKitUI.PropertyEditing.DataTransfer;
 
 namespace FramePFX.Editing.PropertyEditors;
 

@@ -17,11 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.Timelines.Tracks;
-using FramePFX.Interactivity;
+using PFXToolKitUI.DataTransfer;
+using PFXToolKitUI.Interactivity;
 
 namespace FramePFX.Editing.Timelines.Clips;
 

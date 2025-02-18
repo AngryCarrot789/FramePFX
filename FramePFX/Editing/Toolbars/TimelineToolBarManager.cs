@@ -17,11 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
 using FramePFX.Editing.Timelines;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Toolbars;
-using FramePFX.Utils.Collections.Observable;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Toolbars;
+using PFXToolKitUI.Utils.Collections.Observable;
 
 namespace FramePFX.Editing.Toolbars;
 
@@ -42,7 +41,7 @@ public sealed class TimelineToolBarManager : BaseToolBarManager {
     public TimelineToolBarManager() {
         this.WestButtons = new ObservableList<ToolBarButton>();
         this.EastButtons = new ObservableList<ToolBarButton>();
-        
+
         // Setup standard buttons
         this.WestButtons.Add(new TogglePlayStateButtonImpl() { Button = { ToolTip = "Play or pause playback" } });
         this.WestButtons.Add(new SetPlayStateButtonImpl(PlayState.Play) { Button = { ToolTip = "Start playback" } });
@@ -56,7 +55,7 @@ public sealed class TimelineToolBarManager : BaseToolBarManager {
     }
 
     #region Button implementations
-    
+
     public class TogglePlayStateButtonImpl : ToolBarButton {
         private VideoEditor? editor;
 
@@ -198,6 +197,6 @@ public sealed class TimelineToolBarManager : BaseToolBarManager {
             }
         }
     }
-    
+
     #endregion
 }

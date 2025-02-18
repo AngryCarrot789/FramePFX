@@ -18,11 +18,11 @@
 //
 
 using Avalonia.Controls.Primitives;
-using FramePFX.BaseFrontEnd.AvControls.Dragger;
-using FramePFX.BaseFrontEnd.Bindings;
-using FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
-using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.PropertyEditing.Automation;
+using PFXToolKitUI.Avalonia.AvControls.Dragger;
+using PFXToolKitUI.Avalonia.Bindings;
+using PFXToolKitUI.Avalonia.PropertyEditing.DataTransfer;
+using PFXToolKitUI.Avalonia.Utils;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 

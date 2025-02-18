@@ -27,9 +27,10 @@ using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Timelines.Tracks;
-using FramePFX.History;
-using FramePFX.Services;
-using FramePFX.Utils.Destroying;
+using PFXToolKitUI;
+using PFXToolKitUI.History;
+using PFXToolKitUI.Services;
+using PFXToolKitUI.Utils.Destroying;
 
 namespace FramePFX.Editing;
 
@@ -50,7 +51,7 @@ public class VideoEditor : IServiceable, IDestroy {
     public Project? Project { get; private set; }
 
     public PlaybackManager Playback { get; }
-    
+
     public ServiceManager ServiceManager { get; }
 
     /// <summary>
@@ -184,7 +185,7 @@ public class VideoEditor : IServiceable, IDestroy {
         VideoEditorListener listener = VideoEditorListener.GetInstance(this);
         this.Project = project;
         listener.InternalOnProjectLoading(this, project);
-        
+
         project.Settings.FrameRateChanged += this.OnProjectFrameRateChanged;
 
         Project.OnOpened(this, project);
@@ -194,9 +195,9 @@ public class VideoEditor : IServiceable, IDestroy {
         project.ActiveTimeline.RenderManager.UpdateFrameInfo(settings);
 
         this.Playback.SetFrameRate(settings.FrameRate);
-        
+
         listener.InternalOnProjectLoaded(this, project);
-        
+
         Application.Instance.Dispatcher.InvokeAsync(() => {
             this.Project?.ActiveTimeline.InvalidateRender();
         }, DispatchPriority.Background);
@@ -209,7 +210,7 @@ public class VideoEditor : IServiceable, IDestroy {
 
         VideoEditorListener listener = VideoEditorListener.GetInstance(this);
         listener.InternalOnProjectUnloading(this, myProject);
-        
+
         if (this.Playback.PlayState != PlayState.Stop) {
             this.Playback.Stop();
         }
@@ -218,7 +219,7 @@ public class VideoEditor : IServiceable, IDestroy {
         myProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
         this.HistoryManager.Clear();
         listener.InternalOnProjectUnloaded(this, myProject);
-        
+
         this.Project = null;
         Project.OnClosed(this, myProject);
     }

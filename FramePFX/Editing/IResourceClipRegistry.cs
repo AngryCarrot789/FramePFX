@@ -23,8 +23,9 @@ using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Tracks;
-using FramePFX.Services.Messaging;
-using FramePFX.Utils;
+using PFXToolKitUI;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing;
 

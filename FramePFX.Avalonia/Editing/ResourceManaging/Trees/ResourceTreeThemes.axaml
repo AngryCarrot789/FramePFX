@@ -3,8 +3,8 @@
                     xmlns:trees="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Trees"
                     xmlns:lc="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
                     xmlns:lists="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists"
-                    xmlns:ii="clr-namespace:FramePFX.BaseFrontEnd.Interactivity;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd">
+                    xmlns:ii="clr-namespace:PFXToolKitUI.Avalonia.Interactivity;assembly=PFXToolKitUI.Avalonia"
+                    xmlns:avalonia="clr-namespace:PFXToolKitUI.Avalonia.Shortcuts.Avalonia;assembly=PFXToolKitUI.Avalonia">
     <!--
         Credits to Siemens for SVGs - MIT
         https://www.svgrepo.com/svg/486676/folder-outline

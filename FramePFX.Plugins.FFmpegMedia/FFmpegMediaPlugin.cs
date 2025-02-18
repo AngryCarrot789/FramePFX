@@ -18,11 +18,9 @@
 // 
 
 using FFmpeg.AutoGen;
-using FramePFX.AdvancedMenuService;
-using FramePFX.BaseFrontEnd.PropertyEditing;
 using FramePFX.BaseFrontEnd.ResourceManaging;
 using FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
-using FramePFX.CommandSystem;
+using PFXToolKitUI.Avalonia.PropertyEditing;
 using FramePFX.Editing;
 using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.Exporting;
@@ -30,14 +28,17 @@ using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Tracks;
-using FramePFX.Interactivity;
 using FramePFX.Plugins.FFmpegMedia.Clips;
 using FramePFX.Plugins.FFmpegMedia.Commands;
 using FramePFX.Plugins.FFmpegMedia.Exporter;
 using FramePFX.Plugins.FFmpegMedia.Resources;
 using FramePFX.Plugins.FFmpegMedia.Resources.Controls;
-using FramePFX.Services.Messaging;
-using FramePFX.Utils;
+using PFXToolKitUI.AdvancedMenuService;
+using PFXToolKitUI.CommandSystem;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Plugins;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Plugins.FFmpegMedia;
 
@@ -55,7 +56,7 @@ public class FFmpegMediaPlugin : Plugin {
         // Tell FramePFX the relative path (to the assembly root, I believe) of our custom control resources.
         paths.Add("FFmpegMediaStyles.axaml");
     }
-    
+
     public override Task OnApplicationLoaded() {
         // Register our custom media resource and clip types. We have to do this so
         // that FramePFX can deserialise a project and create the appropriate clip,
@@ -65,7 +66,7 @@ public class FFmpegMediaPlugin : Plugin {
 
         // Register a handler for when dropping a resource into the timeline
         ResourceDropOnTimelineService.Instance.Register(typeof(ResourceAVMedia), new AvMediaDropHandler());
-        
+
         // Register a handler for when a resource is dropped ONTO a clip.
         // This "links" the resource to the clip, letting the clip render the media
         ClipDropRegistry.DropRegistry.Register<AVMediaVideoClip, ResourceAVMedia>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) => {
@@ -75,11 +76,11 @@ public class FFmpegMediaPlugin : Plugin {
         // Register our custom but blank control for the resource list item content. At some point we may add a mini view port to it so,
         // we can easily scrub through the video. We could also just select a random frame and draw it. But for now, it contains nothing
         ResourceExplorerListItemContent.Registry.RegisterType<ResourceAVMedia>(() => new RELIC_AVMedia());
-        
+
         // Register our invalid entry control for the resource loader dialog system, which shows the user
         // the error encountered and also the media's file path, so they can change it if they wanted to
         InvalidResourceEntryControl.Registry.RegisterType<InvalidMediaPathEntry>(() => new InvalidMediaPathEntryControl());
-        
+
         // Register an enum type with the property editor registry, so that we can use DataParameterAVCodecIDPropertyEditorSlot.
         BasePropertyEditorSlotControl.RegisterEnumControl<AVCodecID, DataParameterAVCodecIDPropertyEditorSlot>();
 
@@ -93,7 +94,7 @@ public class FFmpegMediaPlugin : Plugin {
         // Register a drop handler when a native file is dropped into the resource manager tree or list.
         // This is a janky implementation using a CLR event but it works :-)
         ResourceDropRegistry.FileDropInFolder += OnHandleResourceNativeFileDrop;
-        
+
         return Task.CompletedTask;
     }
 
@@ -101,10 +102,10 @@ public class FFmpegMediaPlugin : Plugin {
         // Some commands can only work on the resource manager's tree, while others only work on the list.
         // This is why there are 2 registries (there's actually a 3rd one for ResourceItems only)
         FixedContextGroup[] list = [
-            ResourceContextRegistry.ResourceSurfaceContextRegistry.GetFixedGroup("modify.subcreation"), 
+            ResourceContextRegistry.ResourceSurfaceContextRegistry.GetFixedGroup("modify.subcreation"),
             ResourceContextRegistry.ResourceFolderContextRegistry.GetFixedGroup("modify.subcreation")
         ];
-        
+
         foreach (FixedContextGroup group in list) {
             group.AddEntry(new CommandContextEntry("commands.resources.AddResourceAVMedia", "Add Media", "Create a new media resource"));
         }
@@ -124,7 +125,7 @@ public class FFmpegMediaPlugin : Plugin {
             folder.AddItem(media);
             return true;
         }
-        
+
         // switch (extension) {
         //     case ".gif":
         //     case ".mp3":

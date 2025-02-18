@@ -22,7 +22,7 @@ using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
-using FramePFX.Utils;
+using PFXToolKitUI.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Clips.Core;

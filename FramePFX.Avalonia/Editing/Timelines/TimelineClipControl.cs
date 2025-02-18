@@ -30,10 +30,10 @@ using Avalonia.Reactive;
 using Avalonia.Threading;
 using FramePFX.Avalonia.Editing.Automation;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
-using FramePFX.BaseFrontEnd.AdvancedMenuService;
-using FramePFX.BaseFrontEnd.Bindings;
-using FramePFX.BaseFrontEnd.Interactivity;
-using FramePFX.BaseFrontEnd.Utils;
+using PFXToolKitUI.Avalonia.AdvancedMenuService;
+using PFXToolKitUI.Avalonia.Bindings;
+using PFXToolKitUI.Avalonia.Interactivity;
+using PFXToolKitUI.Avalonia.Utils;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.Rendering;
@@ -42,9 +42,8 @@ using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.UI;
-using FramePFX.Interactivity;
-using FramePFX.Interactivity.Contexts;
-using FramePFX.Utils;
+using PFXToolKitUI.Interactivity;
+using PFXToolKitUI.Utils;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
@@ -108,7 +107,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
             // TODO: InvalidateMeasure for moving a clip is laggy. It's not horribly slow, but there's noticeable lag
             this.InvalidateMeasure();
-            
+
             if (this.IsConnected && this.StoragePanel!.IsConnected)
                 this.StoragePanel.TrackControl!.OnClipSpanChanged();
         }
@@ -599,7 +598,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
                         if (newEndIndex > trackList.Timeline!.MaxDuration) {
                             trackList.Timeline.TryExpandForFrame(newEndIndex);
                         }
-                        
+
                         this.SetClipSpanForDrag(newSpan);
                         // this.SetClipSpanForDrag(new FrameSpan(Maths.Clamp(TimelineUtils.PixelToFrame(mPos.X, this.TimelineZoom), 0, trackList.Timeline.MaxDuration - oldSpan.Duration), oldSpan.Duration));
                     }

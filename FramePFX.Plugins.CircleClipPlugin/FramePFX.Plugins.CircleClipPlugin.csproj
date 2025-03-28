@@ -11,7 +11,7 @@
 
     <ItemGroup>
         <!-- All of these references are already included in the main FramePFX application, so we do not export them into the build folder -->
-        <PackageReference Include="Avalonia" Version="11.2.3">
+        <PackageReference Include="Avalonia" Version="11.2.5">
             <Private>false</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>

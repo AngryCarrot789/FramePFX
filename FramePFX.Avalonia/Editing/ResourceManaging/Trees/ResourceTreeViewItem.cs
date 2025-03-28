@@ -379,7 +379,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
     private void ResetDragDropState(PointerEventArgs e) {
         this.dragBtnState = ResourceNodeDragState.None;
-        if (ReferenceEquals(e.Pointer.Captured, this)) {
+        if (this == e.Pointer.Captured) {
             e.Pointer.Capture(null);
         }
     }
@@ -633,7 +633,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
         }
 #if !DEBUG
         catch (Exception exception) {
-            await FramePFX.Services.Messaging.IMessageDialogService.Instance.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
+            await PFXToolKitUI.Services.Messaging.IMessageDialogService.Instance.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
         }
 #endif
         finally {

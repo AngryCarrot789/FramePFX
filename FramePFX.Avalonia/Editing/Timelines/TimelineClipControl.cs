@@ -364,7 +364,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
             e.Handled = true;
             this.Focus();
             this.lastMovePosAbs = this.PointToScreen(this.leftClickPos);
-            if (!ReferenceEquals(e.Pointer.Captured, this)) {
+            if (this != e.Pointer.Captured) {
                 e.Pointer.Capture(this);
             }
 
@@ -386,7 +386,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
                 this.SetDragState(DragState.Initiated);
             }
 
-            if (!ReferenceEquals(e.Pointer.Captured, this)) {
+            if (this != e.Pointer.Captured) {
                 e.Pointer.Capture(this);
             }
 
@@ -456,7 +456,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
         this.SetDragState(DragState.None);
         this.SetCursorForMousePoint(e.GetPosition(this));
-        if (ReferenceEquals(e.Pointer.Captured, this))
+        if (this == e.Pointer.Captured)
             e.Pointer.Capture(null);
 
         // If we made a range selection then don't do anything with the current selection

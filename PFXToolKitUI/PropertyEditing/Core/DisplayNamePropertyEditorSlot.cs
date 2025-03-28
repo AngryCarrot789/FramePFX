@@ -27,7 +27,7 @@ public class DisplayNamePropertyEditorSlot : PropertyEditorSlot {
 
     public IDisplayName SingleSelection => (IDisplayName) this.Handlers[0];
 
-    public string DisplayName { get; private set; }
+    public string? DisplayName { get; private set; }
 
     public override bool IsSelectable => true;
 
@@ -37,7 +37,7 @@ public class DisplayNamePropertyEditorSlot : PropertyEditorSlot {
     public DisplayNamePropertyEditorSlot() : base(typeof(IDisplayName)) {
     }
 
-    public void SetValue(string value) {
+    public void SetValue(string? value) {
         this.isProcessingValueChange = true;
 
         this.DisplayName = value;
@@ -67,7 +67,7 @@ public class DisplayNamePropertyEditorSlot : PropertyEditorSlot {
     }
 
     public void RequeryOpacityFromHandlers() {
-        this.DisplayName = CollectionUtils.GetEqualValue(this.Handlers, x => ((IDisplayName) x).DisplayName, out string d) ? d : "<different values>";
+        this.DisplayName = CollectionUtils.GetEqualValue(this.Handlers, x => ((IDisplayName) x).DisplayName, out string? d) ? d : "<different values>";
         this.DisplayNameChanged?.Invoke(this);
     }
 

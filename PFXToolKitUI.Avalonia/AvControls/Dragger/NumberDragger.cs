@@ -387,7 +387,7 @@ public class NumberDragger : RangeBase {
             this.IsEditing = true;
         }
         else {
-            if (ReferenceEquals(e.Pointer.Captured, this))
+            if (this == e.Pointer.Captured)
                 e.Pointer.Capture(null);
         }
 
@@ -426,7 +426,7 @@ public class NumberDragger : RangeBase {
         PointerPoint pointer = e.GetCurrentPoint(this);
         if (!pointer.Properties.IsLeftButtonPressed) {
             this.dragState = 0;
-            if (ReferenceEquals(e.Pointer.Captured, this))
+            if (this == e.Pointer.Captured)
                 e.Pointer.Capture(null);
             this.UpdateCursor();
             return;

@@ -153,7 +153,7 @@ public class VideoEditorViewPortControl : TemplatedControl, IViewPortElement {
         }
 
         e.Handled = true;
-        if (!ReferenceEquals(e.Pointer.Captured, this))
+        if (this != e.Pointer.Captured)
             e.Pointer.Capture(this);
 
         Point pos = point.Position;
@@ -180,7 +180,7 @@ public class VideoEditorViewPortControl : TemplatedControl, IViewPortElement {
     protected override void OnPointerReleased(PointerReleasedEventArgs e) {
         base.OnPointerReleased(e);
         this.targetClip = null;
-        if (ReferenceEquals(e.Pointer.Captured, this))
+        if (this == e.Pointer.Captured)
             e.Pointer.Capture(null);
     }
 

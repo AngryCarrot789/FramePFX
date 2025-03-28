@@ -205,7 +205,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
                 DragState lastDragState = this.dragBtnState;
                 this.dragBtnState = DragState.None;
                 this.isDragActive = false;
-                if (ReferenceEquals(e.Pointer.Captured, this)) {
+                if (this == e.Pointer.Captured) {
                     e.Pointer.Capture(null);
                 }
 
@@ -242,7 +242,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         base.OnPointerMoved(e);
         PointerPoint point = e.GetCurrentPoint(this);
         if (!point.Properties.IsLeftButtonPressed) {
-            if (ReferenceEquals(e.Pointer.Captured, this)) {
+            if (this == e.Pointer.Captured) {
                 e.Pointer.Capture(null);
             }
 
@@ -357,7 +357,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         }
 #if !DEBUG
         catch (Exception exception) {
-            await FramePFX.Services.Messaging.IMessageDialogService.Instance.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
+            await PFXToolKitUI.Services.Messaging.IMessageDialogService.Instance.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
         }
 #endif
         finally {

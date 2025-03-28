@@ -67,9 +67,12 @@ public class VideoEditorPropertyEditor : PropertyEditor {
 
             {
                 SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoClip), GroupType.SecondaryExpander) { DisplayName = "Motion/Transformation" };
+                // Animatable parameters
                 group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaPositionParameter, typeof(VideoClip), "Position", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaScaleParameter, typeof(VideoClip), "Scale", DragStepProfile.UnitOne));
                 group.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.MediaRotationParameter, typeof(VideoClip), "Rotation", DragStepProfile.Rotation) { ValueFormatter = SuffixValueFormatter.StandardDegrees });
+                
+                // DataParameters with built in behaviour to manage an auto-generated value from another bool parameter
                 group.AddItem(new AutomaticDataParameterVector2PropertyEditorSlot(VideoClip.MediaScaleOriginParameter, VideoClip.IsMediaScaleOriginAutomaticParameter, typeof(VideoClip), "Scale Origin") { ValueFormatter = SuffixValueFormatter.StandardPixels, StepProfile = DragStepProfile.InfPixelRange });
                 group.AddItem(new AutomaticDataParameterVector2PropertyEditorSlot(VideoClip.MediaRotationOriginParameter, VideoClip.IsMediaRotationOriginAutomaticParameter, typeof(VideoClip), "Rotation Origin") { ValueFormatter = SuffixValueFormatter.StandardPixels, StepProfile = DragStepProfile.InfPixelRange });
                 this.ClipGroup.AddItem(group);

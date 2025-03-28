@@ -213,7 +213,7 @@ public class TrackControlSurfaceItem : ContentControl {
         this.SetDragState(DragState.Initiated);
 
         e.Handled = true;
-        if (!ReferenceEquals(e.Pointer.Captured, this))
+        if (this != e.Pointer.Captured)
             e.Pointer.Capture(this);
 
         bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
@@ -254,7 +254,7 @@ public class TrackControlSurfaceItem : ContentControl {
         DragState lastDragState = this.dragState;
 
         this.SetDragState(DragState.None);
-        if (ReferenceEquals(e.Pointer.Captured, this))
+        if (this == e.Pointer.Captured)
             e.Pointer.Capture(null);
 
         TimelineControl? timelineControl = this.TrackList?.TimelineControl;

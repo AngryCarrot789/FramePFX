@@ -45,7 +45,7 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
         this.Focus();
         this.clickPoint = e.GetPosition(this);
         this.SetDragState(StateInit);
-        if (!ReferenceEquals(e.Pointer.Captured, this))
+        if (this != e.Pointer.Captured)
             e.Pointer.Capture(this);
     }
 
@@ -57,8 +57,9 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
         }
 
         this.SetDragState(StateNone);
-        if (ReferenceEquals(e.Pointer.Captured, this))
+        if (this == e.Pointer.Captured) {
             e.Pointer.Capture(null);
+        }
     }
 
     protected override void OnPointerMoved(PointerEventArgs e) {
@@ -70,13 +71,13 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
             }
 
             this.SetDragState(StateNone);
-            if (ReferenceEquals(e.Pointer.Captured, this))
+            if (this == e.Pointer.Captured)
                 e.Pointer.Capture(null);
 
             return;
         }
 
-        if (!(this.TimelineControl is TimelineControl control) || !(control.Timeline is Timeline timeline)) {
+        if (this.TimelineControl is not TimelineControl control || control.Timeline is not Timeline timeline) {
             return;
         }
 

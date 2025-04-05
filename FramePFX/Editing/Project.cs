@@ -147,7 +147,7 @@ public class Project : IServiceable, IDestroy {
 
     public Project() {
         this.projectName = "Unnamed Project";
-        this.ServiceManager = new ServiceManager(this);
+        this.ServiceManager = new ServiceManager();
         this.Settings = ProjectSettings.CreateDefault(this);
         this.ResourceManager = new ResourceManager(this);
         this.MainTimeline = new Timeline();

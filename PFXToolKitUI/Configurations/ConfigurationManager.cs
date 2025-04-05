@@ -48,7 +48,7 @@ public abstract class ConfigurationManager {
     /// Applies all changes to our configuration manager's hierarchy (aka recursively apply)
     /// </summary>
     public async Task ApplyChangesInHierarchyAsync(List<ApplyChangesFailureEntry>? errors) {
-        PersistentStorageManager manager = Application.Instance.PersistentStorageManager;
+        PersistentStorageManager manager = ApplicationPFX.Instance.PersistentStorageManager;
 
         manager.BeginSavingStack();
         await ApplyPagesRecursive(this.RootEntry, (x) => x.Apply(errors), Flag_OnlyIfModified);

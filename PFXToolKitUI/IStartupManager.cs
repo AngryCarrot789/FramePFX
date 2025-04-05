@@ -17,13 +17,19 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace PFXToolKitUI.Icons;
+namespace PFXToolKitUI;
 
-public interface IIconPreferences {
-    public static IIconPreferences Instance => ApplicationPFX.Instance.ServiceManager.GetService<IIconPreferences>();
-
+/// <summary>
+/// The startup handler for the application
+/// </summary>
+public interface IStartupManager {
+    public static IStartupManager Instance => ApplicationPFX.Instance.ServiceManager.GetService<IStartupManager>();
+    
     /// <summary>
-    /// Gets or sets whether to use antialiasing on icon rendering. When changing, it may not take on full effect until the app is restarted
+    /// Invoked once the application is fully loaded, all UI components are ready.
+    /// This method takes the command line arguments which may contain a file path if
+    /// the app was opened via a file. It will not include application .exe path
     /// </summary>
-    bool UseAntiAliasing { get; set; }
+    /// <param name="args">Command line args, excluding app exe</param>
+    Task OnApplicationStartupWithArgs(string[] args);
 }

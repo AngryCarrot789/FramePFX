@@ -30,7 +30,7 @@ public delegate void FocusChangedEventHandler(CommandManager manager, IContextDa
 /// Commands are registered at application startup, before any primary UI is loaded
 /// </summary>
 public sealed class CommandManager {
-    public static CommandManager Instance => Application.Instance.ServiceManager.GetService<CommandManager>();
+    public static CommandManager Instance => ApplicationPFX.Instance.ServiceManager.GetService<CommandManager>();
 
     // using this just in case I soon add more data associated with commands
     private class CommandEntry {

@@ -26,7 +26,7 @@ using PFXToolKitUI.Plugins;
 namespace FramePFX.Plugins.AnotherTestPlugin;
 
 public class TestPlugin : Plugin {
-    public override Task OnApplicationLoaded() {
+    public override Task OnApplicationFullyLoaded() {
         // Register a test exporter
         ExporterRegistry.Instance.RegisterExporter(new ExporterKey("testplugin.TestExporter", "Test Exporter (do not use)"), new TestExporterInfo());
 

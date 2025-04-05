@@ -70,7 +70,7 @@ public class VideoEditor : IServiceable, IDestroy {
 
     public VideoEditor() {
         this.HistoryManager = new HistoryManager();
-        this.ServiceManager = new ServiceManager(this);
+        this.ServiceManager = new ServiceManager();
         this.Playback = new PlaybackManager(this);
         this.Playback.SetFrameRate(new Fraction(1, 1));
         this.Playback.StartTimer();
@@ -198,7 +198,7 @@ public class VideoEditor : IServiceable, IDestroy {
 
         listener.InternalOnProjectLoaded(this, project);
 
-        Application.Instance.Dispatcher.InvokeAsync(() => {
+        ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
             this.Project?.ActiveTimeline.InvalidateRender();
         }, DispatchPriority.Background);
     }

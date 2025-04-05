@@ -25,7 +25,7 @@ namespace PFXToolKitUI.Tasks;
 public delegate void TaskManagerTaskEventHandler(ActivityManager activityManager, ActivityTask task, int index);
 
 public sealed class ActivityManager : IDisposable {
-    public static ActivityManager Instance => Application.Instance.ServiceManager.GetService<ActivityManager>();
+    public static ActivityManager Instance => ApplicationPFX.Instance.ServiceManager.GetService<ActivityManager>();
 
     // private readonly ThreadLocal<ActivityTask> threadToTask;
     private readonly AsyncLocal<ActivityTask?> threadToTask;
@@ -94,7 +94,7 @@ public sealed class ActivityManager : IDisposable {
 
     internal static Task InternalPreActivateTask(ActivityManager activityManager, ActivityTask task) {
         activityManager.threadToTask.Value = task;
-        return Application.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskStarted(activityManager, task));
+        return ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskStarted(activityManager, task));
     }
 
     internal static Task InternalOnActivityCompleted(ActivityManager activityManager, ActivityTask task, int state) {
@@ -102,7 +102,7 @@ public sealed class ActivityManager : IDisposable {
 
         // Before AsyncLocal, I was trying out a dispatcher for each task XD
         // Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatchPriority.Background);
-        return Application.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskCompleted(activityManager, task, state));
+        return ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskCompleted(activityManager, task, state));
     }
 
     // Main Thread

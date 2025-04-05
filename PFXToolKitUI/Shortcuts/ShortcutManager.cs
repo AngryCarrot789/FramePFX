@@ -53,7 +53,7 @@ public abstract class ShortcutManager {
     /// <summary>
     /// Gets or sets the application wide shortcut manager. Realistically, only 1 needs to exist during the runtime of the app
     /// </summary>
-    public static ShortcutManager Instance => Application.Instance.ServiceManager.GetService<ShortcutManager>();
+    public static ShortcutManager Instance => ApplicationPFX.Instance.ServiceManager.GetService<ShortcutManager>();
 
     protected ShortcutManager() {
         this.cachedCmdToShortcut = new Dictionary<string, LinkedList<ShortcutEntry>>();
@@ -61,6 +61,17 @@ public abstract class ShortcutManager {
         this.stateGroups = new Dictionary<string, InputStateManager>();
         this.root = ShortcutGroupEntry.CreateRoot(this);
     }
+
+    public virtual void ReloadFromFile(string filePath) {
+        using BufferedStream stream = new BufferedStream(File.OpenRead(filePath));
+        this.ReloadFromStream(stream);
+    }
+
+    /// <summary>
+    /// Completely wipes the shortcut manager and then re-loads the keymap from the given stream
+    /// </summary>
+    /// <param name="stream"></param>
+    public abstract void ReloadFromStream(Stream stream);
 
     public ShortcutGroupEntry? FindGroupByPath(string path) {
         return this.Root.GetGroupByPath(path);

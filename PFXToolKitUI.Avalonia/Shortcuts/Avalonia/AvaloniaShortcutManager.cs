@@ -68,7 +68,7 @@ public sealed class AvaloniaShortcutManager : ShortcutManager {
 
     public override ShortcutInputProcessor NewProcessor() => new AvaloniaShortcutInputProcessor(this);
 
-    public void DeserialiseRoot(Stream stream) {
+    public override void ReloadFromStream(Stream stream) {
         this.InvalidateShortcutCache();
         Keymap map = KeyMapSerialiser.Instance.Deserialise(this, stream);
         this.Root = map.Root; // invalidates cache automatically
@@ -137,7 +137,7 @@ public sealed class AvaloniaShortcutManager : ShortcutManager {
         }
 
         BroadcastShortcutActivity($"Activating {str}...");
-        bool result = Application.Instance.Dispatcher.Invoke(() => base.OnShortcutActivatedOverride(inputProcessor, shortcutEntry), DispatchPriority.Render);
+        bool result = ApplicationPFX.Instance.Dispatcher.Invoke(() => base.OnShortcutActivatedOverride(inputProcessor, shortcutEntry), DispatchPriority.Render);
         BroadcastShortcutActivity($"Activated {str}!");
         return result;
     }

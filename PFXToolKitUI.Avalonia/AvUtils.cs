@@ -25,9 +25,9 @@ using Avalonia.VisualTree;
 namespace PFXToolKitUI.Avalonia;
 
 /// <summary>
-/// A class that exposes avalonia internals that should be public
+/// A class that exposes avalonia internals that ideally should be public
 /// </summary>
-public static class AvCore {
+public static class AvUtils {
     private static AvaloniaLocator Locator;
     private static MethodInfo GetServiceMethod;
 
@@ -56,7 +56,7 @@ public static class AvCore {
     /// </summary>
     /// <param name="value">The found service</param>
     /// <typeparam name="T">The service type</typeparam>
-    /// <returns>Whether or not the service was found</returns>
+    /// <returns>Whether the service was found</returns>
     public static bool TryGetService<T>(out T value) where T : class => (value = (GetService(typeof(T)) as T)!) != null;
 
     private static TValue? GetProperty<TOwner, TValue>(object? instance, string name, bool isStatic, bool allowNull = false) {

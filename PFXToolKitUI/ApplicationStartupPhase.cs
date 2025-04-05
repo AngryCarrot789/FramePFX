@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -28,19 +28,19 @@ public enum ApplicationStartupPhase {
     Default,
 
     /// <summary>
-    /// The application is in the pre-init stage, which is where services are being created
+    /// The application is in the pre-init stage, which is where services and commands are being created
     /// </summary>
-    PreInitialization,
+    PreLoad,
 
     /// <summary>
     /// The application is initialising core components and is loading plugins
     /// </summary>
-    Initializing,
+    Loading,
 
     /// <summary>
     /// The application is fully initialised and is about to enter the running state
     /// </summary>
-    FullyInitialized,
+    FullyLoaded,
 
     /// <summary>
     /// The application is in its running state.

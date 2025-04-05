@@ -42,7 +42,7 @@ public class VideoEditorServiceImpl : IVideoEditorService {
         this.VideoEditorCreatedOrShown?.Invoke(window, false);
 
         window.Show();
-        Application.Instance.Dispatcher.InvokeAsync(() => {
+        ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
             window.PART_ViewPort!.PART_FreeMoveViewPort!.FitContentToCenter();
             if (editor.Project != null) {
                 editor.Project.ActiveTimeline.InvalidateRender();

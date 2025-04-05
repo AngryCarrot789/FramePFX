@@ -94,7 +94,7 @@ public class OpenProjectCommand : Command {
         using (progress.CompletionState.PushCompletionRange(0.4, 0.6)) {
             progress.Text = "Loading project";
             progress.CompletionState.OnProgress(0.5);
-            await Application.Instance.Dispatcher.InvokeAsync(() => {
+            await ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
                 if (editor.Project != null)
                     editor.CloseProject();
                 editor.SetProject(project);
@@ -106,7 +106,7 @@ public class OpenProjectCommand : Command {
             progress.Text = "Loading resources";
             progress.CompletionState.OnProgress(0.5);
 
-            bool result = await Application.Instance.Dispatcher.InvokeAsync(async () => {
+            bool result = await ApplicationPFX.Instance.Dispatcher.InvokeAsync(async () => {
                 if (!await IResourceLoaderDialogService.Instance.TryLoadResource(project.ResourceManager.RootContainer)) {
                     try {
                         editor.CloseProject();
@@ -132,7 +132,7 @@ public class OpenProjectCommand : Command {
             progress.CompletionState.OnProgress(0.5);
 
             try {
-                await Application.Instance.Dispatcher.InvokeAsync(() => {
+                await ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
                     project.SetUnModified();
                     AutomationEngine.UpdateValues(project.ActiveTimeline);
                     project.MainTimeline.RenderManager.InvalidateRender();

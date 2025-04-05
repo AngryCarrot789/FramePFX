@@ -27,7 +27,7 @@ namespace FramePFX.Editing;
 /// A singleton object which contains properties that all editors share in common such as the titlebar prefix (for version control)
 /// </summary>
 public sealed class EditorConfigurationOptions : PersistentConfiguration {
-    public static EditorConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<EditorConfigurationOptions>();
+    public static EditorConfigurationOptions Instance => ApplicationPFX.Instance.PersistentStorageManager.GetConfiguration<EditorConfigurationOptions>();
 
     public static readonly PersistentProperty<string> TitleBarPrefixProperty = PersistentProperty.RegisterString<EditorConfigurationOptions>(nameof(TitleBarPrefix), "Bootleg sony vegas (FramePFX v2.0.1)", x => x.titleBar, (x, y) => x.titleBar = y, false);
     public static readonly PersistentProperty<ulong> TitleBarBrushProperty = PersistentProperty.RegisterParsable<ulong, EditorConfigurationOptions>(nameof(TitleBarBrush), (ulong) SKColors.Red, x => (ulong) x.titleBarBrush, (x, y) => x.titleBarBrush = (SKColor) y, false);

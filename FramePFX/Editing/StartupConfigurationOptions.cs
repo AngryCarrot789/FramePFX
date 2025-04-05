@@ -25,7 +25,7 @@ using PFXToolKitUI.Themes;
 namespace FramePFX.Editing;
 
 public class StartupConfigurationOptions : PersistentConfiguration {
-    public static StartupConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<StartupConfigurationOptions>();
+    public static StartupConfigurationOptions Instance => ApplicationPFX.Instance.PersistentStorageManager.GetConfiguration<StartupConfigurationOptions>();
 
     public static readonly PersistentProperty<EnumStartupBehaviour> StartupBehaviourProperty = PersistentProperty.RegisterEnum<EnumStartupBehaviour, StartupConfigurationOptions>(nameof(StartupBehaviour), EnumStartupBehaviour.OpenStartupWindow, x => x.startupBehaviour, (x, y) => x.startupBehaviour = y, true);
     public static readonly PersistentProperty<string> StartupThemeProperty = PersistentProperty.RegisterString<StartupConfigurationOptions>(nameof(StartupTheme), "Dark", x => x.startupTheme ?? "", (x, y) => x.startupTheme = y, true);
@@ -52,19 +52,24 @@ public class StartupConfigurationOptions : PersistentConfiguration {
         StartupThemeProperty.DescriptionLines.Add("The theme the application loads with by default. If the theme does not exist at startup, 'Dark' will be used instead");
     }
 
-    public enum EnumStartupBehaviour {
-        OpenStartupWindow,
-        OpenDemoProject,
-        OpenEmptyProject
-    }
-
     public void ApplyTheme() {
-        if (!string.IsNullOrWhiteSpace(this.startupTheme) && ThemeManager.Instance.GetTheme(this.startupTheme) is Theme theme) {
-            ThemeManager.Instance.SetTheme(theme);
+        if (!string.IsNullOrWhiteSpace(this.startupTheme)) {
+            if (ThemeManager.Instance.GetTheme(this.startupTheme) is Theme theme) {
+                ThemeManager.Instance.SetTheme(theme);
+            }
+            else {
+                this.SetStartupThemeAsCurrent();
+            }
         }
     }
 
     public void SetStartupThemeAsCurrent() {
         this.StartupTheme = ThemeManager.Instance.ActiveTheme.Name;
     }
+}
+
+public enum EnumStartupBehaviour {
+    OpenStartupWindow,
+    OpenDemoProject,
+    OpenEmptyProject
 }

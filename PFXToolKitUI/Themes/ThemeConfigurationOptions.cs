@@ -22,7 +22,7 @@ using PFXToolKitUI.Persistence;
 namespace PFXToolKitUI.Themes;
 
 public abstract class ThemeConfigurationOptions : PersistentConfiguration {
-    public static ThemeConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<ThemeConfigurationOptions>();
+    public static ThemeConfigurationOptions Instance => ApplicationPFX.Instance.PersistentStorageManager.GetConfiguration<ThemeConfigurationOptions>();
 
     public abstract void SaveThemesToModels(ThemeManager themes);
 

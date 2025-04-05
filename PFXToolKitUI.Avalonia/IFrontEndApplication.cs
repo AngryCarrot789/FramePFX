@@ -23,7 +23,7 @@ using Avalonia.Controls;
 namespace PFXToolKitUI.Avalonia;
 
 public interface IFrontEndApplication {
-    public static IFrontEndApplication Instance => (IFrontEndApplication) Application.Instance;
+    public static IFrontEndApplication Instance => (IFrontEndApplication) ApplicationPFX.Instance;
 
     // TODO: abstract this away
     // this is used for UserInputDialog and a few other things, but we should instead

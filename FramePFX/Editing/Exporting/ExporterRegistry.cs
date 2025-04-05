@@ -27,7 +27,7 @@ namespace FramePFX.Editing.Exporting;
 /// A registry of exporters
 /// </summary>
 public class ExporterRegistry {
-    public static ExporterRegistry Instance => Application.Instance.ServiceManager.GetService<ExporterRegistry>();
+    public static ExporterRegistry Instance => ApplicationPFX.Instance.ServiceManager.GetService<ExporterRegistry>();
 
     private readonly Dictionary<ExporterKey, BaseExporterInfo> exporters;
     private readonly List<(ExporterKey, BaseExporterInfo)> exporterList;

@@ -99,7 +99,7 @@ public abstract class Command {
     }
 
     private async Task ExecuteImpl(string? cmdId, CommandEventArgs args) {
-        Application.Instance.Dispatcher.VerifyAccess();
+        ApplicationPFX.Instance.Dispatcher.VerifyAccess();
 
         if (!this.AllowMultipleExecutions && this.isExecuting) {
             try {

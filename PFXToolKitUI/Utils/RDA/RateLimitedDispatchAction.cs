@@ -89,7 +89,7 @@ public abstract class RateLimitedDispatchActionBase {
                 goto StartTask;
             }
             else {
-                // Task is already running, so just volatile write the state
+                // Task is already running so do nothing except update state
                 this.state = myState;
             }
         }
@@ -117,12 +117,14 @@ public abstract class RateLimitedDispatchActionBase {
             int myState;
             lock (this.stateLock) {
                 if (((myState = this.state) & S_CONTINUE) == 0) {
+                    // No continuation flag, so we don't need to stay running, so we just exit.
                     this.state = myState & ~S_RUNNING;
                     Interlocked.Exchange(ref this.lastExecutionTime, lastExecTime);
                     return;
                 }
                 else {
-                    // Not sure if CONTINUE needs to be removed here... I don't think it does
+                    // We specify that we are now executing
+                    // Not sure if CONTINUE needs to be removed here...
                     this.state = (myState & ~S_CONTINUE) | S_EXECUTING;
                 }
             }
@@ -135,7 +137,8 @@ public abstract class RateLimitedDispatchActionBase {
                 // ignored
             }
             catch (Exception e) {
-                Application.Instance.Dispatcher.Post(() => throw new Exception("Exception while awaiting operation", e));
+                // post error to application, causing it to crash.
+                ApplicationPFX.Instance.Dispatcher.Post(() => throw new Exception("Exception while awaiting operation", e));
             }
             finally {
                 // This sets CONTINUE to false, indicating that there is no more work required.
@@ -203,19 +206,19 @@ public abstract class RateLimitedDispatchActionBase {
     #region Static Helper Constructors
 
     public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval) => ForDispatcherAsync(callback, minInterval, DispatchPriority.Send);
-    public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval, DispatchPriority priority) => ForDispatcherAsync(callback, minInterval, Application.Instance.Dispatcher, priority);
+    public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval, DispatchPriority priority) => ForDispatcherAsync(callback, minInterval, ApplicationPFX.Instance.Dispatcher, priority);
     public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval, IDispatcher dispatcher) => ForDispatcherAsync(callback, minInterval, dispatcher, DispatchPriority.Send);
 
     public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval) => ForDispatcherSync(callback, minInterval, DispatchPriority.Send);
-    public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, DispatchPriority priority) => ForDispatcherSync(callback, minInterval, Application.Instance.Dispatcher, priority);
+    public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, DispatchPriority priority) => ForDispatcherSync(callback, minInterval, ApplicationPFX.Instance.Dispatcher, priority);
     public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, IDispatcher dispatcher) => ForDispatcherSync(callback, minInterval, dispatcher, DispatchPriority.Send);
 
     public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval) where T : class => ForDispatcherAsync(callback, minInterval, DispatchPriority.Send);
-    public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval, DispatchPriority priority) where T : class => ForDispatcherAsync(callback, minInterval, Application.Instance.Dispatcher, priority);
+    public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval, DispatchPriority priority) where T : class => ForDispatcherAsync(callback, minInterval, ApplicationPFX.Instance.Dispatcher, priority);
     public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval, IDispatcher dispatcher) where T : class => ForDispatcherAsync(callback, minInterval, dispatcher, DispatchPriority.Send);
 
     public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval) where T : class => ForDispatcherSync(callback, minInterval, DispatchPriority.Send);
-    public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, DispatchPriority priority) where T : class => ForDispatcherSync(callback, minInterval, Application.Instance.Dispatcher, priority);
+    public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, DispatchPriority priority) where T : class => ForDispatcherSync(callback, minInterval, ApplicationPFX.Instance.Dispatcher, priority);
     public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, IDispatcher dispatcher) where T : class => ForDispatcherSync(callback, minInterval, dispatcher, DispatchPriority.Send);
 
     public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority) {

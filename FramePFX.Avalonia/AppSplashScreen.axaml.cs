@@ -34,7 +34,7 @@ public partial class AppSplashScreen : Window, IApplicationStartupProgress {
             if (this.myActionText == value)
                 return;
 
-            Application.Instance.Dispatcher.Invoke(() => {
+            ApplicationPFX.Instance.Dispatcher.Invoke(() => {
                 this.myActionText = value;
                 return this.PART_ActivityTextBlock.Text = value;
             });
@@ -68,5 +68,5 @@ public partial class AppSplashScreen : Window, IApplicationStartupProgress {
         return this.SynchroniseAsync();
     }
 
-    public Task SynchroniseAsync() => Application.Instance.Dispatcher.Process(DispatchPriority.INTERNAL_AfterRender);
+    public Task SynchroniseAsync() => ApplicationPFX.Instance.Dispatcher.Process(DispatchPriority.INTERNAL_AfterRender);
 }

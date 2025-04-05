@@ -19,14 +19,13 @@
 
 using Avalonia.Interactivity;
 using PFXToolKitUI.Avalonia.Themes.Controls;
-using FramePFX.Services.VideoEditors;
 
 namespace FramePFX.Avalonia.Services.Startups;
 
 public partial class StartupWindow : WindowEx {
-    private readonly StartupManager startupManager;
+    private readonly StartupManagerFramePFX startupManager;
 
-    public StartupWindow(StartupManager startupManager) {
+    public StartupWindow(StartupManagerFramePFX startupManager) {
         this.InitializeComponent();
         this.startupManager = startupManager;
         this.PART_CreateDemoProjectButton.Command = this.startupManager.DoOpenDemoProjectCommand;

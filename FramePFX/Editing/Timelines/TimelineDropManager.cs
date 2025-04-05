@@ -34,7 +34,7 @@ public sealed class TimelineDropManager {
     /// </summary>
     public static readonly DataKey<long> DropFrame = DataKey<long>.Create("TimelineDrop_DropFrame");
 
-    public static TimelineDropManager Instance => Application.Instance.ServiceManager.GetService<TimelineDropManager>();
+    public static TimelineDropManager Instance => ApplicationPFX.Instance.ServiceManager.GetService<TimelineDropManager>();
 
     public TimelineDropManager() {
     }

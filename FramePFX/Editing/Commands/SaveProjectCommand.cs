@@ -41,7 +41,7 @@ public class SaveProjectCommand : Command {
                 IActivityProgress progress = ActivityManager.Instance.GetCurrentProgressOrEmpty();
                 progress.Text = "Saving project...";
 
-                await Application.Instance.Dispatcher.InvokeAsync(async () => {
+                await ApplicationPFX.Instance.Dispatcher.InvokeAsync(async () => {
                     await Project.SaveProject(project, progress);
                 });
             });
@@ -56,7 +56,7 @@ public class SaveProjectAsCommand : SaveProjectCommand {
                 IActivityProgress progress = ActivityManager.Instance.GetCurrentProgressOrEmpty();
                 progress.Text = "Saving project as...";
 
-                await Application.Instance.Dispatcher.InvokeAsync(() => Project.SaveProjectAs(project, progress)).Unwrap();
+                await ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => Project.SaveProjectAs(project, progress)).Unwrap();
             });
         }
     }

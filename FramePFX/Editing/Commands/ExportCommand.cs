@@ -65,7 +65,7 @@ public class ExportCommand : Command {
         }
 
         theEditor.Playback.Pause();
-        IExportDialogService dialogService = Application.Instance.ServiceManager.GetService<IExportDialogService>();
+        IExportDialogService dialogService = ApplicationPFX.Instance.ServiceManager.GetService<IExportDialogService>();
 
         ExportSetup setup = new ExportSetup(theEditor, theTimeline) {
             Span = new FrameSpan(0, theTimeline.LargestFrameInUse),

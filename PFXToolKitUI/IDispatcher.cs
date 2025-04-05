@@ -20,7 +20,7 @@
 namespace PFXToolKitUI;
 
 /// <summary>
-/// Provides a mechanism for invoking actions on the UI thread
+/// Provides a mechanism for invoking actions on a specific thread
 /// </summary>
 public interface IDispatcher {
     /// <summary>
@@ -33,40 +33,40 @@ public interface IDispatcher {
     void VerifyAccess();
 
     /// <summary>
-    /// Synchronously executes the given function on the UI thread, or dispatches its execution on the UI thread if we are not
+    /// Synchronously executes the given function on the dispatcher thread, or dispatches its execution on the dispatcher thread if we are not
     /// currently on it. This effectively blocks the current thread until the <see cref="Action"/> returns
     /// </summary>
-    /// <param name="action">The function to execute on the UI thread</param>
+    /// <param name="action">The function to execute on the dispatcher thread</param>
     /// <param name="priority">The priority of the dispatch</param>
     void Invoke(Action action, DispatchPriority priority = DispatchPriority.Send);
 
     /// <summary>
     /// The same as <see cref="Invoke"/> but allows a return value
     /// </summary>
-    /// <param name="function">The function to execute on the UI thread</param>
+    /// <param name="function">The function to execute on the dispatcher thread</param>
     /// <param name="priority">The priority of the dispatch</param>
     /// <typeparam name="TResult">The return value for the function</typeparam>
     /// <returns>The return value of the parameter '<see cref="function"/>'</returns>
     T Invoke<T>(Func<T> function, DispatchPriority priority = DispatchPriority.Send);
 
     /// <summary>
-    /// Asynchronously executes the given function on the UI thread, or dispatches its execution on the UI thread
-    /// if we are not currently on it. This is the best way to execute a function on the UI thread asynchronously
+    /// Asynchronously executes the given function on the dispatcher thread, or dispatches its execution on the dispatcher thread
+    /// if we are not currently on it. This is the best way to execute a function on the dispatcher thread asynchronously
     /// </summary>
-    /// <param name="action">The function to execute on the UI thread</param>
+    /// <param name="action">The function to execute on the dispatcher thread</param>
     /// <param name="priority">The priority of the dispatch</param>
     /// <param name="token"></param>
-    /// <returns>A task that can be awaited, which is completed once the function returns on the UI thread</returns>
+    /// <returns>A task that can be awaited, which is completed once the function returns on the dispatcher thread</returns>
     Task InvokeAsync(Action action, DispatchPriority priority = DispatchPriority.Normal, CancellationToken token = default);
 
     /// <summary>
     /// The same as <see cref="InvokeAsync"/> but allows a return value
     /// </summary>
-    /// <param name="function">The function to execute on the UI thread</param>
+    /// <param name="function">The function to execute on the dispatcher thread</param>
     /// <param name="priority">The priority of the dispatch</param>
     /// <param name="token"></param>
     /// <typeparam name="TResult">The return value for the function</typeparam>
-    /// <returns>A task that can be awaited, which is completed once the function returns on the UI thread</returns>
+    /// <returns>A task that can be awaited, which is completed once the function returns on the dispatcher thread</returns>
     Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority = DispatchPriority.Normal, CancellationToken token = default);
 
     /// <summary>

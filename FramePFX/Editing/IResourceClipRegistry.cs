@@ -33,7 +33,7 @@ namespace FramePFX.Editing;
 /// A class which manages the behaviour for when a user tries to drop a resource into a timeline
 /// </summary>
 public sealed class ResourceDropOnTimelineService {
-    public static ResourceDropOnTimelineService Instance => Application.Instance.ServiceManager.GetService<ResourceDropOnTimelineService>();
+    public static ResourceDropOnTimelineService Instance => ApplicationPFX.Instance.ServiceManager.GetService<ResourceDropOnTimelineService>();
 
     private readonly Dictionary<Type, IResourceDropHandler> information;
 

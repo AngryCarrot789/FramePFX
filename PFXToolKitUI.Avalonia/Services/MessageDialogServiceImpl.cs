@@ -39,11 +39,11 @@ public class MessageDialogServiceImpl : IMessageDialogService {
 
     public async Task<MessageBoxResult> ShowMessage(MessageBoxInfo info) {
         Validate.NotNull(info);
-        if (Application.Instance.Dispatcher.CheckAccess()) {
+        if (ApplicationPFX.Instance.Dispatcher.CheckAccess()) {
             return await ShowMessageMainThread(info);
         }
         else {
-            return await Application.Instance.Dispatcher.InvokeAsync(() => ShowMessageMainThread(info)).Unwrap();
+            return await ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => ShowMessageMainThread(info)).Unwrap();
         }
     }
 

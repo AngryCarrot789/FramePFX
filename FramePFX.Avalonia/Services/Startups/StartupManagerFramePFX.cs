@@ -30,25 +30,44 @@ using PFXToolKitUI.Services.FilePicking;
 using PFXToolKitUI.Services.Messaging;
 using PFXToolKitUI.Tasks;
 using PFXToolKitUI.Utils;
+using PFXToolKitUI.Utils.Commands;
 
 namespace FramePFX.Avalonia.Services.Startups;
 
-public class StartupManagerImpl : StartupManager {
+/// <summary>
+/// The FramePFX startup manager, which manages the startup dialog, which presents a list of recently opened FramePFX projects
+/// </summary>
+public class StartupManagerFramePFX : IStartupManager {
     private StartupWindow? myWindow;
 
-    public StartupManagerImpl() {
+    public AsyncRelayCommand DoOpenDemoProjectCommand { get; }
+    
+    public AsyncRelayCommand DoOpenEmptyEditorCommand { get; }
+    
+    public AsyncRelayCommand DoOpenProjectCommand { get; }
+    
+    public StartupManagerFramePFX() {
+        this.DoOpenDemoProjectCommand = new AsyncRelayCommand(this.OpenDemoProject);
+        this.DoOpenEmptyEditorCommand = new AsyncRelayCommand(this.OpenEmptyEditor);
+        this.DoOpenProjectCommand = new AsyncRelayCommand(this.OpenProjectFromFileSystem);
     }
+
+    /// <summary>
+    /// Gets or sets if the action the user selects should be saved as the
+    /// default option to the <see cref="FramePFX.Editing.StartupConfigurationOptions"/>
+    /// </summary>
+    public bool UseSelectedOptionOnStartup { get; set; }
 
     private async Task HandleNormalStartup() {
         switch (StartupConfigurationOptions.Instance.StartupBehaviour) {
-            case StartupConfigurationOptions.EnumStartupBehaviour.OpenStartupWindow: this.OpenStartupWindow(); break;
-            case StartupConfigurationOptions.EnumStartupBehaviour.OpenDemoProject:   await this.OnOpenDemoProject(); break;
-            case StartupConfigurationOptions.EnumStartupBehaviour.OpenEmptyProject:  await this.OnOpenEmptyEditor(); break;
-            default:                                                                 this.OpenStartupWindow(); break;
+            case EnumStartupBehaviour.OpenStartupWindow: this.OpenStartupWindow(); break;
+            case EnumStartupBehaviour.OpenDemoProject:   await this.OnOpenDemoProject(); break;
+            case EnumStartupBehaviour.OpenEmptyProject:  await this.OnOpenEmptyEditor(); break;
+            default:                                     this.OpenStartupWindow(); break;
         }
     }
 
-    public override void OpenStartupWindow() {
+    public void OpenStartupWindow() {
         if (this.myWindow != null) {
             try {
                 this.myWindow.Close();
@@ -65,7 +84,7 @@ public class StartupManagerImpl : StartupManager {
         }
     }
 
-    protected override Task OnOpenDemoProject() {
+    protected Task OnOpenDemoProject() {
         VideoEditor editor = new VideoEditor();
         editor.LoadDefaultProject();
 
@@ -75,7 +94,7 @@ public class StartupManagerImpl : StartupManager {
             progress.Caption = "Open empty editor";
             progress.Text = "Opening editor...";
 
-            return Application.Instance.Dispatcher.InvokeAsync(() => {
+            return ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
                 OpenEditorAsMainWindow(editor);
             });
         });
@@ -88,7 +107,7 @@ public class StartupManagerImpl : StartupManager {
         return Task.CompletedTask;
     }
 
-    protected override Task OnOpenEmptyEditor() {
+    protected Task OnOpenEmptyEditor() {
         VideoEditor editor = new VideoEditor();
         ActivityManager.Instance.RunTask(() => {
             IActivityProgress progress = ActivityManager.Instance.GetCurrentProgressOrEmpty();
@@ -96,7 +115,7 @@ public class StartupManagerImpl : StartupManager {
             progress.Caption = "Open empty editor";
             progress.Text = "Opening editor...";
 
-            return Application.Instance.Dispatcher.InvokeAsync(() => OpenEditorAsMainWindow(editor));
+            return ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => OpenEditorAsMainWindow(editor));
         });
 
         if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
@@ -107,7 +126,7 @@ public class StartupManagerImpl : StartupManager {
         return Task.CompletedTask;
     }
 
-    protected override async Task OnOpenProjectFromFileSystem() {
+    protected async Task OnOpenProjectFromFileSystem() {
         string? filePath = await IFilePickDialogService.Instance.OpenFile("Open a project file (.fpfx)", Filters.ListProjectTypeAndAll);
         if (filePath == null) {
             return;
@@ -129,7 +148,7 @@ public class StartupManagerImpl : StartupManager {
     }
 
     private static void OpenEditorAsMainWindow(VideoEditor editor) {
-        IVideoEditorWindow editorWindow = Application.Instance.ServiceManager.GetService<IVideoEditorService>().OpenVideoEditor(editor);
+        IVideoEditorWindow editorWindow = ApplicationPFX.Instance.ServiceManager.GetService<IVideoEditorService>().OpenVideoEditor(editor);
         if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             desktop.MainWindow = (Window) editorWindow;
             desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;
@@ -149,7 +168,7 @@ public class StartupManagerImpl : StartupManager {
         }
     }
 
-    public override async Task OnApplicationStartupWithArgs(string[] args) {
+    public async Task OnApplicationStartupWithArgs(string[] args) {
         if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true) {
             if (!await TryOpenProjectFromFile(args[0])) {
                 await this.HandleNormalStartup();
@@ -158,5 +177,35 @@ public class StartupManagerImpl : StartupManager {
         else {
             await this.HandleNormalStartup();
         }
+    }
+
+    private Task OpenDemoProject() {
+        if (this.UseSelectedOptionOnStartup) {
+            SetStartupOption(EnumStartupBehaviour.OpenDemoProject);
+        }
+
+        return this.OnOpenDemoProject();
+    }
+
+    private Task OpenEmptyEditor() {
+        if (this.UseSelectedOptionOnStartup) {
+            SetStartupOption(EnumStartupBehaviour.OpenEmptyProject);
+        }
+
+        return this.OnOpenEmptyEditor();
+    }
+
+    private Task OpenProjectFromFileSystem() {
+        if (this.UseSelectedOptionOnStartup) {
+            SetStartupOption(EnumStartupBehaviour.OpenStartupWindow);
+        }
+
+        return this.OnOpenProjectFromFileSystem();
+    }
+
+    private static void SetStartupOption(EnumStartupBehaviour behaviour) {
+        StartupConfigurationOptions config = StartupConfigurationOptions.Instance;
+        config.StartupBehaviour = behaviour;
+        config.StorageManager.SaveArea(config);
     }
 }

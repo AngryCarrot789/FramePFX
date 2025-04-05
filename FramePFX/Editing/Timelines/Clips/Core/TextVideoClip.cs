@@ -166,7 +166,7 @@ public class TextVideoClip : VideoClip {
 
                     // InvalidateFontData sets TextBlobBoundingBox to default, but if we don't do that,
                     // the flickering is gone. This is the issue with lazily generating the render size :/
-                    Application.Instance.Dispatcher.Post(clip.OnRenderSizeChanged);
+                    ApplicationPFX.Instance.Dispatcher.Post(clip.OnRenderSizeChanged);
                 }
             }
         });

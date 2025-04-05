@@ -210,7 +210,7 @@ public class Timeline : ITransferableData, IServiceable, IDestroy {
         this.tracks = new List<Track>();
         this.Tracks = new ReadOnlyCollection<Track>(this.tracks);
         this.maxDuration = 5000L;
-        this.ServiceManager = new ServiceManager(this);
+        this.ServiceManager = new ServiceManager();
         this.RenderManager = new RenderManager(this);
     }
 

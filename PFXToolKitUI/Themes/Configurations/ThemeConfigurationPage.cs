@@ -86,7 +86,7 @@ public class ThemeConfigurationPage : ConfigurationPage {
     public ThemeConfigEntry AssignMapping(string fullPath, string themeKey, string? description = null) {
         Validate.NotNullOrWhiteSpaces(fullPath);
         Validate.NotNullOrWhiteSpaces(themeKey);
-        Application.Instance.EnsureBeforePhase(ApplicationStartupPhase.Running);
+        ApplicationPFX.Instance.EnsureBeforePhase(ApplicationStartupPhase.Running);
 
         ThemeConfigEntryGroup parent = this.Root;
         int i, j = 0; // i = index, j = last index

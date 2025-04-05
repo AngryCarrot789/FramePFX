@@ -256,9 +256,9 @@ public class PlaybackManager {
 
         // Checking phase does not help since the render thread is way too fast to respond to
         // the stop command, and therefore, the phase will almost always be Running
-        if (Application.Instance.IsBeforePhase(ApplicationStartupPhase.Stopping)) {
+        if (ApplicationPFX.Instance.IsBeforePhase(ApplicationStartupPhase.Stopping)) {
             try {
-                Application.Instance.Dispatcher.Invoke(() => this.Timeline?.InvalidateRender(), DispatchPriority.Background);
+                ApplicationPFX.Instance.Dispatcher.Invoke(() => this.Timeline?.InvalidateRender(), DispatchPriority.Background);
             }
             catch (TaskCanceledException) {
                 // ignored
@@ -277,7 +277,7 @@ public class PlaybackManager {
         }
 
         using (this.Timeline.RenderManager.SuspendRenderInvalidation()) {
-            Task renderTask = Application.Instance.Dispatcher.Invoke(() => {
+            Task renderTask = ApplicationPFX.Instance.Dispatcher.Invoke(() => {
                 Timeline timeline = this.Timeline;
                 Project project;
                 if (timeline == null || (project = timeline.Project) == null || !timeline.IsActive) {

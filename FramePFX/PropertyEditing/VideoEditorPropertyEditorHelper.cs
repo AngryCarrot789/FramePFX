@@ -39,11 +39,11 @@ public static class VideoEditorPropertyEditorHelper {
         // the selection will only get finally updated once that's done (since the normal priority
         // operations will be stalling the background operations... well I assume that's how it works lmfao)
         rateLimitedClipUpdate = new RateLimitedDispatchAction<ITimelineElement>((t) => {
-            return Application.Instance.Dispatcher.InvokeAsync(() => UpdateClipSelection(t), DispatchPriority.Background);
+            return ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => UpdateClipSelection(t), DispatchPriority.Background);
         }, TimeSpan.FromMilliseconds(100)) { DebugName = "ClipUpdate_VideoEditorPropEditor" };
 
         rateLimitedTrackUpdate = new RateLimitedDispatchAction<ITimelineElement>((t) => {
-            return Application.Instance.Dispatcher.InvokeAsync(() => UpdateTrackSelection(t), DispatchPriority.Background);
+            return ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => UpdateTrackSelection(t), DispatchPriority.Background);
         }, TimeSpan.FromMilliseconds(100)) { DebugName = "TrackUpdate_VideoEditorPropEditor" };
     }
 

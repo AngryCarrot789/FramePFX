@@ -91,7 +91,7 @@ public class UIInputManager {
     }
 
     static UIInputManager() {
-        Application.Instance.Dispatcher.VerifyAccess();
+        ApplicationPFX.Instance.Dispatcher.VerifyAccess();
         InputElement.GotFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(s, e, false), handledEventsToo: true);
         InputElement.LostFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(s, e, true), handledEventsToo: true);
 

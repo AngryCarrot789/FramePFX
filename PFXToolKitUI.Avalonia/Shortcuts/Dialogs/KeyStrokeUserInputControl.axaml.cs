@@ -45,7 +45,7 @@ public partial class KeyStrokeUserInputControl : UserControl, IUserInputContent 
     public KeyStrokeUserInputControl() {
         this.InitializeComponent();
         this.keyStrokeBinder.AttachControl(this.InputBox);
-        this.InputBox.AddHandler(TextBox.KeyDownEvent, this.InputBox_KeyDown, RoutingStrategies.Tunnel);
+        this.InputBox.AddHandler(KeyDownEvent, this.InputBox_KeyDown, RoutingStrategies.Tunnel);
     }
 
     private void ToggleButton_OnIsCheckedChanged(object? sender, RoutedEventArgs e) {

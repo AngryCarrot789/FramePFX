@@ -97,7 +97,7 @@ public partial class ConfigurationDialog : WindowEx {
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        Application.Instance.Dispatcher.InvokeAsync(() => {
+        ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
             this.PART_EditorPanel.SelectFirst();
         }, DispatchPriority.Loaded);
     }

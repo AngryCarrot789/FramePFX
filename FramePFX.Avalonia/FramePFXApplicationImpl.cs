@@ -18,14 +18,17 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems;
@@ -63,6 +66,7 @@ using PFXToolKitUI.Avalonia.PropertyEditing;
 using PFXToolKitUI.Avalonia.Toolbars.Toolbars;
 using PFXToolKitUI.Configurations;
 using PFXToolKitUI.Icons;
+using PFXToolKitUI.Persistence;
 using PFXToolKitUI.Plugins;
 using PFXToolKitUI.PropertyEditing.Core;
 using PFXToolKitUI.Services;
@@ -75,29 +79,27 @@ using PFXToolKitUI.Shortcuts;
 using PFXToolKitUI.Themes;
 using PFXToolKitUI.Toolbars;
 using PFXToolKitUI.Utils;
-using IDispatcher = PFXToolKitUI.IDispatcher;
 
 namespace FramePFX.Avalonia;
 
 public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication {
-    public override IDispatcher Dispatcher { get; }
-
     /// <summary>
     /// Gets the avalonia application
     /// </summary>
-    public App App { get; }
+    public Application Application { get; }
+    
+    public override PFXToolKitUI.IDispatcher Dispatcher { get; }
 
-    public ApplicationStartupPhase StartupPhaseImpl {
-        get => this.StartupPhase;
-        set => this.StartupPhase = value;
-    }
-
-    public FramePFXApplicationImpl(App app) {
-        this.App = app ?? throw new ArgumentNullException(nameof(app));
+    public FramePFXApplicationImpl(Application app) {
+        this.Application = app ?? throw new ArgumentNullException(nameof(app));
 
         Dispatcher avd = global::Avalonia.Threading.Dispatcher.UIThread;
         this.Dispatcher = new DispatcherImpl(avd);
 
+        if (app.ApplicationLifetime is ClassicDesktopStyleApplicationLifetime e) {
+            e.Exit += this.OnApplicationExit;
+        }
+        
         avd.ShutdownFinished += this.OnDispatcherShutDown;
         this.PluginLoader.AddCorePluginEntry(new CorePluginDescriptor(typeof(TestPlugin)));
     }
@@ -105,12 +107,16 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
     private void OnDispatcherShutDown(object? sender, EventArgs e) {
         this.StartupPhase = ApplicationStartupPhase.Stopped;
     }
+    
+    private void OnApplicationExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
+        this.OnExiting(e.ApplicationExitCode);
+    }
 
     protected override void RegisterServices(ServiceManager manager) {
-        manager.RegisterConstant<ThemeManager>(new ThemeManagerImpl(this.App));
+        manager.RegisterConstant<ThemeManager>(new ThemeManagerImpl(this.Application));
         manager.RegisterConstant<IconManager>(new IconManagerImpl());
         manager.RegisterConstant<ShortcutManager>(new AvaloniaShortcutManager());
-        manager.RegisterConstant<StartupManager>(new StartupManagerImpl());
+        manager.RegisterConstant<IStartupManager>(new StartupManagerFramePFX());
         base.RegisterServices(manager);
         manager.RegisterConstant<IMessageDialogService>(new MessageDialogServiceImpl());
         manager.RegisterConstant<IUserInputDialogService>(new InputDialogServiceImpl());
@@ -125,53 +131,12 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
         manager.RegisterConstant<ToolbarButtonFactory>(new ToolbarButtonFactoryImpl());
     }
 
-    protected override async Task<bool> LoadKeyMapAsync() {
-        string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
-        if (File.Exists(keymapFilePath)) {
-            try {
-                await using FileStream stream = File.OpenRead(keymapFilePath);
-                AvaloniaShortcutManager.AvaloniaInstance.DeserialiseRoot(stream);
-                return true;
-            }
-            catch (Exception ex) {
-                await IMessageDialogService.Instance.ShowMessage("Keymap", "Failed to read keymap file" + keymapFilePath + ". This error can be ignored, but shortcuts won't work", ex.GetToString());
-            }
-        }
-        else {
-            await IMessageDialogService.Instance.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath + ". This error can be ignored, but shortcuts won't work");
-        }
-
-        return false;
-    }
-
-    protected override async Task Initialise(IApplicationStartupProgress progress) {
+    protected override async Task OnSetupApplication(IApplicationStartupProgress progress) {
         // Since we're calling a base method which will complete to 100%,
         // we need to push a completion range for our custom code
-        this.StartupPhase = ApplicationStartupPhase.Initializing;
         using (progress.CompletionState.PushCompletionRange(0.0, 0.25)) {
-            await base.Initialise(progress);
+            await base.OnSetupApplication(progress);
         }
-        
-        {
-            // Register custom controls
-            ConfigurationPageRegistry.Registry.RegisterType<EditorWindowConfigurationPage>(() => new BasicEditorWindowConfigurationPageControl());
-
-            BasePropertyEditorSlotControl.Registry.RegisterType<DisplayNamePropertyEditorSlot>(() => new DisplayNamePropertyEditorSlotControl());
-            BasePropertyEditorSlotControl.Registry.RegisterType<VideoClipMediaFrameOffsetPropertyEditorSlot>(() => new VideoClipMediaFrameOffsetPropertyEditorSlotControl());
-            BasePropertyEditorSlotControl.Registry.RegisterType<TimecodeFontFamilyPropertyEditorSlot>(() => new TimecodeFontFamilyPropertyEditorSlotControl());
-
-            // automation parameter editors
-            BasePropertyEditorSlotControl.Registry.RegisterType<ParameterFloatPropertyEditorSlot>(() => new ParameterFloatPropertyEditorSlotControl());
-            BasePropertyEditorSlotControl.Registry.RegisterType<ParameterDoublePropertyEditorSlot>(() => new ParameterDoublePropertyEditorSlotControl());
-            BasePropertyEditorSlotControl.Registry.RegisterType<ParameterLongPropertyEditorSlot>(() => new ParameterLongPropertyEditorSlotControl());
-            BasePropertyEditorSlotControl.Registry.RegisterType<ParameterVector2PropertyEditorSlot>(() => new ParameterVector2PropertyEditorSlotControl());
-            BasePropertyEditorSlotControl.Registry.RegisterType<ParameterBoolPropertyEditorSlot>(() => new ParameterBoolPropertyEditorSlotControl());
-
-            BasePropertyEditorSlotControl.RegisterEnumControl<StartupConfigurationOptions.EnumStartupBehaviour, FramePFXApplication.DataParameterStartupBehaviourPropertyEditorSlot>();
-        }
-        
-        await progress.ProgressAndSynchroniseAsync("Loading keymap...");
-        await this.LoadKeyMapAsync();
 
         await progress.ProgressAndSynchroniseAsync("Loading themes...");
         ((ThemeManagerImpl) this.ServiceManager.GetService<ThemeManager>()).SetupBuiltInThemes();
@@ -196,7 +161,7 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
             success = true;
         }
         catch (Exception e) {
-            await IMessageDialogService.Instance.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices. Check FFmpeg is installed. Media clips now unavailable", e.GetToString());
+            await IMessageDialogService.Instance.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices. Maybe check FFmpeg is installed? Media clips are now unavailable", e.GetToString());
         }
 
         if (success) {
@@ -204,12 +169,12 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
         }
 
         {
+            await progress.ProgressAndSynchroniseAsync("Checking native engine functionality", 0.95);
+
             const ulong a = ulong.MaxValue;
             const ushort b = ushort.MaxValue;
             const ulong expected = a - b;
-
-            await progress.ProgressAndSynchroniseAsync("Checking native engine functionality", 0.95);
-
+            
             // cute little test to see if we're pumping iron not rust
             if (expected != PFXNative.TestEngineSubNumbers(a, b)) {
                 await IMessageDialogService.Instance.ShowMessage("Native Engine malfunction", "Native engine test failed");
@@ -218,18 +183,8 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
         }
     }
 
-    protected override Task OnFullyInitialised() {
-        // Register standard controls
-        ResourceExplorerListItemContent.Registry.RegisterType<ResourceFolder>(() => new RELIC_Folder());
-        ResourceExplorerListItemContent.Registry.RegisterType<ResourceColour>(() => new RELIC_Colour());
-        ResourceExplorerListItemContent.Registry.RegisterType<ResourceImage>(() => new RELIC_Image());
-        ResourceExplorerListItemContent.Registry.RegisterType<ResourceComposition>(() => new RELIC_Composition());
-
-        return base.OnFullyInitialised();
-    }
-
     public bool TryGetActiveWindow([NotNullWhen(true)] out Window? window, bool fallbackToMainWindow = true) {
-        if (this.App.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+        if (this.Application.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             return (window = desktop.Windows.FirstOrDefault(x => x.IsActive) ?? (fallbackToMainWindow ? desktop.MainWindow : null)) != null;
         }
 
@@ -237,17 +192,93 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
         return false;
     }
 
-    internal static void InternalSetupApplicationInstance(App app) => InternalSetInstance(new FramePFXApplicationImpl(app));
+    protected override async Task OnSetupFailed(Exception exception) {
+        await new MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", exception.ToString());
+        global::Avalonia.Threading.Dispatcher.UIThread.InvokeShutdown();
+    }
 
-    internal static Task InternalInitialiseImpl(IApplicationStartupProgress progress) => InternalInitialise(progress);
+    protected override void RegisterConfigurations() {
+        PersistentStorageManager psm = this.PersistentStorageManager;
+        
+        psm.Register(new EditorConfigurationOptions(), "editor", "window");
+        psm.Register(new StartupConfigurationOptions(), null, "startup");
+        psm.Register<ThemeConfigurationOptions>(new ThemeConfigurationOptionsImpl(), "themes", "themes");
+    }
 
-    internal static Task InternalLoadPluginsImpl(IApplicationStartupProgress progress) => InternalLoadPlugins(progress);
+    protected override async Task OnPluginsLoaded() {
+        List<(Plugin, string)> injectable = this.PluginLoader.GetInjectableXamlResources();
+        if (injectable.Count > 0) {
+            IList<IResourceProvider> resources = this.Application.Resources.MergedDictionaries;
+            
+            List<string> errorLines = new List<string>();
+            foreach ((Plugin plugin, string path) in injectable) {
+                int idx = resources.Count;
+                try {
+                    // adding resource here is the only way to actually get an exception e.g. when file does not exist or is invalid or whatever
+                    resources.Add(new ResourceInclude((Uri?) null) { Source = new Uri(path) });
+                }
+                catch (Exception e) {
+                    // remove invalid resource include
+                    try {
+                        resources.RemoveAt(idx);
+                    }
+                    catch { /* ignored */ }
 
-    internal new static void InternalOnExiting(int exitCode) => Application.InternalOnExiting(exitCode);
+                    errorLines.Add(plugin.Name + ": " + path + "\n" + e);
+                }
+            }
 
-    internal static Task InternalOnFullyInitialised() => InternalOnFullyInitialisedImpl();
+            if (errorLines.Count > 0) {
+                string dblNewLine = Environment.NewLine + Environment.NewLine;
+                await IMessageDialogService.Instance.ShowMessage(
+                    "Error loading plugin XAML", 
+                    "One or more plugins' XAML files are invalid. Issues may occur later on.", 
+                    string.Join(dblNewLine, errorLines));
+            }
+        }
+    }
 
-    private class DispatcherImpl : IDispatcher {
+    protected override Task OnApplicationFullyLoaded() {
+        StartupConfigurationOptions.Instance.ApplyTheme();
+        
+        // Register controls
+        ResourceExplorerListItemContent.Registry.RegisterType<ResourceFolder>(() => new RELIC_Folder());
+        ResourceExplorerListItemContent.Registry.RegisterType<ResourceColour>(() => new RELIC_Colour());
+        ResourceExplorerListItemContent.Registry.RegisterType<ResourceImage>(() => new RELIC_Image());
+        ResourceExplorerListItemContent.Registry.RegisterType<ResourceComposition>(() => new RELIC_Composition());
+        
+        ConfigurationPageRegistry.Registry.RegisterType<EditorWindowConfigurationPage>(() => new BasicEditorWindowConfigurationPageControl());
+
+        BasePropertyEditorSlotControl.Registry.RegisterType<DisplayNamePropertyEditorSlot>(() => new DisplayNamePropertyEditorSlotControl());
+        BasePropertyEditorSlotControl.Registry.RegisterType<VideoClipMediaFrameOffsetPropertyEditorSlot>(() => new VideoClipMediaFrameOffsetPropertyEditorSlotControl());
+        BasePropertyEditorSlotControl.Registry.RegisterType<TimecodeFontFamilyPropertyEditorSlot>(() => new TimecodeFontFamilyPropertyEditorSlotControl());
+
+        // automation parameter editors
+        BasePropertyEditorSlotControl.Registry.RegisterType<ParameterFloatPropertyEditorSlot>(() => new ParameterFloatPropertyEditorSlotControl());
+        BasePropertyEditorSlotControl.Registry.RegisterType<ParameterDoublePropertyEditorSlot>(() => new ParameterDoublePropertyEditorSlotControl());
+        BasePropertyEditorSlotControl.Registry.RegisterType<ParameterLongPropertyEditorSlot>(() => new ParameterLongPropertyEditorSlotControl());
+        BasePropertyEditorSlotControl.Registry.RegisterType<ParameterVector2PropertyEditorSlot>(() => new ParameterVector2PropertyEditorSlotControl());
+        BasePropertyEditorSlotControl.Registry.RegisterType<ParameterBoolPropertyEditorSlot>(() => new ParameterBoolPropertyEditorSlotControl());
+
+        BasePropertyEditorSlotControl.RegisterEnumControl<EnumStartupBehaviour, DataParameterStartupBehaviourPropertyEditorSlot>();
+        
+        return Task.CompletedTask;
+    }
+    
+    protected override async Task OnApplicationRunning(IApplicationStartupProgress progress, string[] envArgs) {
+        if (this.Application.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+            (progress as AppSplashScreen)?.Close();
+            await progress.ProgressAndSynchroniseAsync("Startup completed", 1.0);
+            await base.OnApplicationRunning(progress, envArgs);
+            desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;
+        }
+        else {
+            await base.OnApplicationRunning(progress, envArgs);
+        }
+    }
+
+    // This is basically just a wrapper around the avalonia dispatcher so that the core projects may access it, since features RateLimitedDispatchAction require it
+    private class DispatcherImpl : PFXToolKitUI.IDispatcher {
         private static readonly Action EmptyAction = () => {
         };
 

@@ -18,6 +18,7 @@
 // 
 
 using System.Diagnostics.CodeAnalysis;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
@@ -35,7 +36,7 @@ public class ThemeManagerImpl : ThemeManager {
     private readonly ObservableList<Theme> themes;
     private Theme myActiveTheme = null!;
 
-    public global::Avalonia.Application App { get; }
+    public Application App { get; }
 
     public ResourceDictionary ApplicationResources => (ResourceDictionary) this.App.Resources;
 
@@ -45,7 +46,7 @@ public class ThemeManagerImpl : ThemeManager {
 
     public override Theme ActiveTheme => this.myActiveTheme;
 
-    public ThemeManagerImpl(global::Avalonia.Application app) {
+    public ThemeManagerImpl(Application app) {
         this.App = app;
         this.App.ActualThemeVariantChanged += this.OnActiveVariantChanged;
         this.themes = new ObservableList<Theme>();
@@ -67,7 +68,7 @@ public class ThemeManagerImpl : ThemeManager {
     }
 
     public void SetupBuiltInThemes() {
-        Application.Instance.EnsureBeforePhase(ApplicationStartupPhase.Running);
+        ApplicationPFX.Instance.EnsureBeforePhase(ApplicationStartupPhase.Running);
 
         foreach (KeyValuePair<ThemeVariant, IThemeVariantProvider> entry in this.ThemeDictionaries) {
             string? themeName = entry.Key.Key.ToString();
@@ -116,7 +117,7 @@ public class ThemeManagerImpl : ThemeManager {
             themeKey = themeKey.Substring(0, themeKey.Length - ThemeImpl.ColourSuffix.Length);
         }
 
-        if (global::Avalonia.Application.Current!.TryGetResource(themeKey, global::Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
+        if (Application.Current!.TryGetResource(themeKey, Application.Current.ActualThemeVariant, out object? value)) {
             return (brush = value as IBrush) != null;
         }
 
@@ -129,7 +130,7 @@ public class ThemeManagerImpl : ThemeManager {
             themeKey += ThemeImpl.ColourSuffix;
         }
 
-        if (global::Avalonia.Application.Current!.TryGetResource(themeKey, global::Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
+        if (Application.Current!.TryGetResource(themeKey, Application.Current.ActualThemeVariant, out object? value)) {
             if (value is Color c) {
                 colour = c;
                 return true;
@@ -314,7 +315,7 @@ public class ThemeManagerImpl : ThemeManager {
         }
 
         public void LoadKeysFromDictionary() {
-            Application.Instance.EnsureBeforePhase(ApplicationStartupPhase.Running);
+            ApplicationPFX.Instance.EnsureBeforePhase(ApplicationStartupPhase.Running);
             foreach (object key in this.Resources.Keys) {
                 if (key is string keyString) {
                     // Only load brush keys. We do colours along the side

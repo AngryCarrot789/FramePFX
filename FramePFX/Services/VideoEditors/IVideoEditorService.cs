@@ -29,7 +29,7 @@ public delegate void VideoEditorCreationEventHandler(IVideoEditorWindow window, 
 /// A service that manages video editors and notifications of video editor creation
 /// </summary>
 public interface IVideoEditorService {
-    public static IVideoEditorService Instance => Application.Instance.ServiceManager.GetService<IVideoEditorService>();
+    public static IVideoEditorService Instance => ApplicationPFX.Instance.ServiceManager.GetService<IVideoEditorService>();
 
     /// <summary>
     /// Creates a new video editor window using the given video editor model

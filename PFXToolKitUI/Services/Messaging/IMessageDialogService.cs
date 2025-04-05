@@ -24,7 +24,7 @@ namespace PFXToolKitUI.Services.Messaging;
 /// called from any thread, but it's best to call from the main thread so that the active window is predicable
 /// </summary>
 public interface IMessageDialogService {
-    public static IMessageDialogService Instance => Application.Instance.ServiceManager.GetService<IMessageDialogService>();
+    public static IMessageDialogService Instance => ApplicationPFX.Instance.ServiceManager.GetService<IMessageDialogService>();
 
     /// <summary>
     /// Shows a dialog message

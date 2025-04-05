@@ -55,7 +55,7 @@ public class WindowEx : Window {
     private bool isAwaitingClose, closeOnFinish, isCloseCancelled;
 
     public WindowEx() {
-        if (AvCore.TryGetService(out Win32PlatformOptions options)) {
+        if (AvUtils.TryGetService(out Win32PlatformOptions options)) {
             if (options.CompositionMode.Any(x => x == Win32CompositionMode.LowLatencyDxgiSwapChain)) {
                 this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.PreferSystemChrome;
                 this.ExtendClientAreaToDecorationsHint = true;

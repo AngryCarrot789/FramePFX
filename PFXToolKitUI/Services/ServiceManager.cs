@@ -26,14 +26,8 @@ namespace PFXToolKitUI.Services;
 public sealed class ServiceManager {
     private readonly Dictionary<Type, ServiceEntry> services;
 
-    /// <summary>
-    /// Gets the owner of this service container
-    /// </summary>
-    public object Owner { get; }
-
-    public ServiceManager(object owner) {
+    public ServiceManager() {
         this.services = new Dictionary<Type, ServiceEntry>();
-        this.Owner = owner;
     }
 
     /// <summary>
@@ -78,7 +72,7 @@ public sealed class ServiceManager {
         }
 
         if (entry.isLazyEntry) {
-            service = ((Func<object, object>) entry.value)(this.Owner);
+            service = ((Func<object>) entry.value)();
             Debug.Assert(serviceType.IsInstanceOfType(service), "New service instance is incompatible with target type");
             this.services[serviceType] = new ServiceEntry(false, service);
         }
@@ -153,9 +147,9 @@ public sealed class ServiceManager {
     /// </summary>
     /// <param name="factory"></param>
     /// <typeparam name="T"></typeparam>
-    public void RegisterLazy<T>(Func<object, T> factory) where T : class {
+    public void RegisterLazy<T>(Func<T> factory) where T : class {
         Validate.NotNull(factory);
-        this.services[typeof(T)] = new ServiceEntry(true, new Func<object, object>(o => factory(o)!));
+        this.services[typeof(T)] = new ServiceEntry(true, new Func<object>(factory));
     }
 
     /// <summary>

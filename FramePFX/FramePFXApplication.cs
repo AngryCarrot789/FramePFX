@@ -1,3 +1,22 @@
+// 
+// Copyright (c) 2024-2024 REghZy
+// 
+// This file is part of FramePFX.
+// 
+// FramePFX is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 3.0 of the License, or (at your option) any later version.
+// 
+// FramePFX is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
+// 
+
 using FramePFX.Configurations;
 using FramePFX.Configurations.Commands;
 using FramePFX.Editing;
@@ -20,7 +39,10 @@ using SkiaSharp;
 
 namespace FramePFX;
 
-public abstract class FramePFXApplication : Application {
+public abstract class FramePFXApplication : ApplicationPFX {
+    protected FramePFXApplication() {
+    }
+
     protected override void RegisterServices(ServiceManager manager) {
         base.RegisterServices(manager);
         manager.RegisterConstant(new ResourceDropOnTimelineService());
@@ -29,15 +51,8 @@ public abstract class FramePFXApplication : Application {
         manager.RegisterConstant<IIconPreferences>(new IconPreferencesImpl());
     }
 
-    private class IconPreferencesImpl : IIconPreferences {
-        public bool UseAntiAliasing {
-            get => EditorConfigurationOptions.Instance.UseIconAntiAliasing;
-            set => EditorConfigurationOptions.Instance.UseIconAntiAliasing = value;
-        }
-    }
-
-    protected override void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager) {
-        base.RegisterCommands(progress, manager);
+    protected override void RegisterCommands(CommandManager manager) {
+        base.RegisterCommands(manager);
 
         // timelines, tracks and clips
         manager.Register("commands.editor.CreateVideoTrack", new NewVideoTrackCommand());
@@ -104,9 +119,7 @@ public abstract class FramePFXApplication : Application {
         manager.Register("commands.mainWindow.OpenProjectSettings", new OpenProjectSettingsCommand());
     }
 
-    protected override async Task Initialise(IApplicationStartupProgress progress) {
-        await base.Initialise(progress);
-
+    protected override Task OnSetupApplication(IApplicationStartupProgress progress) {
         ApplicationConfigurationManager appConfig = ApplicationConfigurationManager.Instance;
         appConfig.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Startup", Id = "config.startup", Page = new StartupPropEditorConfigurationPage()
@@ -120,6 +133,8 @@ public abstract class FramePFXApplication : Application {
                 }
             ]
         });
+        
+        return Task.CompletedTask;
     }
 
     protected override void OnExiting(int exitCode) {
@@ -135,6 +150,13 @@ public abstract class FramePFXApplication : Application {
         return "FramePFX";
     }
 
+    private class IconPreferencesImpl : IIconPreferences {
+        public bool UseAntiAliasing {
+            get => EditorConfigurationOptions.Instance.UseIconAntiAliasing;
+            set => EditorConfigurationOptions.Instance.UseIconAntiAliasing = value;
+        }
+    }
+    
     public class EditorWindowPropEditorConfigurationPage : PropertyEditorConfigurationPage {
         public static readonly DataParameter<SKColor> TitleBarBrushParameter =
             DataParameter.Register(
@@ -181,13 +203,13 @@ public abstract class FramePFXApplication : Application {
     }
 
     public class StartupPropEditorConfigurationPage : PropertyEditorConfigurationPage {
-        public static readonly DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> StartupBehaviourParameter = DataParameter.Register(new DataParameter<StartupConfigurationOptions.EnumStartupBehaviour>(typeof(StartupPropEditorConfigurationPage), nameof(StartupBehaviour), default, ValueAccessors.Reflective<StartupConfigurationOptions.EnumStartupBehaviour>(typeof(StartupPropEditorConfigurationPage), nameof(startupBehaviour))));
+        public static readonly DataParameter<EnumStartupBehaviour> StartupBehaviourParameter = DataParameter.Register(new DataParameter<EnumStartupBehaviour>(typeof(StartupPropEditorConfigurationPage), nameof(StartupBehaviour), default, ValueAccessors.Reflective<EnumStartupBehaviour>(typeof(StartupPropEditorConfigurationPage), nameof(startupBehaviour))));
         public static readonly DataParameterString StartupThemeParameter = DataParameter.Register(new DataParameterString(typeof(StartupPropEditorConfigurationPage), nameof(StartupTheme), "Dark", ValueAccessors.Reflective<string?>(typeof(StartupPropEditorConfigurationPage), nameof(startupTheme))));
 
-        private StartupConfigurationOptions.EnumStartupBehaviour startupBehaviour;
+        private EnumStartupBehaviour startupBehaviour;
         private string? startupTheme;
 
-        public StartupConfigurationOptions.EnumStartupBehaviour StartupBehaviour {
+        public EnumStartupBehaviour StartupBehaviour {
             get => this.startupBehaviour;
             set => DataParameter.SetValueHelper(this, StartupBehaviourParameter, ref this.startupBehaviour, value);
         }
@@ -232,16 +254,16 @@ public abstract class FramePFXApplication : Application {
         }
     }
 
-    public class DataParameterStartupBehaviourPropertyEditorSlot : DataParameterEnumPropertyEditorSlot<StartupConfigurationOptions.EnumStartupBehaviour> {
-        public static DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour> CodedIdEnumInfo { get; }
+    public class DataParameterStartupBehaviourPropertyEditorSlot : DataParameterEnumPropertyEditorSlot<EnumStartupBehaviour> {
+        public static DataParameterEnumInfo<EnumStartupBehaviour> CodedIdEnumInfo { get; }
 
-        public DataParameterStartupBehaviourPropertyEditorSlot(DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour>.EnumValuesOrderedByName, CodedIdEnumInfo) { }
+        public DataParameterStartupBehaviourPropertyEditorSlot(DataParameter<EnumStartupBehaviour> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", DataParameterEnumInfo<EnumStartupBehaviour>.EnumValuesOrderedByName, CodedIdEnumInfo) { }
 
         static DataParameterStartupBehaviourPropertyEditorSlot() {
-            CodedIdEnumInfo = DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour>.All(new Dictionary<StartupConfigurationOptions.EnumStartupBehaviour, string> {
-                [StartupConfigurationOptions.EnumStartupBehaviour.OpenStartupWindow] = "Open startup window",
-                [StartupConfigurationOptions.EnumStartupBehaviour.OpenDemoProject] = "Open a demo project",
-                [StartupConfigurationOptions.EnumStartupBehaviour.OpenEmptyProject] = "Open a new empty project",
+            CodedIdEnumInfo = DataParameterEnumInfo<EnumStartupBehaviour>.All(new Dictionary<EnumStartupBehaviour, string> {
+                [EnumStartupBehaviour.OpenStartupWindow] = "Open startup window",
+                [EnumStartupBehaviour.OpenDemoProject] = "Open a demo project",
+                [EnumStartupBehaviour.OpenEmptyProject] = "Open a new empty project",
             });
         }
     }

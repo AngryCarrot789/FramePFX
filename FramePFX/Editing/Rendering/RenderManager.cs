@@ -96,7 +96,7 @@ public class RenderManager {
         TimeSpan SlowRenderInterval = TimeSpan.FromMilliseconds(1000.0 / 30.0); // 30 FPS = 33.33333ms 
         this.slowRapidRenderDispatch = RateLimitedDispatchActionBase.ForDispatcherAsync(this.ScheduleRenderFromRLDA, SlowRenderInterval, DispatchPriority.Send);
 
-        this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, Application.Instance.Dispatcher, DispatchPriority.INTERNAL_BeforeRender);
+        this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, ApplicationPFX.Instance.Dispatcher, DispatchPriority.INTERNAL_BeforeRender);
         // this.renderThread = new Thread(this.RenderThreadMain);
     }
 
@@ -183,7 +183,7 @@ public class RenderManager {
 #if DEBUG
         StackTrace old = Interlocked.Exchange(ref this.stackTrace, new StackTrace(true));
 #endif
-        if (!Application.Instance.Dispatcher.CheckAccess())
+        if (!ApplicationPFX.Instance.Dispatcher.CheckAccess())
             throw new InvalidOperationException("Cannot start rendering while not on the main thread");
         if (frame < 0 || frame >= this.Timeline.MaxDuration)
             throw new ArgumentOutOfRangeException(nameof(frame), "Frame is not within the bounds of the timeline");

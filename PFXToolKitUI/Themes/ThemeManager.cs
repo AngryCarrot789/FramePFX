@@ -23,7 +23,7 @@ using PFXToolKitUI.Utils.Collections.Observable;
 namespace PFXToolKitUI.Themes;
 
 public abstract class ThemeManager {
-    public static ThemeManager Instance => Application.Instance.ServiceManager.GetService<ThemeManager>();
+    public static ThemeManager Instance => ApplicationPFX.Instance.ServiceManager.GetService<ThemeManager>();
 
     /// <summary>
     /// Gets the themes that currently exist

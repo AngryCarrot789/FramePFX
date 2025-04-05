@@ -27,7 +27,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Layout;
 using Avalonia.Markup.Xaml.MarkupExtensions;
 using FramePFX.Avalonia.Editing.Playheads;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
@@ -49,7 +48,6 @@ using PFXToolKitUI.Interactivity;
 using PFXToolKitUI.Toolbars;
 using PFXToolKitUI.Utils;
 using PFXToolKitUI.Utils.Collections.Observable;
-using Application = PFXToolKitUI.Application;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
@@ -406,7 +404,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.TimelineModelChanged?.Invoke(this, oldTimeline, newTimeline);
 
         this.SetZoom(1.0);
-        Application.Instance.Dispatcher.Invoke(this.UpdateTimelineViewportSize, DispatchPriority.Loaded);
+        ApplicationPFX.Instance.Dispatcher.Invoke(this.UpdateTimelineViewportSize, DispatchPriority.Loaded);
     }
 
     protected override void OnSizeChanged(SizeChangedEventArgs e) {
@@ -488,7 +486,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             if (this.Timeline is Timeline timeline)
                 this.TimelineContentGrid.Width = TimelineUtils.FrameToPixel(timeline.MaxDuration, this.Zoom);
             else
-                this.TimelineContentGrid.ClearValue(Layoutable.WidthProperty);
+                this.TimelineContentGrid.ClearValue(WidthProperty);
         }
     }
 

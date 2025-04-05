@@ -93,7 +93,7 @@ public sealed class DynamicAvaloniaColourBrush : AvaloniaColourBrush, IDynamicCo
     /// <param name="invokeHandlerImmediately">True to invoke the given handler in this method if we currently have a valid brush</param>
     /// <returns>A disposable to unsubscribe</returns>
     public IDisposable Subscribe(Action<IBrush?>? onBrushChanged, bool invokeHandlerImmediately = true) {
-        Application.Instance.Dispatcher.VerifyAccess();
+        ApplicationPFX.Instance.Dispatcher.VerifyAccess();
 
         if (onBrushChanged != null)
             (this.handlers ??= new List<Action<IBrush?>>()).Add(onBrushChanged);
@@ -118,7 +118,7 @@ public sealed class DynamicAvaloniaColourBrush : AvaloniaColourBrush, IDynamicCo
     }
 
     private void Unsubscribe(UsageToken token) {
-        Application.Instance.Dispatcher.VerifyAccess();
+        ApplicationPFX.Instance.Dispatcher.VerifyAccess();
 
         if (this.usageCounter == 0) {
             throw new InvalidOperationException("Excessive unsubscribe count");

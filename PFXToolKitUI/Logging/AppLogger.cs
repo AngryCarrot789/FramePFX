@@ -83,7 +83,7 @@ public class AppLogger {
     /// </summary>
     /// <returns></returns>
     public Task FlushEntries() {
-        return Application.Instance.Dispatcher.InvokeAsync(async () => {
+        return ApplicationPFX.Instance.Dispatcher.InvokeAsync(async () => {
             LogEntry[] items;
             lock (this.cachedEntries) {
                 items = this.cachedEntries.ToArray();
@@ -103,7 +103,7 @@ public class AppLogger {
             this.entries.AddSpanRange(items.AsSpan().Slice(0, Math.Min(ChunkSize, count)));
             for (int i = ChunkSize; i < count; i += ChunkSize) {
                 int j = Math.Min(i + ChunkSize, count);
-                await Application.Instance.Dispatcher.InvokeAsync(() => {
+                await ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
                     this.entries.AddSpanRange(items.AsSpan().Slice(i, j - i));
                 }, DispatchPriority.INTERNAL_AfterRender);
             }

@@ -25,7 +25,7 @@ namespace PFXToolKitUI.Services.InputStrokes;
 /// A service that lets the user specify an input stroke, e.g. a key stroke or mouse clic
 /// </summary>
 public interface IInputStrokeQueryDialogService {
-    public static IInputStrokeQueryDialogService Instance => Application.Instance.ServiceManager.GetService<IInputStrokeQueryDialogService>();
+    public static IInputStrokeQueryDialogService Instance => ApplicationPFX.Instance.ServiceManager.GetService<IInputStrokeQueryDialogService>();
 
     Task<KeyStroke?> ShowGetKeyStrokeDialog(KeyStroke? keyStroke);
 

@@ -53,7 +53,6 @@ using PFXToolKitUI.Utils;
 using PFXToolKitUI.Utils.Collections.Observable;
 using PFXToolKitUI.Utils.RDA;
 using SkiaSharp;
-using Application = PFXToolKitUI.Application;
 
 namespace FramePFX.Avalonia;
 
@@ -256,7 +255,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
                 List<int> indices = new List<int>();
                 prog.Text = "Inserting 10 items";
                 for (int i = 0; i <= 10; i += 2) {
-                    await Application.Instance.Dispatcher.InvokeAsync(() => {
+                    await ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
                         int idx = Math.Min(i, this.entry.Items.Count);
                         if (i % 5 == 0) {
                             this.entry.Items.Insert(idx, new ContextEntryGroup($"Before SubList at {i}", null));
@@ -277,12 +276,12 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
                 prog.Text = "Waiting 1 sec...";
                 prog.CompletionState.TotalCompletion = 0.0;
                 await Task.Delay(3000);
-                await Application.Instance.Dispatcher.InvokeAsync(() => {
+                await ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
                     prog.Text = "Removing those 10 items";
                 });
 
                 for (int i = indices.Count - 1; i >= 0; i--) {
-                    await Application.Instance.Dispatcher.InvokeAsync(() => {
+                    await ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
                         this.entry.Items.RemoveAt(indices[i]);
                         prog.CompletionState.OnProgress(0.1);
                     });
@@ -369,7 +368,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
         VideoEditorPropertyEditorHelper.OnProjectChanged(this);
 
-        Application.Instance.Dispatcher.InvokeAsync(() => {
+        ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
             this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter();
         }, DispatchPriority.Background);
     }
@@ -493,15 +492,15 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     }
 
     private void OnPrimaryActivityTextChanged(IActivityProgress? tracker) {
-        Application.Instance.Dispatcher.Invoke(() => this.PART_TaskCaption.Text = tracker?.Text ?? "", DispatchPriority.Loaded);
+        ApplicationPFX.Instance.Dispatcher.Invoke(() => this.PART_TaskCaption.Text = tracker?.Text ?? "", DispatchPriority.Loaded);
     }
 
     private void OnPrimaryActionCompletionValueChanged(CompletionState? state) {
-        Application.Instance.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.Value = state?.TotalCompletion ?? 0.0, DispatchPriority.Loaded);
+        ApplicationPFX.Instance.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.Value = state?.TotalCompletion ?? 0.0, DispatchPriority.Loaded);
     }
 
     private void OnPrimaryActivityIndeterminateChanged(IActivityProgress? tracker) {
-        Application.Instance.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.IsIndeterminate = tracker?.IsIndeterminate ?? false, DispatchPriority.Loaded);
+        ApplicationPFX.Instance.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.IsIndeterminate = tracker?.IsIndeterminate ?? false, DispatchPriority.Loaded);
     }
 
     #endregion
@@ -513,7 +512,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     }
 
     public void CenterViewPort() {
-        Application.Instance.Dispatcher.InvokeAsync(() => this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter(), DispatchPriority.Background);
+        ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter(), DispatchPriority.Background);
     }
 
     protected override Task<bool> OnClosingAsync(WindowCloseReason reason) {

@@ -132,7 +132,13 @@ public sealed class PluginLoader {
         }
     }
 
-    public void CollectInjectedXamlResources(List<(Plugin, string)> fullPaths) {
+    /// <summary>
+    /// Gets all of the xaml files that plugins require to be injected into the application resources.
+    /// This gives absolute paths
+    /// </summary>
+    /// <returns></returns>
+    public List<(Plugin, string)> GetInjectableXamlResources() {
+        List<(Plugin, string)> fullPaths = new List<(Plugin, string)>();
         foreach (Plugin plugin in this.plugins) {
             List<string> pluginPaths = new List<string>();
             plugin.GetXamlResources(pluginPaths);
@@ -150,25 +156,27 @@ public sealed class PluginLoader {
                     }
                 }
 
-                if (asmFullName == null) {
-                    AppLogger.Instance.WriteLine("Could not identify plugin's root folder from the assembly");
+                if (string.IsNullOrWhiteSpace(asmFullName)) {
+                    AppLogger.Instance.WriteLine($"Could not identify {plugin.Name}'s assembly name");
+                    continue;
                 }
-                else {
-                    foreach (string path in pluginPaths) {
-                        if (!string.IsNullOrWhiteSpace(path)) {
-                            StringBuilder sb = new StringBuilder();
-                            sb.Append("avares://").Append(asmFullName);
-                            if (path[0] != '/') {
-                                sb.Append('/');
-                            }
 
-                            sb.Append(path);
-                            fullPaths.Add((plugin, sb.ToString()));
+                foreach (string path in pluginPaths) {
+                    if (!string.IsNullOrWhiteSpace(path)) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("avares://").Append(asmFullName);
+                        if (path[0] != '/') {
+                            sb.Append('/');
                         }
+
+                        sb.Append(path);
+                        fullPaths.Add((plugin, sb.ToString()));
                     }
                 }
             }
         }
+
+        return fullPaths;
     }
 
     private void OnPluginCreated(string? pluginFolder, Plugin plugin, PluginDescriptor descriptor) {
@@ -234,9 +242,9 @@ public sealed class PluginLoader {
         }
     }
 
-    public async Task OnApplicationLoaded() {
+    public async Task OnApplicationFullyLoaded() {
         foreach (Plugin plugin in this.plugins) {
-            await plugin.OnApplicationLoaded();
+            await plugin.OnApplicationFullyLoaded();
         }
     }
 

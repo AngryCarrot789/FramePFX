@@ -34,7 +34,7 @@ public interface IApplicationStartupProgress {
 
     /// <summary>
     /// Updates the action (if non-null) and sets the current progress (if non-null)
-    /// and then returns a task that completes onces the UI has been rendered
+    /// and then returns a task that completes once the UI has been rendered
     /// </summary>
     /// <param name="action">New <see cref="ActionText"/> if non-null</param>
     /// <param name="newProgress">Value passed to <see cref="Tasks.CompletionState.SetProgress"/> if non-null</param>

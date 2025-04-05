@@ -48,7 +48,7 @@ public class NewProjectCommand : Command {
 
             progress.CompletionState.OnProgress(0.5);
 
-            await Application.Instance.Dispatcher.InvokeAsync(() => {
+            await ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
                 Project project = new Project();
                 VideoTrack track = new VideoTrack() {
                     DisplayName = "Video Track 1"

@@ -57,7 +57,7 @@ public class FFmpegMediaPlugin : Plugin {
         paths.Add("FFmpegMediaStyles.axaml");
     }
 
-    public override Task OnApplicationLoaded() {
+    public override Task OnApplicationFullyLoaded() {
         // Register our custom media resource and clip types. We have to do this so
         // that FramePFX can deserialise a project and create the appropriate clip,
         // since 'vc_avmedia' will be the clip type when serialising

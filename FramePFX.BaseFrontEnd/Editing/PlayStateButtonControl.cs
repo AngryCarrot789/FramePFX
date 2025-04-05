@@ -27,7 +27,6 @@ using PFXToolKitUI.CommandSystem;
 using PFXToolKitUI.Interactivity.Contexts;
 using PFXToolKitUI.Utils.Commands;
 using PFXToolKitUI.Utils.RDA;
-using Application = PFXToolKitUI.Application;
 
 namespace FramePFX.BaseFrontEnd.Editing;
 
@@ -107,6 +106,6 @@ public class PlayStateButtonControl : Button {
     protected virtual void UpdateButtonUI() {
         // Since the caller might be the toggle commands, its CanExecute will return false since it's currently executing.
         // So, check later on when it's definitely done. We should be listening to the events though
-        Application.Instance.Dispatcher.InvokeAsync(() => this.command.RaiseCanExecuteChanged());
+        ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => this.command.RaiseCanExecuteChanged());
     }
 }

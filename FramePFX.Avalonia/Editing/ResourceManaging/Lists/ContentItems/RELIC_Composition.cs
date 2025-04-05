@@ -50,7 +50,7 @@ public class RELIC_Composition : ResourceExplorerListItemContent {
         if (this.PART_ViewPort == null || this.ListItem == null)
             return;
 
-        await Application.Instance.Dispatcher.Invoke(async () => {
+        await ApplicationPFX.Instance.Dispatcher.Invoke(async () => {
             if (this.PART_ViewPort == null || this.ListItem == null) {
                 return;
             }

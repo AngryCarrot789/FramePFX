@@ -83,7 +83,7 @@ public abstract class Plugin {
     /// Things like context menus, clip types, resource types, model->control mappings and so on should be registered here
     /// </summary>
     /// <returns></returns>
-    public virtual Task OnApplicationLoaded() {
+    public virtual Task OnApplicationFullyLoaded() {
         return Task.CompletedTask;
     }
 

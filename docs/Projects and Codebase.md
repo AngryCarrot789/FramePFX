@@ -2,6 +2,7 @@
 
 Unlike previous versions of FramePFX, this version consists almost entirely of MVP based code,
 except the UI elements act like the presenters, and models are just on their own. MVVM is rarely used.
+We may slowly transition back into MVVM once a system can be figured out (e.g. how do we bind clip location in the UI? `ClipViewModel`? What about `TrackViewModel` and therefore `TimelineViewModel` and `ProjectViewModel`? It just adds complexity due to us shadowing the models with view models)
 
 When a model needs to access UI-specifics (e.g. a command wants to expand a node in the resource tree),
 it does that through interfaces. The general pattern is `I<Model>Element` or `I<Model>UIElement`, e.g. `IResourceTreeElement`.
@@ -10,8 +11,8 @@ This allows backend code to change the UI directly.
 # Projects
 
 FramePFX contains 5 main projects:
-- `PFXToolKitUI`: The base core project for the PFX toolkit. 
-- `PFXToolKitUI.Avalonia`: The base UI project for the PFX toolkit. This and the above project contain nothing related to FramePFX and are basically just an extension of Avalonia.
+- `PFXToolKitUI`: The base core project for the PFX toolkit. This may become a git submodule at some point, since this project contains lots of useful utilities and systems for a basic application (e.g. persistent configurations, command system and more)
+- `PFXToolKitUI.Avalonia`: The base UI project for the PFX toolkit. This and the above project contain nothing related to FramePFX and are basically just an extension of Avalonia with my own utilities.
 - `FramePFX`: This is the 'core' project or the backend of FramePFX, and contains the entire FramePFX API
 - `FramePFX.BaseFrontEnd`: This project references avalonia libraries, and contains some of the FramePFX UI
   components (such as binding utilities, model->control bi-dictionaries, and lots more).
@@ -45,7 +46,7 @@ And then later on maybe,
 - *Clip is removed from the track*
 - View receives some sort of ItemRemoved event
 - `OnRemoving` is invoked on the clip control, it might unregister events handlers.
-- Clip is removed from the owner track
+- Clip control is removed from the owner track control
 - `OnRemoved` is invoked. The clip control clears references to the model and owner track control.
   The control may then be appended to a list of recycled controls, since creating new control instances can be expensive
 

@@ -72,11 +72,11 @@ public abstract class BaseRelayCommand : IRelayCommand {
     /// </summary>
     public virtual void RaiseCanExecuteChanged() {
         if (this.CanExecuteChanged != null) {
-            if (Application.Instance.Dispatcher.CheckAccess()) {
+            if (ApplicationPFX.Instance.Dispatcher.CheckAccess()) {
                 this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
             }
             else {
-                Application.Instance.Dispatcher.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
+                ApplicationPFX.Instance.Dispatcher.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
             }
         }
     }

@@ -196,7 +196,7 @@ public partial class ConfigurationPanelControl : UserControl {
     // ReSharper disable once AsyncVoidMethod -- we try-catch the parts that might throw
     private async void OnConfigurationManagerChanged(ConfigurationManager? oldValue, ConfigurationManager? newValue) {
         this.SetLoadingState(true);
-        await Application.Instance.Dispatcher.Process(DispatchPriority.Loaded);
+        await ApplicationPFX.Instance.Dispatcher.Process(DispatchPriority.Loaded);
 
         try {
             if (oldValue != null) {
@@ -207,7 +207,7 @@ public partial class ConfigurationPanelControl : UserControl {
         }
         catch (Exception ex) {
             await IMessageDialogService.Instance.ShowMessage("Error", "Error unloading settings properties. The editor will now crash", ex.ToString());
-            Application.Instance.Dispatcher.Post(() => throw ex);
+            ApplicationPFX.Instance.Dispatcher.Post(() => throw ex);
         }
 
         this.ActiveContext?.OnDestroyed();
@@ -221,15 +221,15 @@ public partial class ConfigurationPanelControl : UserControl {
             }
             catch (Exception ex) {
                 await IMessageDialogService.Instance.ShowMessage("Error", "Error loading settings properties. The editor will now crash", ex.ToString());
-                Application.Instance.Dispatcher.Post(() => throw ex);
+                ApplicationPFX.Instance.Dispatcher.Post(() => throw ex);
             }
 
             this.ActiveContext!.OnCreated();
             this.PART_ConfigurationTree.RootConfigurationEntry = newValue.RootEntry;
         }
 
-        await Application.Instance.Dispatcher.Process(DispatchPriority.Loaded);
-        Application.Instance.Dispatcher.Post(() => {
+        await ApplicationPFX.Instance.Dispatcher.Process(DispatchPriority.Loaded);
+        ApplicationPFX.Instance.Dispatcher.Post(() => {
             this.SetLoadingState(false);
             this.OnSelectionChanged();
         }, DispatchPriority.INTERNAL_AfterRender);

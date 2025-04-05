@@ -118,7 +118,7 @@ public class FreeMoveViewPortV2 : Border {
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        Application.Instance.Dispatcher.InvokeAsync(this.FitContentToCenter, DispatchPriority.Background);
+        ApplicationPFX.Instance.Dispatcher.InvokeAsync(this.FitContentToCenter, DispatchPriority.Background);
     }
 
     public void FitContentToCenter() {

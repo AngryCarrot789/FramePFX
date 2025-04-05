@@ -117,7 +117,7 @@ public abstract class ApplicationPFX : IServiceable {
         this.ServiceManager = new ServiceManager();
         this.PluginLoader = new PluginLoader();
     }
-    
+
     /// <summary>
     /// Sets the global application instance. This can only be invoked once, with a non-null application instance
     /// </summary>
@@ -133,16 +133,16 @@ public abstract class ApplicationPFX : IServiceable {
 
         instance = application;
     }
-    
+
     /// <summary>
     /// Actually initialize the application. This includes loading services, plugins, persistent configurations and more.
     /// </summary>
     public static async Task InitializeApplication(IApplicationStartupProgress progress, string[] envArgs) {
         if (instance == null)
             throw new InvalidOperationException("Application instance has not been setup.");
-        
+
         await progress.ProgressAndSynchroniseAsync("Setup", 0.01);
-        
+
         // App initialisation takes a big chunk of the startup
         // phase, so it has a healthy dose of range available
         using (progress.CompletionState.PushCompletionRange(0.0, 0.7)) {
@@ -161,7 +161,7 @@ public abstract class ApplicationPFX : IServiceable {
                 using (progress.CompletionState.PushCompletionRange(0.2, 0.4)) {
                     instance.RegisterCommands(CommandManager.Instance);
                 }
-                
+
                 await progress.ProgressAndSynchroniseAsync("Loading keymap...");
                 using (progress.CompletionState.PushCompletionRange(0.4, 0.6)) {
                     string keymapFilePath = Path.GetFullPath("Keymap.xml");
@@ -243,14 +243,14 @@ public abstract class ApplicationPFX : IServiceable {
             await instance.OnApplicationFullyLoaded();
             await instance.PluginLoader.OnApplicationFullyLoaded();
         }
-        
+
         instance.StartupPhase = ApplicationStartupPhase.Running;
         await instance.OnApplicationRunning(progress, envArgs);
     }
 
     // The methods from RegisterServices to OnExiting are ordered based
     // on the order they're invoked during application lifetime.
-    
+
     protected virtual void RegisterServices(ServiceManager manager) {
         manager.RegisterConstant(ApplicationConfigurationManager.Instance);
         manager.RegisterConstant(new ActivityManager());
@@ -270,33 +270,47 @@ public abstract class ApplicationPFX : IServiceable {
         manager.Register("commands.config.themeconfig.CreateInheritedCopy", new CreateThemeCommand(false));
         manager.Register("commands.config.themeconfig.CreateCompleteCopy", new CreateThemeCommand(true));
     }
-    
+
     /// <summary>
     /// Invoked after services and commands are loaded but before any plugins are loaded
     /// </summary>
-    protected abstract Task OnSetupApplication(IApplicationStartupProgress progress);
-    
+    protected virtual Task OnSetupApplication(IApplicationStartupProgress progress) {
+        return Task.CompletedTask;
+    }
+
     /// <summary>
     /// Called when setup fails. Maybe a command or service could not be created or threw an error, or maybe <see cref="OnSetupApplication"/> threw
     /// </summary>
     /// <param name="exception">The exception that occured</param>
-    protected abstract Task OnSetupFailed(Exception exception);
+    protected virtual async Task OnSetupFailed(Exception exception) {
+        if (this.ServiceManager.TryGetService(out IMessageDialogService? service)) {
+            await service.ShowMessage("App startup failed", "Failed to initialise application", exception.ToString());
+        }
+
+        this.Dispatcher.InvokeShutdown();
+    }
 
     /// <summary>
     /// Invoked when all plugins are loaded
     /// </summary>
-    protected abstract Task OnPluginsLoaded();
+    protected virtual Task OnPluginsLoaded() {
+        return Task.CompletedTask;
+    }
 
     /// <summary>
     /// Registers the application configurations
     /// </summary>
-    protected abstract void RegisterConfigurations();
-    
+    protected virtual void RegisterConfigurations() {
+
+    }
+
     /// <summary>
     /// Invoked once the application is fully loaded
     /// </summary>
     /// <returns></returns>
-    protected abstract Task OnApplicationFullyLoaded();
+    protected virtual Task OnApplicationFullyLoaded() {
+        return Task.CompletedTask;
+    }
 
     /// <summary>
     /// Invoked once the application is in the running state. This delegates to <see cref="IStartupManager.OnApplicationStartupWithArgs"/>
@@ -356,11 +370,12 @@ public abstract class ApplicationPFX : IServiceable {
         return this.StartupPhase == phase;
     }
 
-    #region Internals
-    
+    /// <summary>
+    /// Notifies the application to shut down at some point in the future
+    /// </summary>
+    public virtual void BeginShutdown() => this.Dispatcher.InvokeShutdown();
+
     protected abstract string? GetSolutionFileName();
 
     public abstract string GetApplicationName();
-
-    #endregion
 }

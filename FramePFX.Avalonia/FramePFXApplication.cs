@@ -20,10 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -31,6 +28,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Threading;
 using FFmpeg.AutoGen;
+using FramePFX.Avalonia.Configs;
 using FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems;
 using FramePFX.Avalonia.Exporting;
 using FramePFX.Avalonia.Services.Startups;
@@ -40,7 +38,9 @@ using FramePFX.BaseFrontEnd.PropertyEditing.Core;
 using FramePFX.BaseFrontEnd.ResourceManaging;
 using FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
 using FramePFX.Configurations;
+using FramePFX.Configurations.Commands;
 using FramePFX.Editing;
+using FramePFX.Editing.Commands;
 using PFXToolKitUI.Avalonia;
 using PFXToolKitUI.Avalonia.Configurations;
 using PFXToolKitUI.Avalonia.Icons;
@@ -54,7 +54,10 @@ using PFXToolKitUI.Avalonia.Themes.BrushFactories;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.PropertyEditors;
 using FramePFX.Editing.ResourceManaging;
+using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.ResourceManaging.Resources;
+using FramePFX.Editing.Timelines;
+using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Natives;
 using FramePFX.Plugins.AnotherTestPlugin;
 using FramePFX.Plugins.FFmpegMedia;
@@ -64,6 +67,7 @@ using PFXToolKitUI;
 using PFXToolKitUI.Avalonia.Configurations.Pages;
 using PFXToolKitUI.Avalonia.PropertyEditing;
 using PFXToolKitUI.Avalonia.Toolbars.Toolbars;
+using PFXToolKitUI.CommandSystem;
 using PFXToolKitUI.Configurations;
 using PFXToolKitUI.Icons;
 using PFXToolKitUI.Persistence;
@@ -82,7 +86,7 @@ using PFXToolKitUI.Utils;
 
 namespace FramePFX.Avalonia;
 
-public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication {
+public class FramePFXApplication : ApplicationPFX, IFrontEndApplication {
     /// <summary>
     /// Gets the avalonia application
     /// </summary>
@@ -90,11 +94,11 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
     
     public override PFXToolKitUI.IDispatcher Dispatcher { get; }
 
-    public FramePFXApplicationImpl(Application app) {
+    public FramePFXApplication(Application app) {
         this.Application = app ?? throw new ArgumentNullException(nameof(app));
 
         Dispatcher avd = global::Avalonia.Threading.Dispatcher.UIThread;
-        this.Dispatcher = new DispatcherImpl(avd);
+        this.Dispatcher = new AvaloniaDispatcherDelegate(avd);
 
         if (app.ApplicationLifetime is ClassicDesktopStyleApplicationLifetime e) {
             e.Exit += this.OnApplicationExit;
@@ -113,12 +117,14 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
     }
 
     protected override void RegisterServices(ServiceManager manager) {
+        // We always want to make sure message dialogs are registered, just in case of errors
+        manager.RegisterConstant<IMessageDialogService>(new MessageDialogServiceImpl());
+        
         manager.RegisterConstant<ThemeManager>(new ThemeManagerImpl(this.Application));
         manager.RegisterConstant<IconManager>(new IconManagerImpl());
         manager.RegisterConstant<ShortcutManager>(new AvaloniaShortcutManager());
         manager.RegisterConstant<IStartupManager>(new StartupManagerFramePFX());
         base.RegisterServices(manager);
-        manager.RegisterConstant<IMessageDialogService>(new MessageDialogServiceImpl());
         manager.RegisterConstant<IUserInputDialogService>(new InputDialogServiceImpl());
         manager.RegisterConstant<IColourPickerDialogService>(new ColourPickerDialogServiceImpl());
         manager.RegisterConstant<IFilePickDialogService>(new FilePickDialogServiceImpl());
@@ -129,19 +135,107 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
         manager.RegisterConstant<IVideoEditorService>(new VideoEditorServiceImpl());
         manager.RegisterConstant<BrushManager>(new BrushManagerImpl());
         manager.RegisterConstant<ToolbarButtonFactory>(new ToolbarButtonFactoryImpl());
+        
+        manager.RegisterConstant(new ResourceDropOnTimelineService());
+        manager.RegisterConstant(new TimelineDropManager());
+        manager.RegisterConstant(new ExporterRegistry());
+        manager.RegisterConstant<IIconPreferences>(new IconPreferencesImpl());
     }
 
-    protected override async Task OnSetupApplication(IApplicationStartupProgress progress) {
-        // Since we're calling a base method which will complete to 100%,
-        // we need to push a completion range for our custom code
-        using (progress.CompletionState.PushCompletionRange(0.0, 0.25)) {
-            await base.OnSetupApplication(progress);
+    private class IconPreferencesImpl : IIconPreferences {
+        public bool UseAntiAliasing {
+            get => EditorConfigurationOptions.Instance.UseIconAntiAliasing;
+            set => EditorConfigurationOptions.Instance.UseIconAntiAliasing = value;
         }
+    }
+
+    protected override void RegisterCommands(CommandManager manager) {
+        base.RegisterCommands(manager);
+        // timelines, tracks and clips
+        manager.Register("commands.editor.CreateVideoTrack", new NewVideoTrackCommand());
+        manager.Register("commands.editor.CreateAudioTrack", new NewAudioTrackCommand());
+        manager.Register("commands.editor.ToggleTrackAutomationCommand", new ToggleTrackAutomationCommand());
+        manager.Register("commands.editor.ToggleClipAutomationCommand", new ToggleClipAutomationCommand());
+        manager.Register("commands.editor.TogglePlayCommand", new TogglePlayCommand());
+        manager.Register("commands.editor.PlaybackPlayCommand", new PlayCommand());
+        manager.Register("commands.editor.PlaybackPauseCommand", new PauseCommand());
+        manager.Register("commands.editor.PlaybackStopCommand", new StopCommand());
+        manager.Register("commands.editor.DeleteSpecificTrack", new DeleteSpecificTrackCommand());
+        manager.Register("commands.editor.DeleteSelectedTracks", new DeleteSelectedTracksCommand());
+        manager.Register("commands.editor.SplitClipsCommand", new SplitClipsCommand());
+        manager.Register("commands.editor.DeleteClipOwnerTrack", new DeleteClipOwnerTrackCommand());
+        manager.Register("commands.editor.RenameClip", new RenameClipCommand());
+        manager.Register("commands.editor.RenameTrack", new RenameTrackCommand());
+        manager.Register("commands.editor.DeleteClips", new DeleteClipsCommand());
+        manager.Register("commands.editor.ToggleLoopTimelineRegion", new ToggleLoopTimelineRegionCommand());
+        manager.Register("commands.editor.AutoToggleLoopTimelineRegion", new ToggleLoopTimelineRegionCommand() { CanUpdateRegionToClipSelection = true });
+
+        manager.Register("commands.editor.ToggleClipsEnabled", new ToggleClipsEnabledCommand());
+        manager.Register("commands.editor.EnableClips", new EnableClipsCommand());
+        manager.Register("commands.editor.DisableClips", new DisableClipsCommand());
+        manager.Register("commands.editor.ToggleTracksEnabled", new ToggleTracksEnabledCommand());
+        manager.Register("commands.editor.EnableTracks", new EnableTracksCommand());
+        manager.Register("commands.editor.DisableTracks", new DisableTracksCommand());
+
+        manager.Register("commands.editor.SelectAllClips", new SelectAllClipsCommand());
+        manager.Register("commands.editor.SelectClipsInTracks", new SelectClipsInTracksCommand());
+        manager.Register("commands.editor.ChangeClipPlaybackSpeed", new ChangeClipPlaybackSpeedCommand());
+        manager.Register("commands.editor.CreateCompositionFromSelection", new CreateCompositionFromSelectionCommand());
+        manager.Register("commands.editor.OpenCompositionTimeline", new OpenCompositionTimelineCommand());
+        manager.Register("commands.editor.OpenCompositionClipTimeline", new OpenCompositionClipTimelineCommand());
+
+        // Adding clips to tracks
+        manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());
+        manager.Register("commands.editor.AddTimecodeClip", new AddTimecodeClipCommand());
+        manager.Register("commands.editor.AddVideoClipShape", new AddVideoClipShapeCommand());
+        manager.Register("commands.editor.AddImageVideoClip", new AddImageVideoClipCommand());
+        manager.Register("commands.editor.AddCompositionVideoClip", new AddCompositionVideoClipCommand());
+
+        // resources
+        manager.Register("commands.resources.RenameResource", new RenameResourceCommand());
+        manager.Register("commands.resources.DeleteResources", new DeleteResourcesCommand());
+        manager.Register("commands.resources.AddResourceImage", new AddResourceImageCommand());
+        manager.Register("commands.resources.AddResourceColour", new AddResourceColourCommand());
+        manager.Register("commands.resources.AddResourceComposition", new AddResourceCompositionCommand());
+        manager.Register("commands.resources.GroupResources", new GroupResourcesCommand());
+        manager.Register("commands.resources.SetResourcesOnline", new SetResourcesOnlineCommand());
+        manager.Register("commands.resources.SetResourcesOffline", new SetResourcesOfflineCommand());
+        manager.Register("commands.resources.ToggleOnlineState", new ToggleOnlineStateCommand());
+        manager.Register("commands.resources.ChangeResourceColour", new ChangeResourceColourCommand());
+
+        // Editor
+        manager.Register("UndoCommand", new UndoCommand());
+        manager.Register("RedoCommand", new RedoCommand());
+        manager.Register("commands.editor.NewProject", new NewProjectCommand());
+        manager.Register("commands.editor.OpenProject", new OpenProjectCommand());
+        manager.Register("commands.editor.CloseProject", new CloseProjectCommand());
+        manager.Register("commands.editor.SaveProject", new SaveProjectCommand());
+        manager.Register("commands.editor.SaveProjectAs", new SaveProjectAsCommand());
+        manager.Register("commands.editor.Export", new ExportCommand());
+
+        manager.Register("commands.mainWindow.OpenProjectSettings", new OpenProjectSettingsCommand());
+    }
+    
+
+    protected override async Task OnSetupApplication(IApplicationStartupProgress progress) {
+        ApplicationConfigurationManager appConfig = ApplicationConfigurationManager.Instance;
+        appConfig.RootEntry.AddEntry(new ConfigurationEntry() {
+            DisplayName = "Startup", Id = "config.startup", Page = new StartupPropEditorConfigurationPage()
+        });
+
+        appConfig.RootEntry.AddEntry(new ConfigurationEntry() {
+            DisplayName = "Editor", Id = "config.editor", Page = new EditorWindowConfigurationPage(),
+            Items = [
+                new ConfigurationEntry() {
+                    DisplayName = "Colours", Id = "config.editor.colours", Page = new EditorWindowPropEditorConfigurationPage()
+                }
+            ]
+        });
 
         await progress.ProgressAndSynchroniseAsync("Loading themes...");
         ((ThemeManagerImpl) this.ServiceManager.GetService<ThemeManager>()).SetupBuiltInThemes();
 
-        await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.5);
+        await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.4);
 
         try {
             PFXNative.InitialiseLibrary();
@@ -190,11 +284,6 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
 
         window = null;
         return false;
-    }
-
-    protected override async Task OnSetupFailed(Exception exception) {
-        await new MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", exception.ToString());
-        global::Avalonia.Threading.Dispatcher.UIThread.InvokeShutdown();
     }
 
     protected override void RegisterConfigurations() {
@@ -276,59 +365,17 @@ public class FramePFXApplicationImpl : FramePFXApplication, IFrontEndApplication
             await base.OnApplicationRunning(progress, envArgs);
         }
     }
+    
+    protected override void OnExiting(int exitCode) {
+        base.OnExiting(exitCode);
+        PFXNative.ShutdownLibrary();
+    }
+    
+    protected override string? GetSolutionFileName() {
+        return "FramePFX.sln";
+    }
 
-    // This is basically just a wrapper around the avalonia dispatcher so that the core projects may access it, since features RateLimitedDispatchAction require it
-    private class DispatcherImpl : PFXToolKitUI.IDispatcher {
-        private static readonly Action EmptyAction = () => {
-        };
-
-        private readonly Dispatcher dispatcher;
-
-        public DispatcherImpl(Dispatcher dispatcher) {
-            this.dispatcher = dispatcher;
-        }
-
-        public bool CheckAccess() {
-            return this.dispatcher.CheckAccess();
-        }
-
-        public void VerifyAccess() {
-            this.dispatcher.VerifyAccess();
-        }
-
-        public void Invoke(Action action, DispatchPriority priority) {
-            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
-                action();
-            }
-            else {
-                this.dispatcher.Invoke(action, ToAvaloniaPriority(priority));
-            }
-        }
-
-        public T Invoke<T>(Func<T> function, DispatchPriority priority) {
-            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess())
-                return function();
-            return this.dispatcher.Invoke(function, ToAvaloniaPriority(priority));
-        }
-
-        public Task InvokeAsync(Action action, DispatchPriority priority, CancellationToken token = default) {
-            return this.dispatcher.InvokeAsync(action, ToAvaloniaPriority(priority), token).GetTask();
-        }
-
-        public Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority, CancellationToken token = default) {
-            return this.dispatcher.InvokeAsync(function, ToAvaloniaPriority(priority), token).GetTask();
-        }
-
-        public void Post(Action action, DispatchPriority priority = DispatchPriority.Default) {
-            this.dispatcher.Post(action, ToAvaloniaPriority(priority));
-        }
-
-        public Task Process(DispatchPriority priority) {
-            return this.InvokeAsync(EmptyAction, priority);
-        }
-
-        private static DispatcherPriority ToAvaloniaPriority(DispatchPriority priority) {
-            return Unsafe.As<DispatchPriority, DispatcherPriority>(ref priority);
-        }
+    public override string GetApplicationName() {
+        return "FramePFX";
     }
 }

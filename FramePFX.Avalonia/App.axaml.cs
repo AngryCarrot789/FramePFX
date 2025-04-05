@@ -41,7 +41,7 @@ public partial class App : Application {
         AvaloniaXamlLoader.Load(this);
         AvUtils.OnApplicationInitialised();
 
-        ApplicationPFX.InitializeInstance(new FramePFXApplicationImpl(this));
+        ApplicationPFX.InitializeInstance(new FramePFXApplication(this));
     }
 
     public override async void OnFrameworkInitializationCompleted() {

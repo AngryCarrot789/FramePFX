@@ -84,4 +84,9 @@ public interface IDispatcher {
     /// <param name="priority"></param>
     /// <returns></returns>
     Task Process(DispatchPriority priority);
+
+    /// <summary>
+    /// Notifies the application to shutdown
+    /// </summary>
+    void InvokeShutdown();
 }

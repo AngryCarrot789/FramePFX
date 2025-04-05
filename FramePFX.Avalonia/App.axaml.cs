@@ -30,9 +30,6 @@ using PFXToolKitUI;
 namespace FramePFX.Avalonia;
 
 public partial class App : Application {
-    static App() {
-    }
-
     public App() {
     }
 

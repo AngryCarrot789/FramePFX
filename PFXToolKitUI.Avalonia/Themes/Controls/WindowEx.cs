@@ -52,7 +52,7 @@ public class WindowEx : Window {
     // Override it here so that any window using WindowEx gets the automatic WindowEx style
     protected override Type StyleKeyOverride => typeof(WindowEx);
 
-    private bool isAwaitingClose, closeOnFinish, isCloseCancelled;
+    private bool isAwaitingClose, isStillAwaiting, userCancelledClose, doFinalClose;
 
     public WindowEx() {
         if (AvUtils.TryGetService(out Win32PlatformOptions options)) {
@@ -74,11 +74,11 @@ public class WindowEx : Window {
 
     protected sealed override void OnClosing(WindowClosingEventArgs e) {
         base.OnClosing(e);
-        if (e.Cancel) {
+        if (e.Cancel || this.doFinalClose) {
             return;
         }
 
-        if (!this.closeOnFinish) {
+        if (!this.isStillAwaiting) {
             if (this.isAwaitingClose) {
                 // Someone tried to close the window during OnClosingAsync.
                 e.Cancel = true;
@@ -89,19 +89,19 @@ public class WindowEx : Window {
                 // If OnClosingAsync is still running, then we cancel the
                 // close event, and we set a flag to close on task completed
                 if (this.isAwaitingClose) {
-                    this.closeOnFinish = true;
+                    this.isStillAwaiting = true;
                     e.Cancel = true;
                 }
             }
         }
 
-        this.isCloseCancelled = false;
+        this.userCancelledClose = false;
     }
 
     private async void OnClosingAsyncImpl(WindowCloseReason reason) {
         this.isAwaitingClose = true;
         try {
-            this.isCloseCancelled = await this.OnClosingAsync(reason);
+            this.userCancelledClose = await this.OnClosingAsync(reason);
         }
         catch (Exception e) {
             Dispatcher.UIThread.Post(() => throw e);
@@ -110,12 +110,14 @@ public class WindowEx : Window {
             this.isAwaitingClose = false;
         }
 
-        if (this.closeOnFinish && !this.isCloseCancelled) {
+        bool postClose = this.isStillAwaiting && !this.userCancelledClose; 
+        this.isStillAwaiting = false;
+        this.userCancelledClose = false;
+        
+        if (postClose) {
+            this.doFinalClose = true;
             Dispatcher.UIThread.Post(this.Close);
         }
-
-        this.closeOnFinish = default;
-        this.isCloseCancelled = default;
     }
 
     /// <summary>

@@ -40,8 +40,24 @@ public class InvalidInputEnteredEventArgs : RoutedEventArgs {
     }
 }
 
+public class ValueFinalizedEventArgs : RoutedEventArgs {
+    public double FinalValue { get; }
+
+    /// <summary>
+    /// Whether the value was changed back to the original due to the user pressing escape when dragging or manually
+    /// entering a value. False when the value actually changed into a value the user wants
+    /// </summary>
+    public bool IsCancelled { get; }
+    
+    public ValueFinalizedEventArgs(double finalValue, bool isCancelled, NumberDragger dragger) : base(NumberDragger.ValueFinalizedEvent, dragger) {
+        this.FinalValue = finalValue;
+        this.IsCancelled = isCancelled;
+    }
+}
+
 public class NumberDragger : RangeBase {
     public static readonly RoutedEvent<InvalidInputEnteredEventArgs> InvalidInputEnteredEvent = RoutedEvent.Register<RangeBase, InvalidInputEnteredEventArgs>("InvalidInputEntered", RoutingStrategies.Bubble);
+    public static readonly RoutedEvent<ValueFinalizedEventArgs> ValueFinalizedEvent = RoutedEvent.Register<RangeBase, ValueFinalizedEventArgs>("ValueFinalized", RoutingStrategies.Bubble);
     public static readonly StyledProperty<double> TinyChangeProperty = AvaloniaProperty.Register<NumberDragger, double>("TinyChange", 0.1);
     public static readonly StyledProperty<double> NormalChangeProperty = AvaloniaProperty.Register<NumberDragger, double>("NormalChange", 1.0);
     public static readonly StyledProperty<DragDirection> DragDirectionProperty = AvaloniaProperty.Register<NumberDragger, DragDirection>("DragDirection", DragDirection.LeftDecrRightIncr);
@@ -55,6 +71,9 @@ public class NumberDragger : RangeBase {
     public static readonly DirectProperty<NumberDragger, bool> IsEditingProperty = AvaloniaProperty.RegisterDirect<NumberDragger, bool>("IsEditing", o => o.isEditing);
     public static readonly StyledProperty<string?> FinalPreviewStringFormatProperty = AvaloniaProperty.Register<NumberDragger, string?>("FinalPreviewStringFormat");
     public static readonly StyledProperty<bool> IsIntegerValueProperty = AvaloniaProperty.Register<NumberDragger, bool>("IsIntegerValue");
+    public static readonly DirectProperty<NumberDragger, bool> IsDraggingProperty = AvaloniaProperty.RegisterDirect<NumberDragger, bool>(nameof(IsDragging), o => o.IsDragging);
+
+    public bool IsDragging => this.dragState == 2;
 
     private TextBlock? PART_TextBlock;
     private TextBox? PART_TextBox;
@@ -177,6 +196,17 @@ public class NumberDragger : RangeBase {
     public event EventHandler<InvalidInputEnteredEventArgs>? InvalidInputEntered {
         add => this.AddHandler(InvalidInputEnteredEvent, value);
         remove => this.RemoveHandler(InvalidInputEnteredEvent, value);
+    }
+    
+    /// <summary>
+    /// An event fired when the user releases their mouse cursor while dragging this
+    /// control, or when they press enter when editing by hand. This is recommended over
+    /// <see cref="RangeBase.ValueChanged"/> when the value modification results in expensive
+    /// calculations afterwards
+    /// </summary>
+    public event EventHandler<ValueFinalizedEventArgs>? ValueFinalized {
+        add => this.AddHandler(ValueFinalizedEvent, value);
+        remove => this.RemoveHandler(ValueFinalizedEvent, value);
     }
 
     public NumberDragger() {
@@ -325,6 +355,7 @@ public class NumberDragger : RangeBase {
 
         if (this.ParseInput(parseText, out double parsedValue)) {
             this.Value = parsedValue;
+            this.RaiseEvent(new ValueFinalizedEventArgs(parsedValue, false, this));
             return true;
         }
 
@@ -343,11 +374,13 @@ public class NumberDragger : RangeBase {
         if (this.ValueFormatter is IValueFormatter formatter) {
             if (formatter.TryConvertToDouble(parsedValue.ToString(), out double value)) {
                 this.Value = value;
+                this.RaiseEvent(new ValueFinalizedEventArgs(parsedValue, false, this));
                 return true;
             }
         }
 
         this.Value = parsedValue;
+        this.RaiseEvent(new ValueFinalizedEventArgs(parsedValue, false, this));
         return true;
     }
 
@@ -370,7 +403,10 @@ public class NumberDragger : RangeBase {
     protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
         e.Handled = true;
+        bool isDragging = this.IsDragging;
         this.dragState = 1;
+        if (isDragging)
+            this.RaisePropertyChanged(IsDraggingProperty, true, false);
         this.lastClickPos = this.lastMouseMove = e.GetPosition(this);
         e.Pointer.Capture(this);
         e.PreventGestureRecognition();
@@ -387,8 +423,13 @@ public class NumberDragger : RangeBase {
             this.IsEditing = true;
         }
         else {
+            if (state == 2)
+                this.RaisePropertyChanged(IsDraggingProperty, true, false);
             if (this == e.Pointer.Captured)
                 e.Pointer.Capture(null);
+            
+            if (state == 2)
+                this.RaiseEvent(new ValueFinalizedEventArgs(this.Value, false, this));
         }
 
         this.UpdateCursor();
@@ -402,7 +443,13 @@ public class NumberDragger : RangeBase {
         base.OnKeyDown(e);
         if (e.Key == Key.Escape && this.dragState != 0) {
             e.Handled = true;
+            bool isDragging = this.IsDragging;
             this.dragState = 0;
+            if (isDragging) {
+                this.RaisePropertyChanged(IsDraggingProperty, true, false);
+                this.RaiseEvent(new ValueFinalizedEventArgs(this.Value, true, this));
+            }
+
             this.UpdateCursor();
         }
         else if (this.dragState == 0 && this.IsKeyboardFocusWithin && !this.IsModifierKey(e.Key)) {
@@ -425,10 +472,15 @@ public class NumberDragger : RangeBase {
 
         PointerPoint pointer = e.GetCurrentPoint(this);
         if (!pointer.Properties.IsLeftButtonPressed) {
+            bool wasDragging = this.IsDragging;
             this.dragState = 0;
+            if (wasDragging)
+                this.RaisePropertyChanged(IsDraggingProperty, true, false);
             if (this == e.Pointer.Captured)
                 e.Pointer.Capture(null);
             this.UpdateCursor();
+            if (wasDragging)
+                this.RaiseEvent(new ValueFinalizedEventArgs(this.Value, false, this));
             return;
         }
 
@@ -446,6 +498,7 @@ public class NumberDragger : RangeBase {
             }
 
             this.dragState = 2;
+            this.RaisePropertyChanged(IsDraggingProperty, false, true);
             this.UpdateCursor();
         }
 

@@ -20,7 +20,7 @@
                 BorderThickness="0,1,0,0"
                 Height="42">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0" Spacing="10">
-                <Button x:Name="PART_YesOkButton" Content="Yes" Width="72" Height="24" CornerRadius="3" FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}">
+                <Button x:Name="PART_YesOkButton" Content="Yes" MinWidth="72" Height="24" Padding="5,1" CornerRadius="3" FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}">
                     <Button.Styles>
                         <Style Selector="Button[IsPointerOver=True]">
                             <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
@@ -33,7 +33,7 @@
                         </Style>
                     </Button.Styles>
                 </Button>
-                <Button x:Name="PART_NoButton" Content="No" Width="72" Height="24" CornerRadius="3" FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}">
+                <Button x:Name="PART_NoButton" Content="No" MinWidth="72" Height="24" Padding="5,1" CornerRadius="3" FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}">
                     <Button.Styles>
                         <Style Selector="Button[IsPointerOver=True]">
                             <Setter Property="Background" Value="Red"/>
@@ -46,7 +46,7 @@
                         </Style>
                     </Button.Styles>
                 </Button>
-                <Button x:Name="PART_CancelButton" Content="Cancel" Width="72" Height="24" CornerRadius="3" FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}">
+                <Button x:Name="PART_CancelButton" Content="Cancel" MinWidth="72" Height="24" Padding="5,1" CornerRadius="3" FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}">
                     <Button.Styles>
                         <Style Selector="Button[IsPointerOver=True]">
                             <Setter Property="Background" Value="Red"/>

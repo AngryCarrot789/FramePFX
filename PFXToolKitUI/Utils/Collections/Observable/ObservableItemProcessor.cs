@@ -190,7 +190,7 @@ public sealed class ObservableItemProcessorIndexing<T> : IDisposable {
         if (handler != null) {
             if (backToFront) {
                 for (int i = this.list.Count - 1; i >= 0; i--) {
-                    handler(this, ++i, this.list[i]);
+                    handler(this, i, this.list[i]);
                 }
             }
             else {

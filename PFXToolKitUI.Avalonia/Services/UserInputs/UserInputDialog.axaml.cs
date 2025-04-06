@@ -48,6 +48,11 @@ public partial class UserInputDialog : WindowEx {
         set => this.SetValue(UserInputInfoProperty, value);
     }
 
+    public Thickness ContentMargin {
+        get => this.PART_InputFieldContent.Margin;
+        set => this.PART_InputFieldContent.Margin = value;
+    }
+
     /// <summary>
     /// Gets the dialog result for this user input dialog
     /// </summary>
@@ -206,6 +211,7 @@ public partial class UserInputDialog : WindowEx {
             };
 
             bool? result = await dialog.ShowDialog<bool?>(window);
+            dialog.UserInputInfo = null;
             if (result == true && dialog.DialogResult == true) {
                 return true;
             }

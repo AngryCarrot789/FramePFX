@@ -36,7 +36,7 @@ public class EditorWindowConfigurationPage : ConfigurationPage {
 
             this.titleBar = value;
             this.TitleBarChanged?.Invoke(this);
-            this.MarkModified();
+            this.IsModified = true;
         }
     }
 
@@ -48,7 +48,7 @@ public class EditorWindowConfigurationPage : ConfigurationPage {
 
             this.useIconAntiAliasing = value;
             this.UseIconAntiAliasingChanged?.Invoke(this);
-            this.MarkModified();
+            this.IsModified = true;
         }
     }
 
@@ -58,7 +58,7 @@ public class EditorWindowConfigurationPage : ConfigurationPage {
     public EditorWindowConfigurationPage() {
     }
 
-    public override ValueTask OnContextCreated(ConfigurationContext context) {
+    protected override ValueTask OnContextCreated(ConfigurationContext context) {
         EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
         this.titleBar = options.TitleBarPrefix;
         this.useIconAntiAliasing = options.UseIconAntiAliasing;

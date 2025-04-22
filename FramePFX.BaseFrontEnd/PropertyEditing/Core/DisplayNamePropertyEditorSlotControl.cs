@@ -31,7 +31,7 @@ public class DisplayNamePropertyEditorSlotControl : BasePropertyEditorSlotContro
 
     private TextBox displayNameBox;
 
-    private readonly GetSetAutoUpdateAndEventPropertyBinder<DisplayNamePropertyEditorSlot> displayNameBinder = new GetSetAutoUpdateAndEventPropertyBinder<DisplayNamePropertyEditorSlot>(TextBox.TextProperty, nameof(DisplayNamePropertyEditorSlot.DisplayNameChanged), binder => binder.Model.DisplayName, (binder, v) => binder.Model.SetValue((string) v));
+    private readonly AvaloniaPropertyToEventPropertyGetSetBinder<DisplayNamePropertyEditorSlot> displayNameBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<DisplayNamePropertyEditorSlot>(TextBox.TextProperty, nameof(DisplayNamePropertyEditorSlot.DisplayNameChanged), binder => binder.Model.DisplayName, (binder, v) => binder.Model.SetValue((string) v));
 
     public DisplayNamePropertyEditorSlotControl() {
     }

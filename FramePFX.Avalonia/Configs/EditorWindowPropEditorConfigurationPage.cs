@@ -31,16 +31,16 @@ public class EditorWindowPropEditorConfigurationPage : PropertyEditorConfigurati
         this.PropertyEditor.Root.AddItem(new DataParameterColourPropertyEditorSlot(TitleBarBrushParameter, typeof(EditorWindowPropEditorConfigurationPage), "Titlebar Brush"));
     }
 
-    private void Handler(DataParameter parameter, ITransferableData owner) => this.MarkModified();
+    private void Handler(DataParameter parameter, ITransferableData owner) => this.IsModified = true;
 
-    public override ValueTask OnContextCreated(ConfigurationContext context) {
+    protected override ValueTask OnContextCreated(ConfigurationContext context) {
         EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
         this.titleBarBrush = options.TitleBarBrush;
         this.PropertyEditor.Root.SetupHierarchyState([this]);
         return ValueTask.CompletedTask;
     }
 
-    public override ValueTask OnContextDestroyed(ConfigurationContext context) {
+    protected override ValueTask OnContextDestroyed(ConfigurationContext context) {
         this.PropertyEditor.Root.ClearHierarchy();
         return ValueTask.CompletedTask;
     }

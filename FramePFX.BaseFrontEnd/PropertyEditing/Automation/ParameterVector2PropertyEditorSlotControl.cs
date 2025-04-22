@@ -36,10 +36,10 @@ public class ParameterVector2PropertyEditorSlotControl : BaseParameterPropertyEd
 
     public new ParameterVector2PropertyEditorSlot? SlotModel => (ParameterVector2PropertyEditorSlot?) base.SlotControl?.Model;
 
-    private readonly AutoUpdateAndEventPropertyBinder<ParameterVector2PropertyEditorSlot> valueFormatterBinder;
+    private readonly AvaloniaPropertyToEventPropertyBinder<ParameterVector2PropertyEditorSlot> valueFormatterBinder;
 
     public ParameterVector2PropertyEditorSlotControl() {
-        this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<ParameterVector2PropertyEditorSlot>(null, nameof(ParameterVector2PropertyEditorSlot.ValueFormatterChanged), (x) => {
+        this.valueFormatterBinder = new AvaloniaPropertyToEventPropertyBinder<ParameterVector2PropertyEditorSlot>(null, nameof(ParameterVector2PropertyEditorSlot.ValueFormatterChanged), (x) => {
             ParameterVector2PropertyEditorSlotControl editorSlot = (ParameterVector2PropertyEditorSlotControl) x.Control;
             editorSlot.draggerX.ValueFormatter = x.Model.ValueFormatter;
             editorSlot.draggerY.ValueFormatter = x.Model.ValueFormatter;

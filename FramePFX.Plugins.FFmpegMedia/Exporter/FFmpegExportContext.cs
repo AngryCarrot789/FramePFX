@@ -119,7 +119,7 @@ public class FFmpegExportContext : BaseExportContext {
         c->time_base = new AVRational() { num = num, den = den };
         st->time_base = c->time_base;
         c->gop_size = (int) this.Exporter.Gop;
-        c->max_b_frames = 1;
+        c->max_b_frames = 2;
         // c->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
         c->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
         c->codec_id = codec_id;
@@ -393,8 +393,7 @@ public class FFmpegExportContext : BaseExportContext {
         }
 
         if (c != null) {
-            ffmpeg.avcodec_close(c);
-            ffmpeg.av_free(c);
+            ffmpeg.avcodec_free_context(&c);
         }
 
         if (videoFrame != null) {

@@ -68,7 +68,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
         private set => this.SetAndRaise(IsFolderItemProperty, ref this.isFolderItem, value);
     }
 
-    private readonly IBinder<BaseResource> displayNameBinder = new GetSetAutoUpdateAndEventPropertyBinder<BaseResource>(HeaderProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
+    private readonly IBinder<BaseResource> displayNameBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<BaseResource>(HeaderProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
     private Border? PART_DragDropMoveBorder;
     private Point clickMousePoint;
     private bool isDroppableTargetOver;

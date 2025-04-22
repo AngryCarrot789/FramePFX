@@ -19,7 +19,11 @@
 
 using Avalonia;
 using System;
+using System.Diagnostics;
 using System.IO;
+using PFXToolKitUI;
+using PFXToolKitUI.Services.Messaging;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Avalonia;
 
@@ -30,17 +34,7 @@ class Program {
     [STAThread]
     public static void Main(string[] args) {
         try {
-            BuildAvaloniaApp().
-                // With(new SkiaOptions()
-                // {
-                //     MaxGpuResourceSizeBytes = 256 * 1024 * 1024,
-                // }).
-                // With(new Win32PlatformOptions()
-                // {
-                //     RenderingMode = [Win32RenderingMode.AngleEgl],
-                //     CompositionMode = [Win32CompositionMode.LowLatencyDxgiSwapChain]
-                // }).
-                StartWithClassicDesktopLifetime(args);
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
         catch (Exception e) {
             string? filePath = args.Length > 0 ? args[0] : null;
@@ -59,9 +53,13 @@ class Program {
                     // ignored
                 }
             }
+
+#if DEBUG
+            throw; // let debugger catch exception. also displays in event viewer
+#endif
         }
     }
-
+    
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>().

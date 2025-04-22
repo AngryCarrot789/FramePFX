@@ -37,7 +37,7 @@ public class StartupPropEditorConfigurationPage : PropertyEditorConfigurationPag
         AffectsModifiedState(StartupBehaviourParameter, StartupThemeParameter);
     }
 
-    public override ValueTask OnContextCreated(ConfigurationContext context) {
+    protected override ValueTask OnContextCreated(ConfigurationContext context) {
         StartupConfigurationOptions options = StartupConfigurationOptions.Instance;
         this.startupBehaviour = options.StartupBehaviour;
         this.startupTheme = options.StartupTheme;
@@ -45,7 +45,7 @@ public class StartupPropEditorConfigurationPage : PropertyEditorConfigurationPag
         return ValueTask.CompletedTask;
     }
 
-    public override ValueTask OnContextDestroyed(ConfigurationContext context) {
+    protected override ValueTask OnContextDestroyed(ConfigurationContext context) {
         this.PropertyEditor.Root.ClearHierarchy();
         return ValueTask.CompletedTask;
     }

@@ -33,8 +33,8 @@ public class BasicEditorWindowConfigurationPageControl : BaseConfigurationPageCo
     private readonly IBinder<EditorWindowConfigurationPage> useIconAntiAliasingBinder;
 
     public BasicEditorWindowConfigurationPageControl() {
-        this.titleBarBinder = new AutoUpdateAndEventPropertyBinder<EditorWindowConfigurationPage>(TextBox.TextProperty, nameof(EditorWindowConfigurationPage.TitleBarChanged), obj => obj.Control.SetValue(TextBox.TextProperty, obj.Model.TitleBar), obj => obj.Model.TitleBar = obj.Control.GetValue(TextBox.TextProperty) ?? "");
-        this.useIconAntiAliasingBinder = new GetSetAutoUpdateAndEventPropertyBinder<EditorWindowConfigurationPage>(ToggleButton.IsCheckedProperty, nameof(EditorWindowConfigurationPage.UseIconAntiAliasingChanged), b => b.Model.UseIconAntiAliasing, (b, v) => b.Model.UseIconAntiAliasing = (bool?) v == true);
+        this.titleBarBinder = new AvaloniaPropertyToEventPropertyBinder<EditorWindowConfigurationPage>(TextBox.TextProperty, nameof(EditorWindowConfigurationPage.TitleBarChanged), obj => obj.Control.SetValue(TextBox.TextProperty, obj.Model.TitleBar), obj => obj.Model.TitleBar = obj.Control.GetValue(TextBox.TextProperty) ?? "");
+        this.useIconAntiAliasingBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<EditorWindowConfigurationPage>(ToggleButton.IsCheckedProperty, nameof(EditorWindowConfigurationPage.UseIconAntiAliasingChanged), b => b.Model.UseIconAntiAliasing, (b, v) => b.Model.UseIconAntiAliasing = (bool?) v == true);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {

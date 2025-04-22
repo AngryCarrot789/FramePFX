@@ -68,7 +68,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
     /// </summary>
     public ResourceExplorerListBox? ResourceExplorerList { get; private set; }
 
-    private readonly IBinder<BaseResource> displayNameBinder = new GetSetAutoUpdateAndEventPropertyBinder<BaseResource>(DisplayNameProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
+    private readonly IBinder<BaseResource> displayNameBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<BaseResource>(DisplayNameProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
     private bool isResourceOnline;
     private string? displayName;
     private Point originMousePoint;

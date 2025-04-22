@@ -21,7 +21,7 @@ using System.Collections.Immutable;
 using Avalonia.Controls;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Autoloading;
-using PFXToolKitUI.Avalonia;
+using PFXToolKitUI.Avalonia.Services;
 
 namespace FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
 
@@ -34,7 +34,7 @@ public class ResourceLoaderDialogServiceImpl : IResourceLoaderDialogService {
             return true;
         }
 
-        if (IFrontEndApplication.Instance.TryGetActiveWindow(out Window? window)) {
+        if (IDesktopService.TryGetInstance(out IDesktopService? service) && service.TryGetActiveWindow(out Window? window)) {
             ResourceLoaderDialog dialog = new ResourceLoaderDialog();
             dialog.ResourceLoader = loader;
             bool? result = await dialog.ShowDialog<bool?>(window);

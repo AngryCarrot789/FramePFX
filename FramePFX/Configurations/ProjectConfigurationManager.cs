@@ -70,23 +70,23 @@ public class ProjectConfigurationManager : ConfigurationManager, IDestroy {
 }
 
 public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigurationPage {
-    public static readonly DataParameterLong WidthParameter =
+    public static readonly DataParameterNumber<long> WidthParameter =
         DataParameter.Register(
-            new DataParameterLong(
+            new DataParameterNumber<long>(
                 typeof(ProjectVideoPropertyEditorConfigurationPage),
                 nameof(Width), 500, 128, int.MaxValue,
                 ValueAccessors.Reflective<long>(typeof(ProjectVideoPropertyEditorConfigurationPage), nameof(width))));
 
-    public static readonly DataParameterLong HeightParameter =
+    public static readonly DataParameterNumber<long> HeightParameter =
         DataParameter.Register(
-            new DataParameterLong(
+            new DataParameterNumber<long>(
                 typeof(ProjectVideoPropertyEditorConfigurationPage),
                 nameof(Height), 500, 128, int.MaxValue,
                 ValueAccessors.Reflective<long>(typeof(ProjectVideoPropertyEditorConfigurationPage), nameof(height))));
 
-    public static readonly DataParameterDouble FrameRateParameter =
+    public static readonly DataParameterNumber<double> FrameRateParameter =
         DataParameter.Register(
-            new DataParameterDouble(
+            new DataParameterNumber<double>(
                 typeof(ProjectVideoPropertyEditorConfigurationPage),
                 nameof(FrameRate), 30.0, 12.0, 240.0,
                 ValueAccessors.Reflective<double>(typeof(ProjectVideoPropertyEditorConfigurationPage), nameof(frameRate))));
@@ -117,9 +117,9 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         this.height = HeightParameter.GetDefaultValue(this);
         this.frameRate = FrameRateParameter.GetDefaultValue(this);
 
-        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(WidthParameter, WidthParameter.OwnerType, "Width", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
-        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(HeightParameter, HeightParameter.OwnerType, "Height", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
-        this.PropertyEditor.Root.AddItem(new DataParameterDoublePropertyEditorSlot(FrameRateParameter, FrameRateParameter.OwnerType, "Frame Rate", DragStepProfile.FramesPerSeconds));
+        this.PropertyEditor.Root.AddItem(new DataParameterNumberPropertyEditorSlot<long>(WidthParameter, WidthParameter.OwnerType, "Width", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+        this.PropertyEditor.Root.AddItem(new DataParameterNumberPropertyEditorSlot<long>(HeightParameter, HeightParameter.OwnerType, "Height", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+        this.PropertyEditor.Root.AddItem(new DataParameterNumberPropertyEditorSlot<double>(FrameRateParameter, FrameRateParameter.OwnerType, "Frame Rate", DragStepProfile.FramesPerSeconds));
     }
 
     static ProjectVideoPropertyEditorConfigurationPage() {
@@ -127,10 +127,10 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
     }
 
     private static void MarkModified(DataParameter parameter, ITransferableData owner) {
-        ((ProjectVideoPropertyEditorConfigurationPage) owner).MarkModified();
+        ((ProjectVideoPropertyEditorConfigurationPage) owner).IsModified = true;
     }
 
-    public override ValueTask OnContextCreated(ConfigurationContext context) {
+    protected override ValueTask OnContextCreated(ConfigurationContext context) {
         ProjectSettings settings = this.manager.Project.Settings;
         this.width = settings.Width;
         this.height = settings.Height;
@@ -139,7 +139,7 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         return ValueTask.CompletedTask;
     }
 
-    public override ValueTask OnContextDestroyed(ConfigurationContext context) {
+    protected override ValueTask OnContextDestroyed(ConfigurationContext context) {
         this.PropertyEditor.Root.ClearHierarchy();
         return ValueTask.CompletedTask;
     }

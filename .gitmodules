@@ -1,3 +1,6 @@
 [submodule "portaudio"]
 	path = portaudio
 	url = https://github.com/PortAudio/portaudio
+[submodule "PFXToolKitUI"]
+	path = PFXToolKitUI
+	url = https://github.com/AngryCarrot789/PFXToolKitUI

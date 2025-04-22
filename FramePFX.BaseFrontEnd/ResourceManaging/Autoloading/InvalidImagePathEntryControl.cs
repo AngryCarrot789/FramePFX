@@ -32,12 +32,12 @@ public class InvalidImagePathEntryControl : InvalidResourceEntryControl {
     private TextBox? filePathBox;
     private Button? confirmButton;
 
-    private readonly GetSetAutoUpdateAndEventPropertyBinder<InvalidImagePathEntry> filePathBinder;
+    private readonly AvaloniaPropertyToEventPropertyGetSetBinder<InvalidImagePathEntry> filePathBinder;
 
     public new InvalidImagePathEntry? Entry => (InvalidImagePathEntry?) base.Entry;
 
     public InvalidImagePathEntryControl() {
-        this.filePathBinder = new GetSetAutoUpdateAndEventPropertyBinder<InvalidImagePathEntry>(TextBox.TextProperty, nameof(InvalidImagePathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v!);
+        this.filePathBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<InvalidImagePathEntry>(TextBox.TextProperty, nameof(InvalidImagePathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v!);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {

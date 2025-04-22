@@ -29,12 +29,12 @@ namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 public abstract class BaseNumericParameterPropertyEditorSlotControl : BaseParameterPropertyEditorSlotControl {
     protected NumberDragger? dragger;
     protected bool IsUpdatingControl;
-    private readonly AutoUpdateAndEventPropertyBinder<NumericParameterPropertyEditorSlot> valueFormatterBinder;
+    private readonly AvaloniaPropertyToEventPropertyBinder<NumericParameterPropertyEditorSlot> valueFormatterBinder;
 
     public new NumericParameterPropertyEditorSlot? SlotModel => (NumericParameterPropertyEditorSlot?) base.SlotControl?.Model;
 
     protected BaseNumericParameterPropertyEditorSlotControl() {
-        this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<NumericParameterPropertyEditorSlot>(NumberDragger.ValueFormatterProperty, nameof(NumericParameterPropertyEditorSlot.ValueFormatterChanged), (x) => ((NumberDragger) x.Control).ValueFormatter = x.Model.ValueFormatter, null);
+        this.valueFormatterBinder = new AvaloniaPropertyToEventPropertyBinder<NumericParameterPropertyEditorSlot>(NumberDragger.ValueFormatterProperty, nameof(NumericParameterPropertyEditorSlot.ValueFormatterChanged), (x) => ((NumberDragger) x.Control).ValueFormatter = x.Model.ValueFormatter, null);
     }
 
     protected abstract void UpdateControlValue();

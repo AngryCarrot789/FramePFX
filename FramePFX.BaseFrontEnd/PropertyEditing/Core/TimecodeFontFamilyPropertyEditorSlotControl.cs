@@ -31,7 +31,7 @@ public class TimecodeFontFamilyPropertyEditorSlotControl : BasePropertyEditorSlo
 
     private TextBox? fontFamilyTextBox;
 
-    private readonly IBinder<TimecodeFontFamilyPropertyEditorSlot> fontFamilyBinder = new GetSetAutoUpdateAndEventPropertyBinder<TimecodeFontFamilyPropertyEditorSlot>(TextBox.TextProperty, nameof(TimecodeFontFamilyPropertyEditorSlot.FontFamilyChanged), binder => binder.Model.FontFamily, (binder, v) => binder.Model.SetValue((string) v));
+    private readonly IBinder<TimecodeFontFamilyPropertyEditorSlot> fontFamilyBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<TimecodeFontFamilyPropertyEditorSlot>(TextBox.TextProperty, nameof(TimecodeFontFamilyPropertyEditorSlot.FontFamilyChanged), binder => binder.Model.FontFamily, (binder, v) => binder.Model.SetValue((string) v));
 
     public TimecodeFontFamilyPropertyEditorSlotControl() {
     }

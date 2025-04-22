@@ -48,8 +48,8 @@ public class VideoTrack : Track {
 
     public static readonly DataParameterVector2 MediaScaleOriginParameter = DataParameter.Register(new DataParameterVector2(typeof(VideoTrack), nameof(MediaScaleOrigin), ValueAccessors.Reflective<Vector2>(typeof(VideoTrack), nameof(mediaScaleOrigin))));
     public static readonly DataParameterVector2 MediaRotationOriginParameter = DataParameter.Register(new DataParameterVector2(typeof(VideoTrack), nameof(MediaRotationOrigin), ValueAccessors.Reflective<Vector2>(typeof(VideoTrack), nameof(mediaRotationOrigin))));
-    public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoTrack), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(isMediaScaleOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
-    public static readonly DataParameterBool IsMediaRotationOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoTrack), nameof(IsMediaRotationOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(isMediaRotationOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
+    public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoTrack), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(isMediaScaleOriginAutomatic)))); // , DataParameterFlags.StandardProjectVisual
+    public static readonly DataParameterBool IsMediaRotationOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoTrack), nameof(IsMediaRotationOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(isMediaRotationOriginAutomatic)))); // , DataParameterFlags.StandardProjectVisual
 
     // Transformation data
     private Vector2 MediaPosition;

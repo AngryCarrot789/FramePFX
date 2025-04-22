@@ -27,9 +27,9 @@ using SkiaSharp;
 namespace FramePFX.Plugins.CircleClipPlugin;
 
 public class MyCirclePluginVideoClip : VideoClip {
-    public static readonly DataParameterFloat RadiusParameter =
+    public static readonly DataParameterNumber<float> RadiusParameter =
         DataParameter.Register(
-            new DataParameterFloat(
+            new DataParameterNumber<float>(
                 typeof(MyCirclePluginVideoClip),
                 nameof(Radius), 25.0F, 1.0F, 1000.0F,
                 ValueAccessors.Reflective<float>(typeof(MyCirclePluginVideoClip), nameof(radius))));

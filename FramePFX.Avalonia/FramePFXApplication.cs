@@ -18,15 +18,10 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml.Styling;
-using Avalonia.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.Avalonia.Configs;
 using FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems;
@@ -42,15 +37,8 @@ using FramePFX.Configurations.Commands;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
 using PFXToolKitUI.Avalonia;
-using PFXToolKitUI.Avalonia.Configurations;
-using PFXToolKitUI.Avalonia.Icons;
 using PFXToolKitUI.Avalonia.Services;
-using PFXToolKitUI.Avalonia.Services.Colours;
-using PFXToolKitUI.Avalonia.Services.Files;
-using PFXToolKitUI.Avalonia.Shortcuts.Avalonia;
-using PFXToolKitUI.Avalonia.Shortcuts.Dialogs;
 using PFXToolKitUI.Avalonia.Themes;
-using PFXToolKitUI.Avalonia.Themes.BrushFactories;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.PropertyEditors;
 using FramePFX.Editing.ResourceManaging;
@@ -66,7 +54,6 @@ using FramePFX.Services.VideoEditors;
 using PFXToolKitUI;
 using PFXToolKitUI.Avalonia.Configurations.Pages;
 using PFXToolKitUI.Avalonia.PropertyEditing;
-using PFXToolKitUI.Avalonia.Toolbars.Toolbars;
 using PFXToolKitUI.CommandSystem;
 using PFXToolKitUI.Configurations;
 using PFXToolKitUI.Icons;
@@ -74,72 +61,28 @@ using PFXToolKitUI.Persistence;
 using PFXToolKitUI.Plugins;
 using PFXToolKitUI.PropertyEditing.Core;
 using PFXToolKitUI.Services;
-using PFXToolKitUI.Services.ColourPicking;
-using PFXToolKitUI.Services.FilePicking;
-using PFXToolKitUI.Services.InputStrokes;
 using PFXToolKitUI.Services.Messaging;
-using PFXToolKitUI.Services.UserInputs;
-using PFXToolKitUI.Shortcuts;
 using PFXToolKitUI.Themes;
-using PFXToolKitUI.Toolbars;
 using PFXToolKitUI.Utils;
 
 namespace FramePFX.Avalonia;
 
-public class FramePFXApplication : ApplicationPFX, IFrontEndApplication {
-    /// <summary>
-    /// Gets the avalonia application
-    /// </summary>
-    public Application Application { get; }
-    
-    public override PFXToolKitUI.IDispatcher Dispatcher { get; }
-
-    public FramePFXApplication(Application app) {
-        this.Application = app ?? throw new ArgumentNullException(nameof(app));
-
-        Dispatcher avd = global::Avalonia.Threading.Dispatcher.UIThread;
-        this.Dispatcher = new AvaloniaDispatcherDelegate(avd);
-
-        if (app.ApplicationLifetime is ClassicDesktopStyleApplicationLifetime e) {
-            e.Exit += this.OnApplicationExit;
-        }
-        
-        avd.ShutdownFinished += this.OnDispatcherShutDown;
+public class FramePFXApplication : AvaloniaApplicationPFX {
+    public FramePFXApplication(Application app) : base(app) {
         this.PluginLoader.AddCorePluginEntry(new CorePluginDescriptor(typeof(TestPlugin)));
     }
 
-    private void OnDispatcherShutDown(object? sender, EventArgs e) {
-        this.StartupPhase = ApplicationStartupPhase.Stopped;
-    }
-    
-    private void OnApplicationExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
-        this.OnExiting(e.ApplicationExitCode);
-    }
-
     protected override void RegisterServices(ServiceManager manager) {
-        // We always want to make sure message dialogs are registered, just in case of errors
-        manager.RegisterConstant<IMessageDialogService>(new MessageDialogServiceImpl());
-        
-        manager.RegisterConstant<ThemeManager>(new ThemeManagerImpl(this.Application));
-        manager.RegisterConstant<IconManager>(new IconManagerImpl());
-        manager.RegisterConstant<ShortcutManager>(new AvaloniaShortcutManager());
-        manager.RegisterConstant<IStartupManager>(new StartupManagerFramePFX());
         base.RegisterServices(manager);
-        manager.RegisterConstant<IUserInputDialogService>(new InputDialogServiceImpl());
-        manager.RegisterConstant<IColourPickerDialogService>(new ColourPickerDialogServiceImpl());
-        manager.RegisterConstant<IFilePickDialogService>(new FilePickDialogServiceImpl());
+        manager.RegisterConstant<IIconPreferences>(new IconPreferencesImpl());
+        manager.RegisterConstant<IStartupManager>(new StartupManagerFramePFX());
         manager.RegisterConstant<IResourceLoaderDialogService>(new ResourceLoaderDialogServiceImpl());
         manager.RegisterConstant<IExportDialogService>(new ExportDialogServiceImpl());
-        manager.RegisterConstant<IConfigurationDialogService>(new ConfigurationDialogServiceImpl());
-        manager.RegisterConstant<IInputStrokeQueryDialogService>(new InputStrokeDialogsImpl());
         manager.RegisterConstant<IVideoEditorService>(new VideoEditorServiceImpl());
-        manager.RegisterConstant<BrushManager>(new BrushManagerImpl());
-        manager.RegisterConstant<ToolbarButtonFactory>(new ToolbarButtonFactoryImpl());
-        
         manager.RegisterConstant(new ResourceDropOnTimelineService());
         manager.RegisterConstant(new TimelineDropManager());
         manager.RegisterConstant(new ExporterRegistry());
-        manager.RegisterConstant<IIconPreferences>(new IconPreferencesImpl());
+        manager.RegisterConstant<IDesktopService>(new DesktopServiceImpl(this.Application));
     }
 
     private class IconPreferencesImpl : IIconPreferences {
@@ -218,6 +161,8 @@ public class FramePFXApplication : ApplicationPFX, IFrontEndApplication {
     
 
     protected override async Task OnSetupApplication(IApplicationStartupProgress progress) {
+        await base.OnSetupApplication(progress);
+        
         ApplicationConfigurationManager appConfig = ApplicationConfigurationManager.Instance;
         appConfig.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Startup", Id = "config.startup", Page = new StartupPropEditorConfigurationPage()
@@ -231,9 +176,6 @@ public class FramePFXApplication : ApplicationPFX, IFrontEndApplication {
                 }
             ]
         });
-
-        await progress.ProgressAndSynchroniseAsync("Loading themes...");
-        ((ThemeManagerImpl) this.ServiceManager.GetService<ThemeManager>()).SetupBuiltInThemes();
 
         await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.4);
 
@@ -277,54 +219,14 @@ public class FramePFXApplication : ApplicationPFX, IFrontEndApplication {
         }
     }
 
-    public bool TryGetActiveWindow([NotNullWhen(true)] out Window? window, bool fallbackToMainWindow = true) {
-        if (this.Application.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-            return (window = desktop.Windows.FirstOrDefault(x => x.IsActive) ?? (fallbackToMainWindow ? desktop.MainWindow : null)) != null;
-        }
-
-        window = null;
-        return false;
-    }
-
     protected override void RegisterConfigurations() {
+        base.RegisterConfigurations();
+        
         PersistentStorageManager psm = this.PersistentStorageManager;
         
         psm.Register(new EditorConfigurationOptions(), "editor", "window");
         psm.Register(new StartupConfigurationOptions(), null, "startup");
         psm.Register<ThemeConfigurationOptions>(new ThemeConfigurationOptionsImpl(), "themes", "themes");
-    }
-
-    protected override async Task OnPluginsLoaded() {
-        List<(Plugin, string)> injectable = this.PluginLoader.GetInjectableXamlResources();
-        if (injectable.Count > 0) {
-            IList<IResourceProvider> resources = this.Application.Resources.MergedDictionaries;
-            
-            List<string> errorLines = new List<string>();
-            foreach ((Plugin plugin, string path) in injectable) {
-                int idx = resources.Count;
-                try {
-                    // adding resource here is the only way to actually get an exception e.g. when file does not exist or is invalid or whatever
-                    resources.Add(new ResourceInclude((Uri?) null) { Source = new Uri(path) });
-                }
-                catch (Exception e) {
-                    // remove invalid resource include
-                    try {
-                        resources.RemoveAt(idx);
-                    }
-                    catch { /* ignored */ }
-
-                    errorLines.Add(plugin.Name + ": " + path + "\n" + e);
-                }
-            }
-
-            if (errorLines.Count > 0) {
-                string dblNewLine = Environment.NewLine + Environment.NewLine;
-                await IMessageDialogService.Instance.ShowMessage(
-                    "Error loading plugin XAML", 
-                    "One or more plugins' XAML files are invalid. Issues may occur later on.", 
-                    string.Join(dblNewLine, errorLines));
-            }
-        }
     }
 
     protected override Task OnApplicationFullyLoaded() {

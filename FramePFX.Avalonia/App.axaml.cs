@@ -24,7 +24,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using PFXToolKitUI.Avalonia;
-using HotAvalonia;
 using PFXToolKitUI;
 
 namespace FramePFX.Avalonia;
@@ -34,7 +33,6 @@ public partial class App : Application {
     }
 
     public override void Initialize() {
-        this.EnableHotReload();
         AvaloniaXamlLoader.Load(this);
         AvUtils.OnApplicationInitialised();
 

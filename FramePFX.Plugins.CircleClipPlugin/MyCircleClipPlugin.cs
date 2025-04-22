@@ -85,7 +85,7 @@ public class MyCircleClipPlugin : Plugin {
         // But maybe in the future a pre-post indicator will be needed, so we might as well keep it now
         if (isBeforeShow) {
             window.PropertyEditor.ClipGroup.AddItem(
-                new DataParameterFloatPropertyEditorSlot(MyCirclePluginVideoClip.RadiusParameter, typeof(MyCirclePluginVideoClip), "Radius", DragStepProfile.Pixels) {
+                new DataParameterNumberPropertyEditorSlot<float>(MyCirclePluginVideoClip.RadiusParameter, typeof(MyCirclePluginVideoClip), "Radius", DragStepProfile.Pixels) {
                     ValueFormatter = SuffixValueFormatter.StandardPixels
                 });
         }

@@ -31,12 +31,12 @@ namespace FramePFX.Editing.Timelines.Clips.Core;
 
 public class TimecodeClip : VideoClip {
     public static readonly ParameterDouble FontSizeParameter = Parameter.RegisterDouble(typeof(TimecodeClip), nameof(TimecodeClip), nameof(FontSize), 40, ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)), ParameterFlags.StandardProjectVisual);
-    public static readonly DataParameterBool UseClipStartTimeParameter = DataParameter.Register(new DataParameterBool(typeof(TimecodeClip), nameof(UseClipStartTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)), DataParameterFlags.StandardProjectVisual));
-    public static readonly DataParameter<SKColor> ForegroundParameter = DataParameter.Register(new DataParameter<SKColor>(typeof(TimecodeClip), nameof(Foreground), SKColors.Red, ValueAccessors.Reflective<SKColor>(typeof(TimecodeClip), nameof(foreground)), DataParameterFlags.StandardProjectVisual));
+    public static readonly DataParameterBool UseClipStartTimeParameter = DataParameter.Register(new DataParameterBool(typeof(TimecodeClip), nameof(UseClipStartTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)))); // DataParameterFlags.StandardProjectVisual
+    public static readonly DataParameter<SKColor> ForegroundParameter = DataParameter.Register(new DataParameter<SKColor>(typeof(TimecodeClip), nameof(Foreground), SKColors.Red, ValueAccessors.Reflective<SKColor>(typeof(TimecodeClip), nameof(foreground)))); // DataParameterFlags.StandardProjectVisual
 
-    public static readonly DataParameterBool UseClipEndTimeParameter = DataParameter.Register(new DataParameterBool(typeof(TimecodeClip), nameof(UseClipEndTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipEndTime)), DataParameterFlags.StandardProjectVisual));
-    public static readonly DataParameterDouble StartTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(StartTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(StartTime)), DataParameterFlags.StandardProjectVisual));
-    public static readonly DataParameterDouble EndTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(EndTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(EndTime)), DataParameterFlags.StandardProjectVisual));
+    public static readonly DataParameterBool UseClipEndTimeParameter = DataParameter.Register(new DataParameterBool(typeof(TimecodeClip), nameof(UseClipEndTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipEndTime)))); // DataParameterFlags.StandardProjectVisual
+    public static readonly DataParameterNumber<double> StartTimeParameter = DataParameter.Register(new DataParameterNumber<double>(typeof(TimecodeClip), nameof(StartTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(StartTime)))); // DataParameterFlags.StandardProjectVisual
+    public static readonly DataParameterNumber<double> EndTimeParameter = DataParameter.Register(new DataParameterNumber<double>(typeof(TimecodeClip), nameof(EndTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(EndTime)))); // DataParameterFlags.StandardProjectVisual
 
     private SKColor foreground;
     private double FontSize;

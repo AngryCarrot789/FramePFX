@@ -131,9 +131,9 @@ public class TimelineClipControl : ContentControl, IClipElement {
     private bool isSelected;
     private bool isDroppableTargetOver;
 
-    private readonly IBinder<Clip> frameSpanBinder = new AutoUpdateAndEventPropertyBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).FrameSpan = obj.Model.FrameSpan, null);
-    private readonly IBinder<Clip> displayNameBinder = new AutoUpdateAndEventPropertyBinder<Clip>(DisplayNameProperty, nameof(VideoClip.DisplayNameChanged), obj => ((TimelineClipControl) obj.Control).DisplayName = obj.Model.DisplayName, null);
-    private readonly IBinder<Clip> activeAutoSequenceBinder = new AutoUpdateAndEventPropertyBinder<Clip>(ActiveSequenceProperty, nameof(VideoClip.ActiveSequenceChanged), obj => ((TimelineClipControl) obj.Control).ActiveSequence = obj.Model.ActiveSequence, obj => obj.Model.ActiveSequence = ((TimelineClipControl) obj.Control).ActiveSequence);
+    private readonly IBinder<Clip> frameSpanBinder = new AvaloniaPropertyToEventPropertyBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).FrameSpan = obj.Model.FrameSpan, null);
+    private readonly IBinder<Clip> displayNameBinder = new AvaloniaPropertyToEventPropertyBinder<Clip>(DisplayNameProperty, nameof(VideoClip.DisplayNameChanged), obj => ((TimelineClipControl) obj.Control).DisplayName = obj.Model.DisplayName, null);
+    private readonly IBinder<Clip> activeAutoSequenceBinder = new AvaloniaPropertyToEventPropertyBinder<Clip>(ActiveSequenceProperty, nameof(VideoClip.ActiveSequenceChanged), obj => ((TimelineClipControl) obj.Control).ActiveSequence = obj.Model.ActiveSequence, obj => obj.Model.ActiveSequence = ((TimelineClipControl) obj.Control).ActiveSequence);
     private readonly PropertyBinder<AutomationSequence?> autoSequenceBinder;
     private readonly RectangleGeometry renderSizeRectGeometry;
     private const double EdgeGripSize = 8d;

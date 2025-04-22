@@ -87,7 +87,7 @@ new ParameterFloatPropertyEditorSlot(   // Built-in slot which manages animatabl
 });
 ```  
 
-This example is for an automatable parameter though, and you might not need animatable parameters, in which case, you can use `DataParameterFloatPropertyEditorSlot`  for a `DataParameterFloat`.
+This example is for an automatable parameter though, and you might not need animatable parameters, in which case, you can use `DataParameterNumberPropertyEditorSlot<float>`  for a `DataParameterNumber<float>`.
 
 You can register your own custom property editor slot UI controls via the registry object `BasePropertyEditorSlotControl.Registry`, like so:
 

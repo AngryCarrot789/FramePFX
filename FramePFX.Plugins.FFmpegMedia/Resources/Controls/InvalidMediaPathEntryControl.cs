@@ -33,14 +33,14 @@ public class InvalidMediaPathEntryControl : InvalidResourceEntryControl {
     private TextBox? errorMessageBlock;
     private Button? confirmButton;
 
-    private readonly GetSetAutoUpdateAndEventPropertyBinder<InvalidMediaPathEntry> filePathBinder;
-    private readonly GetSetAutoUpdateAndEventPropertyBinder<InvalidMediaPathEntry> exceptionMsgBinder;
+    private readonly AvaloniaPropertyToEventPropertyGetSetBinder<InvalidMediaPathEntry> filePathBinder;
+    private readonly AvaloniaPropertyToEventPropertyGetSetBinder<InvalidMediaPathEntry> exceptionMsgBinder;
 
     public new InvalidMediaPathEntry? Entry => (InvalidMediaPathEntry?) base.Entry;
 
     public InvalidMediaPathEntryControl() {
-        this.filePathBinder = new GetSetAutoUpdateAndEventPropertyBinder<InvalidMediaPathEntry>(TextBox.TextProperty, nameof(InvalidMediaPathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v!);
-        this.exceptionMsgBinder = new GetSetAutoUpdateAndEventPropertyBinder<InvalidMediaPathEntry>(TextBox.TextProperty, nameof(InvalidMediaPathEntry.ExceptionMessageChanged), b => b.Model.ExceptionMessage, null);
+        this.filePathBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<InvalidMediaPathEntry>(TextBox.TextProperty, nameof(InvalidMediaPathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v!);
+        this.exceptionMsgBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<InvalidMediaPathEntry>(TextBox.TextProperty, nameof(InvalidMediaPathEntry.ExceptionMessageChanged), b => b.Model.ExceptionMessage, null);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {

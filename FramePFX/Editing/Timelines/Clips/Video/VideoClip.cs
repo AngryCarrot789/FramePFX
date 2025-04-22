@@ -71,8 +71,8 @@ public abstract class VideoClip : Clip {
     public static readonly DataParameterVector2 MediaRotationOriginParameter = DataParameter.Register(new DataParameterVector2(typeof(VideoClip), nameof(MediaRotationOrigin), ValueAccessors.Reflective<Vector2>(typeof(VideoClip), nameof(mediaRotationOrigin))));
 
     public static readonly ParameterBool IsEnabledParameter = Parameter.RegisterBool(typeof(VideoClip), nameof(VideoClip), nameof(IsEnabled), true, ValueAccessors.LinqExpression<bool>(typeof(VideoClip), nameof(IsEnabled)), ParameterFlags.StandardProjectVisual);
-    public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isMediaScaleOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
-    public static readonly DataParameterBool IsMediaRotationOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsMediaRotationOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isMediaRotationOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
+    public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isMediaScaleOriginAutomatic)))); // DataParameterFlags.StandardProjectVisual
+    public static readonly DataParameterBool IsMediaRotationOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsMediaRotationOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isMediaRotationOriginAutomatic)))); // DataParameterFlags.StandardProjectVisual
 
     // Transformation data
     private Vector2 MediaPosition;

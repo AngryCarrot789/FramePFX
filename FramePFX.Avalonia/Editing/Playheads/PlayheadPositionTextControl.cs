@@ -50,9 +50,9 @@ public class PlayheadPositionTextControl : TemplatedControl {
         set => this.SetValue(LargestFrameInUseProperty, value);
     }
 
-    private readonly GetSetAutoUpdateAndEventPropertyBinder<Timeline> playHeadBinder = new GetSetAutoUpdateAndEventPropertyBinder<Timeline>(PlayHeadPositionProperty, nameof(PlayheadPositionTextControl.Timeline.PlayHeadChanged), (b) => b.Model.PlayHeadPosition, (b, v) => b.Model.PlayHeadPosition = (long) v);
-    private readonly GetSetAutoUpdateAndEventPropertyBinder<Timeline> totalFramesBinder = new GetSetAutoUpdateAndEventPropertyBinder<Timeline>(TotalFrameDurationProperty, nameof(PlayheadPositionTextControl.Timeline.MaxDurationChanged), (b) => b.Model.MaxDuration, (b, v) => b.Model.MaxDuration = (long) v);
-    private readonly AutoUpdateAndEventPropertyBinder<Timeline> largestFrameInUseBinder = new AutoUpdateAndEventPropertyBinder<Timeline>(LargestFrameInUseProperty, nameof(PlayheadPositionTextControl.Timeline.LargestFrameInUseChanged), obj => obj.Control.SetValue(LargestFrameInUseProperty, obj.Model.LargestFrameInUse), null);
+    private readonly AvaloniaPropertyToEventPropertyGetSetBinder<Timeline> playHeadBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<Timeline>(PlayHeadPositionProperty, nameof(PlayheadPositionTextControl.Timeline.PlayHeadChanged), (b) => b.Model.PlayHeadPosition, (b, v) => b.Model.PlayHeadPosition = (long) v);
+    private readonly AvaloniaPropertyToEventPropertyGetSetBinder<Timeline> totalFramesBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<Timeline>(TotalFrameDurationProperty, nameof(PlayheadPositionTextControl.Timeline.MaxDurationChanged), (b) => b.Model.MaxDuration, (b, v) => b.Model.MaxDuration = (long) v);
+    private readonly AvaloniaPropertyToEventPropertyBinder<Timeline> largestFrameInUseBinder = new AvaloniaPropertyToEventPropertyBinder<Timeline>(LargestFrameInUseProperty, nameof(PlayheadPositionTextControl.Timeline.LargestFrameInUseChanged), obj => obj.Control.SetValue(LargestFrameInUseProperty, obj.Model.LargestFrameInUse), null);
 
     public PlayheadPositionTextControl() {
     }

@@ -50,11 +50,10 @@ public partial class ExportDialog : WindowEx {
 
     private bool myIsExporting;
     private readonly List<ExporterKey> myKeyList;
-
-    private readonly IBinder<ExportSetup> filePathBinder = new AutoUpdateAndEventPropertyBinder<ExportSetup>(TextBox.TextProperty, nameof(ExportSetup.FilePathChanged), (b) => b.Control.SetValue(TextBox.TextProperty, b.Model.FilePath), (b) => b.Model.FilePath = b.Control.GetValue(TextBox.TextProperty));
+    private readonly IBinder<ExportSetup> filePathBinder = new AvaloniaPropertyToEventPropertyBinder<ExportSetup>(TextBox.TextProperty, nameof(ExportSetup.FilePathChanged), (b) => b.Control.SetValue(TextBox.TextProperty, b.Model.FilePath), (b) => b.Model.FilePath = b.Control.GetValue(TextBox.TextProperty));
     private bool isProcessingFrameSpanControls;
     private CancellationTokenSource? exportToken;
-
+    
     public ExportDialog(ExportSetup setup) {
         Validate.NotNull(setup);
 
@@ -85,6 +84,11 @@ public partial class ExportDialog : WindowEx {
 
     private void OnIsExportingChanged(bool isExporting) {
         this.PART_ExportButton.IsEnabled = !isExporting;
+    }
+
+    protected override void OnUnloaded(RoutedEventArgs e) {
+        base.OnUnloaded(e);
+        this.filePathBinder.Detach();
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {

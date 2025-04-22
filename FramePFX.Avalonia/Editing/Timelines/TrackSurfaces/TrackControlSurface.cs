@@ -88,9 +88,9 @@ public class TrackControlSurface : TemplatedControl {
     private TrackListItemParameterViewModel? selectedParameter;
     private ComboBox? myComboBox;
 
-    private readonly GetSetAutoUpdateAndEventPropertyBinder<Track> displayNameBinder = new GetSetAutoUpdateAndEventPropertyBinder<Track>(DisplayNameProperty, nameof(Track.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
+    private readonly AvaloniaPropertyToEventPropertyGetSetBinder<Track> displayNameBinder = new AvaloniaPropertyToEventPropertyGetSetBinder<Track>(DisplayNameProperty, nameof(Track.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
 
-    private readonly AutoUpdateAndEventPropertyBinder<Track> trackColourBinder = new AutoUpdateAndEventPropertyBinder<Track>(TrackColourBrushProperty, nameof(Track.ColourChanged), binder => {
+    private readonly AvaloniaPropertyToEventPropertyBinder<Track> trackColourBinder = new AvaloniaPropertyToEventPropertyBinder<Track>(TrackColourBrushProperty, nameof(Track.ColourChanged), binder => {
         TrackControlSurface element = (TrackControlSurface) binder.Control;
         SKColor c = element.Owner!.Track?.Colour ?? SKColors.Black;
         ((SolidColorBrush) element.TrackColourBrush!).Color = Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue);

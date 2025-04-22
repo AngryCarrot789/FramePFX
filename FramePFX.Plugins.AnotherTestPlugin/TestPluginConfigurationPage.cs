@@ -48,15 +48,15 @@ public class TestPluginConfigurationPage : PropertyEditorConfigurationPage {
         this.PropertyEditor.Root.AddItem(new DataParameterStringPropertyEditorSlot(CoolStringParameter, typeof(TestPluginConfigurationPage), "Very Cool String") { AnticipatedLineCount = 4 });
     }
 
-    private void OnStringChanged(DataParameter parameter, ITransferableData owner) => this.MarkModified();
-
-    public override ValueTask OnContextCreated(ConfigurationContext context) {
+    private void OnStringChanged(DataParameter parameter, ITransferableData owner) => this.IsModified = true;
+    
+    protected override ValueTask OnContextCreated(ConfigurationContext context) {
         this.coolString = GlobalCoolString;
         this.PropertyEditor.Root.SetupHierarchyState([this]);
         return ValueTask.CompletedTask;
     }
 
-    public override ValueTask OnContextDestroyed(ConfigurationContext context) {
+    protected override ValueTask OnContextDestroyed(ConfigurationContext context) {
         this.PropertyEditor.Root.ClearHierarchy();
         return ValueTask.CompletedTask;
     }

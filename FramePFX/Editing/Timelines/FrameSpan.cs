@@ -49,7 +49,7 @@ public readonly struct FrameSpan : IEquatable<FrameSpan> {
     }
 
     /// <summary>
-    /// Whether or not this frame span's duration is zero
+    /// Whether this frame span's duration is zero
     /// </summary>
     public bool IsEmpty => this.Duration == 0;
 

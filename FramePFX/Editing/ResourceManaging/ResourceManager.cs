@@ -168,7 +168,7 @@ public class ResourceManager : IDestroy {
     /// Checks if the given item is registered
     /// </summary>
     /// <param name="id">The Id to check</param>
-    /// <returns>Whether or not the id is registered in the manager</returns>
+    /// <returns>Whether the id is registered in the manager</returns>
     /// <exception cref="ArgumentException">The ID is null, empty or only whitespaces</exception>
     public bool EntryExists(ulong id) {
         if (id == EmptyId)

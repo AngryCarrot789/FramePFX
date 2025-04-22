@@ -32,7 +32,7 @@ using SkiaSharp;
 namespace FramePFX.Editing.Timelines.Clips.Core;
 
 public class TextVideoClip : VideoClip {
-    public static readonly DataParameterString TextParameter = DataParameter.Register(new DataParameterString(typeof(TextVideoClip), nameof(Text), null, ValueAccessors.Reflective<string?>(typeof(TextVideoClip), nameof(myText)), DataParameterFlags.StandardProjectVisual));
+    public static readonly DataParameterString TextParameter = DataParameter.Register(new DataParameterString(typeof(TextVideoClip), nameof(Text), null, ValueAccessors.Reflective<string?>(typeof(TextVideoClip), nameof(myText)))); // DataParameterFlags.StandardProjectVisual
     public static readonly DataParameterString FontFamilyParameter = DataParameter.Register(new DataParameterString(typeof(TextVideoClip), nameof(FontFamily), "Consolas", ValueAccessors.Reflective<string?>(typeof(TextVideoClip), nameof(fontFamily))));
     public static readonly ParameterFloat FontSizeParameter = Parameter.RegisterFloat(typeof(TextVideoClip), nameof(TextVideoClip), nameof(FontSize), 40.0F, ValueAccessors.Reflective<float>(typeof(TextVideoClip), nameof(FontSize)));
     public static readonly ParameterFloat BorderThicknessParameter = Parameter.RegisterFloat(typeof(TextVideoClip), nameof(TextVideoClip), nameof(BorderThickness), 0.0F, ValueAccessors.Reflective<float>(typeof(TextVideoClip), nameof(BorderThickness)));

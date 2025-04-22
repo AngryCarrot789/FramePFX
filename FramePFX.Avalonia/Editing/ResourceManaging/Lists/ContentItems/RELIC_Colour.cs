@@ -36,7 +36,7 @@ public class RELIC_Colour : ResourceExplorerListItemContent {
 
     public new ResourceColour? Resource => (ResourceColour?) base.Resource;
 
-    private readonly AutoUpdateAndEventPropertyBinder<ResourceColour> colourBinder = new AutoUpdateAndEventPropertyBinder<ResourceColour>(BrushProperty, nameof(ResourceColour.ColourChanged), binder => {
+    private readonly AvaloniaPropertyToEventPropertyBinder<ResourceColour> colourBinder = new AvaloniaPropertyToEventPropertyBinder<ResourceColour>(BrushProperty, nameof(ResourceColour.ColourChanged), binder => {
         RELIC_Colour element = (RELIC_Colour) binder.Control;
         SKColor c = binder.Model.Colour;
         element.Brush!.Color = Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue);

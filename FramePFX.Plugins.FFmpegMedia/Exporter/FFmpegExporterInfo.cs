@@ -27,17 +27,17 @@ using PFXToolKitUI.Utils.Accessing;
 namespace FramePFX.Plugins.FFmpegMedia.Exporter;
 
 public class FFmpegExporterInfo : BaseExporterInfo {
-    public static readonly DataParameterLong BitRateParameter =
+    public static readonly DataParameterNumber<long> BitRateParameter =
         DataParameter.Register(
-            new DataParameterLong(
+            new DataParameterNumber<long>(
                 typeof(FFmpegExporterInfo),
                 nameof(BitRate),
                 25000000, 100, 10_000_000_000,
                 ValueAccessors.Reflective<long>(typeof(FFmpegExporterInfo), nameof(myBitRate))));
 
-    public static readonly DataParameterLong GopParameter =
+    public static readonly DataParameterNumber<long> GopParameter =
         DataParameter.Register(
-            new DataParameterLong(
+            new DataParameterNumber<long>(
                 typeof(FFmpegExporterInfo),
                 // I have no idea what GOP is... is 1000 too big?
                 nameof(Gop), defValue: 10, minValue: 0, maxValue: 1000,
@@ -75,13 +75,13 @@ public class FFmpegExporterInfo : BaseExporterInfo {
         this.myGop = GopParameter.GetDefaultValue(this);
         this.codecId = CodecIdParameter.GetDefaultValue(this);
 
-        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(BitRateParameter, typeof(FFmpegExporterInfo), "Bit Rate", DragStepProfile.UnitOne) {
+        this.PropertyEditor.Root.AddItem(new DataParameterNumberPropertyEditorSlot<long>(BitRateParameter, typeof(FFmpegExporterInfo), "Bit Rate", DragStepProfile.UnitOne) {
             ValueFormatter = new AutoMemoryValueFormatter(MemoryValueFormatter.Bits) {
                 SourceFormat = MemoryFormatType.Bit
             }
         });
 
-        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(GopParameter, typeof(FFmpegExporterInfo), "'GOP'", DragStepProfile.UnitOne));
+        this.PropertyEditor.Root.AddItem(new DataParameterNumberPropertyEditorSlot<long>(GopParameter, typeof(FFmpegExporterInfo), "'GOP'", DragStepProfile.UnitOne));
         this.PropertyEditor.Root.AddItem(new DataParameterAVCodecIDPropertyEditorSlot(CodecIdParameter, typeof(FFmpegExporterInfo)));
     }
 

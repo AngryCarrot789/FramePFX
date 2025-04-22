@@ -124,7 +124,7 @@ public abstract class KeyFrame {
     public abstract void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false);
 
     /// <summary>
-    /// Whether or not the given key frame equals this key frame (equal timestamp and value)
+    /// Whether the given key frame equals this key frame (equal timestamp and value)
     /// </summary>
     /// <param name="other">The other value to compare</param>
     /// <returns>True when this instance and the other instance are effectively equal (matching timestamp and value)</returns>

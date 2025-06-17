@@ -42,13 +42,7 @@ public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>,
 
     public event SelectionChangedEventHandler<BaseResource>? SelectionChanged;
     public event SelectionClearedEventHandler<BaseResource>? SelectionCleared;
-
-    private LightSelectionChangedEventHandler<BaseResource>? LightSelectionChanged;
-
-    event LightSelectionChangedEventHandler<BaseResource>? ILightSelectionManager<BaseResource>.SelectionChanged {
-        add => this.LightSelectionChanged += value;
-        remove => this.LightSelectionChanged -= value;
-    }
+    public event LightSelectionChangedEventHandler<BaseResource>? LightSelectionChanged;
 
     private bool isBatching;
     private List<BaseResource>? batchResources_old;

@@ -94,13 +94,7 @@ public class ResourceTreeSelectionManager : ISelectionManager<BaseResource>, ILi
 
     public event SelectionChangedEventHandler<BaseResource>? SelectionChanged;
     public event SelectionClearedEventHandler<BaseResource>? SelectionCleared;
-
-    private LightSelectionChangedEventHandler<BaseResource>? LightSelectionChanged;
-
-    event LightSelectionChangedEventHandler<BaseResource>? ILightSelectionManager<BaseResource>.SelectionChanged {
-        add => this.LightSelectionChanged += value;
-        remove => this.LightSelectionChanged -= value;
-    }
+    public event LightSelectionChangedEventHandler<BaseResource>? LightSelectionChanged;
 
     public ResourceTreeSelectionManager() {
     }

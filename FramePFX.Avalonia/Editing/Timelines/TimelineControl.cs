@@ -196,10 +196,10 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         toggleClipAutomationButton.Bind(ToggleButton.IsCheckedProperty, new Binding(nameof(this.IsClipAutomationVisible), BindingMode.TwoWay) { Source = this });
 
         this.TrackSelectionManager = new TrackSelectionManager(this, this.myTrackElements);
-        ((ILightSelectionManager<ITrackElement>) this.TrackSelectionManager).SelectionChanged += this.OnTrackChanged;
+        this.TrackSelectionManager.LightSelectionChanged += this.OnTrackChanged;
 
         this.ClipSelectionManager = new TimelineClipSelectionManager(this);
-        ((ILightSelectionManager<IClipElement>) this.ClipSelectionManager).SelectionChanged += this.OnSelectionChanged;
+        this.ClipSelectionManager.LightSelectionChanged += this.OnSelectionChanged;
 
         this.PlayHeadInSequence!.TimelineControl = this;
         this.StopHeadInSequence!.TimelineControl = this;

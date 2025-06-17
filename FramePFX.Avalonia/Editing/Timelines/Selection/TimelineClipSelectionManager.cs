@@ -51,12 +51,7 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
 
     public event SelectionChangedEventHandler<IClipElement>? SelectionChanged;
     public event SelectionClearedEventHandler<IClipElement>? SelectionCleared;
-    private LightSelectionChangedEventHandler<IClipElement>? LightSelectionChanged;
-
-    event LightSelectionChangedEventHandler<IClipElement>? ILightSelectionManager<IClipElement>.SelectionChanged {
-        add => this.LightSelectionChanged += value;
-        remove => this.LightSelectionChanged -= value;
-    }
+    public event LightSelectionChangedEventHandler<IClipElement>? LightSelectionChanged;
 
     private bool isBatching;
     private List<IClipElement>? batchClips_old;

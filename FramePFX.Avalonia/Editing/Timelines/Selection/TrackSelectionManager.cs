@@ -40,13 +40,7 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
 
     public event SelectionChangedEventHandler<ITrackElement>? SelectionChanged;
     public event SelectionClearedEventHandler<ITrackElement>? SelectionCleared;
-
-    private LightSelectionChangedEventHandler<ITrackElement>? LightSelectionChanged;
-
-    event LightSelectionChangedEventHandler<ITrackElement>? ILightSelectionManager<ITrackElement>.SelectionChanged {
-        add => this.LightSelectionChanged += value;
-        remove => this.LightSelectionChanged -= value;
-    }
+    public event LightSelectionChangedEventHandler<ITrackElement>? LightSelectionChanged;
 
     internal TrackSelectionManager(TimelineControl timeline, List<TimelineControl.TrackElementImpl> refToAllTrackElements) {
         this.timeline = timeline;

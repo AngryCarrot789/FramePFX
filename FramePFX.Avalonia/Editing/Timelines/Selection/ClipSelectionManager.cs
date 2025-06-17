@@ -41,12 +41,7 @@ public class ClipSelectionManager : ISelectionManager<IClipElement>, ILightSelec
 
     public event SelectionChangedEventHandler<IClipElement>? SelectionChanged;
     public event SelectionClearedEventHandler<IClipElement>? SelectionCleared;
-    private LightSelectionChangedEventHandler<IClipElement>? LightSelectionChanged;
-
-    event LightSelectionChangedEventHandler<IClipElement>? ILightSelectionManager<IClipElement>.SelectionChanged {
-        add => this.LightSelectionChanged += value;
-        remove => this.LightSelectionChanged -= value;
-    }
+    public event LightSelectionChangedEventHandler<IClipElement>? LightSelectionChanged;
 
     public ClipSelectionManager(TimelineTrackControl track) {
         this.Track = track;

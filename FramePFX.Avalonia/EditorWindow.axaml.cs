@@ -201,7 +201,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
         DataManager.GetContextData(this.PART_TimelinePresenterGroupBox).Set(DataKeys.TimelineUIKey, this.TheTimeline);
         this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
-        ((ILightSelectionManager<IClipElement>) this.TheTimeline.ClipSelectionManager!).SelectionChanged += this.OnTimelineClipSelectionChanged;
+        this.TheTimeline.ClipSelectionManager!.LightSelectionChanged += this.OnTimelineClipSelectionChanged;
         this.PART_ViewPort.OnClipSelectionChanged();
 
         EditorConfigurationOptions.Instance.TitleBarPrefixChanged += this.OnApplicationTitleBarPrefixChanged;

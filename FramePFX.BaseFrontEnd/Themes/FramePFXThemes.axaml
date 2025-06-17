@@ -1,0 +1,31 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Make sure to update any inheritance in FramePFXBrushLoader too! Otherwise the app won't look the same at runtime compared to design time -->
+    <!-- And obviously, if adding anything new in here, add it to FramePFXBrushLoader as well -->
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.Background"                                      Color="{StaticResource ABrush.Tone0.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.Track.Background"                                Color="{StaticResource ABrush.Tone2.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.Track.Background.Selected"                       Color="{StaticResource ABrush.Tone4.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.GapBetweenTracks"                                Color="{StaticResource ABrush.Tone1.Border.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.ControlSurface.Background"                       Color="{StaticResource ABrush.Tone3.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background"                   Color="{StaticResource ABrush.Tone5.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.MouseOver"         Color="{StaticResource ABrush.Tone6.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.SelectedFocused"   Color="{StaticResource ABrush.Tone5.Background.Selected.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.ControlSurfaceItem.Background.SelectedUnfocused" Color="{StaticResource ABrush.Tone7.Background.Selected.Inactive.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.TimestampBoard.Background"                       Color="{StaticResource ABrush.Tone6.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.StatusBar.Background"                                     Color="{StaticResource ABrush.Tone5.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.ToolBar.Background"                              Color="{StaticResource ABrush.Tone4.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.Ruler.Background"                                Color="{StaticResource ABrush.Tone3.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.Timeline.Header.Background"                               Color="{StaticResource ABrush.Tone5.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.ResourceManager.TabStrip.Background"                      Color="{StaticResource ABrush.Tone3.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.ResourceManager.TabItem.Background"                       Color="{StaticResource ABrush.Tone5.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.ResourceManager.List.Background"                          Color="{StaticResource ABrush.Tone2.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Editor.ResourceManager.Tree.Background"                          Color="{StaticResource ABrush.Tone3.Background.Static.Color}"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Automation.Active.Fill"                                          Color="OrangeRed"/>
+    <SolidColorBrush x:Key="ABrush.PFX.Automation.Override.Fill"                                        Color="Gray"/>
+    <SolidColorBrush x:Key="ABrush.PFX.TrackAutomation.Active.Fill"                                     Color="Chocolate"/>
+    <SolidColorBrush x:Key="ABrush.PFX.PropertyEditor.Separator.MouseOverBrush"                         Color="{StaticResource ABrush.AccentTone2.Border.Static.Color}"/>
+    <LinearGradientBrush x:Key="ABrush.PFX.Editor.Timeline.PlayHeadThumb.Background" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{DynamicResource ABrush.Glyph.Static.Color}" Offset="0"/>
+        <GradientStop Color="{DynamicResource ABrush.Glyph.Disabled.Color}" Offset="1"/>
+    </LinearGradientBrush>
+</ResourceDictionary>

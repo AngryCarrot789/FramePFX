@@ -43,7 +43,6 @@ using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
 using PFXToolKitUI.Interactivity;
 using PFXToolKitUI.Interactivity.Contexts;
-using PFXToolKitUI.Utils;
 using SkiaSharp;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
@@ -200,8 +199,8 @@ public class TimelineTrackControl : TemplatedControl {
         if (this.Track != null)
             throw new InvalidOperationException("Already connected to a track");
 
-        Validate.NotNull(timelineControl);
-        Validate.NotNull(track);
+        ArgumentNullException.ThrowIfNull(timelineControl);
+        ArgumentNullException.ThrowIfNull(track);
 
         this.TimelineControl = timelineControl.TimelineControl ?? throw new InvalidOperationException("TrackStoragePanel does not have a timeline control associated");
         this.TrackStoragePanel = timelineControl;

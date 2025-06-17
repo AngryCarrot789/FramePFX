@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using FramePFX.Editing;
@@ -26,6 +28,7 @@ using FramePFX.Editing.Commands;
 using FramePFX.Editing.UI;
 using FramePFX.Services.VideoEditors;
 using PFXToolKitUI;
+using PFXToolKitUI.Avalonia.Services.Windowing;
 using PFXToolKitUI.Services.FilePicking;
 using PFXToolKitUI.Services.Messaging;
 using PFXToolKitUI.Tasks;
@@ -149,10 +152,7 @@ public class StartupManagerFramePFX : IStartupManager {
 
     private static void OpenEditorAsMainWindow(VideoEditor editor) {
         IVideoEditorWindow editorWindow = ApplicationPFX.Instance.ServiceManager.GetService<IVideoEditorService>().OpenVideoEditor(editor);
-        if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-            desktop.MainWindow = (Window) editorWindow;
-            desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;
-        }
+        Debug.Assert(editorWindow is DesktopWindow);
     }
 
     private static async Task<bool> TryOpenProjectFromFile(string path) {
@@ -168,14 +168,31 @@ public class StartupManagerFramePFX : IStartupManager {
         }
     }
 
-    public async Task OnApplicationStartupWithArgs(string[] args) {
-        if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true) {
-            if (!await TryOpenProjectFromFile(args[0])) {
+    public async Task OnApplicationStartupWithArgs(IApplicationStartupProgress progress, string[] args)  {
+        if (Design.IsDesignMode) {
+            // Designer runtime does not have IClassicDesktopStyleApplicationLifetime, so
+            // we don't have access to a windowing system, so the app would shut down.
+            return;
+        }
+        
+        await progress.ProgressAndSynchroniseAsync("Startup completed. Loading engine window...", 1.0);
+        if (WindowingSystem.TryGetInstance(out WindowingSystem? system)) {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+                (progress as AppSplashScreen)?.Close();
+                desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            }
+            
+            if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true) {
+                if (!await TryOpenProjectFromFile(args[0])) {
+                    await this.HandleNormalStartup();
+                }
+            }
+            else {
                 await this.HandleNormalStartup();
             }
         }
         else {
-            await this.HandleNormalStartup();
+            ApplicationPFX.Instance.Dispatcher.InvokeShutdown();
         }
     }
 

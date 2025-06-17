@@ -19,17 +19,17 @@
 
 using System.Threading;
 using Avalonia;
-using PFXToolKitUI.Avalonia.Themes.Controls;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Timelines;
 using PFXToolKitUI;
+using PFXToolKitUI.Avalonia.Services.Windowing;
 using PFXToolKitUI.Tasks;
 using PFXToolKitUI.Utils;
 using PFXToolKitUI.Utils.RDA;
 
 namespace FramePFX.Avalonia.Exporting;
 
-public partial class ExportProgressDialog : WindowEx, IExportProgress {
+public partial class ExportProgressDialog : DesktopWindow, IExportProgress {
     public static readonly StyledProperty<bool> HasEncodeProgressProperty = AvaloniaProperty.Register<ExportProgressDialog, bool>(nameof(HasEncodeProgress));
 
     public bool HasEncodeProgress {

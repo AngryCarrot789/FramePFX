@@ -1,14 +1,15 @@
-<controls:WindowEx xmlns="https://github.com/avaloniaui"
-                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                   xmlns:dragger="clr-namespace:PFXToolKitUI.Avalonia.AvControls.Dragger;assembly=PFXToolKitUI.Avalonia"
-                   xmlns:controls="clr-namespace:PFXToolKitUI.Avalonia.Themes.Controls;assembly=PFXToolKitUI.Avalonia"
-                   xmlns:propertyEditing="clr-namespace:PFXToolKitUI.Avalonia.PropertyEditing;assembly=PFXToolKitUI.Avalonia"
-                   mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-                   x:Class="FramePFX.Avalonia.Exporting.ExportDialog"
-                   Height="450" Width="400"
-                   Title="Export Media">
+<w:DesktopWindow xmlns="https://github.com/avaloniaui"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:dragger="clr-namespace:PFXToolKitUI.Avalonia.AvControls.Dragger;assembly=PFXToolKitUI.Avalonia"
+                 xmlns:controls="clr-namespace:PFXToolKitUI.Avalonia.Themes.Controls;assembly=PFXToolKitUI.Avalonia"
+                 xmlns:propertyEditing="clr-namespace:PFXToolKitUI.Avalonia.PropertyEditing;assembly=PFXToolKitUI.Avalonia"
+                 xmlns:w="clr-namespace:PFXToolKitUI.Avalonia.Services.Windowing;assembly=PFXToolKitUI.Avalonia"
+                 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                 x:Class="FramePFX.Avalonia.Exporting.ExportDialog"
+                 Height="450" Width="400"
+                 Title="Export Media">
     <Grid>
         <Grid ColumnDefinitions="5,75,*,5" RowDefinitions="5,Auto,5,Auto,5,Auto,5,*,Auto">
             <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="File Path" Grid.Column="1" Grid.Row="1"/>
@@ -83,4 +84,4 @@
             </Border>
         </Grid>
     </Grid>
-</controls:WindowEx>
+</w:DesktopWindow>

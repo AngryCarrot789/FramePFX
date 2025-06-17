@@ -19,7 +19,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using PFXToolKitUI;
-using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.Exporting;
 
@@ -51,7 +50,7 @@ public class ExporterRegistry {
     }
 
     public void RegisterExporter(ExporterKey key, BaseExporterInfo exporter) {
-        Validate.NotNull(exporter);
+        ArgumentNullException.ThrowIfNull(exporter);
         if (!this.exporters.TryAdd(key, exporter))
             throw new InvalidOperationException("Key already registered: " + key.ToString());
         this.exporterList.Add((key, exporter));

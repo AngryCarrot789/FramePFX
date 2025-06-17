@@ -32,6 +32,7 @@ using FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 using FramePFX.BaseFrontEnd.PropertyEditing.Core;
 using FramePFX.BaseFrontEnd.ResourceManaging;
 using FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
+using FramePFX.BaseFrontEnd.Themes;
 using FramePFX.Configurations;
 using FramePFX.Configurations.Commands;
 using FramePFX.Editing;
@@ -54,11 +55,11 @@ using FramePFX.Services.VideoEditors;
 using PFXToolKitUI;
 using PFXToolKitUI.Avalonia.Configurations.Pages;
 using PFXToolKitUI.Avalonia.PropertyEditing;
+using PFXToolKitUI.Avalonia.Services.Windowing;
 using PFXToolKitUI.CommandSystem;
 using PFXToolKitUI.Configurations;
 using PFXToolKitUI.Icons;
 using PFXToolKitUI.Persistence;
-using PFXToolKitUI.Plugins;
 using PFXToolKitUI.PropertyEditing.Core;
 using PFXToolKitUI.Services;
 using PFXToolKitUI.Services.Messaging;
@@ -69,10 +70,15 @@ namespace FramePFX.Avalonia;
 
 public class FramePFXApplication : AvaloniaApplicationPFX {
     public FramePFXApplication(Application app) : base(app) {
-        this.PluginLoader.AddCorePluginEntry(new CorePluginDescriptor(typeof(TestPlugin)));
+        this.PluginLoader.AddCorePlugin(typeof(TestPlugin));
     }
 
     protected override void RegisterServices(ServiceManager manager) {
+        if (this.Application.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime) {
+            manager.RegisterConstant<IDesktopService>(new DesktopServiceImpl(this.Application));
+            manager.RegisterConstant<WindowingSystem>(new WindowingSystemImpl(new Uri("avares://FramePFX-DesktopUI/FramePFX-256.ico", UriKind.RelativeOrAbsolute)));
+        }
+        
         base.RegisterServices(manager);
         manager.RegisterConstant<IIconPreferences>(new IconPreferencesImpl());
         manager.RegisterConstant<IStartupManager>(new StartupManagerFramePFX());
@@ -82,7 +88,6 @@ public class FramePFXApplication : AvaloniaApplicationPFX {
         manager.RegisterConstant(new ResourceDropOnTimelineService());
         manager.RegisterConstant(new TimelineDropManager());
         manager.RegisterConstant(new ExporterRegistry());
-        manager.RegisterConstant<IDesktopService>(new DesktopServiceImpl(this.Application));
     }
 
     private class IconPreferencesImpl : IIconPreferences {
@@ -177,6 +182,8 @@ public class FramePFXApplication : AvaloniaApplicationPFX {
             ]
         });
 
+        FramePFXBrushLoader.Init();
+        
         await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.4);
 
         try {
@@ -201,7 +208,7 @@ public class FramePFXApplication : AvaloniaApplicationPFX {
         }
 
         if (success) {
-            this.PluginLoader.AddCorePluginEntry(new CorePluginDescriptor(typeof(FFmpegMediaPlugin)));
+            this.PluginLoader.AddCorePlugin(typeof(FFmpegMediaPlugin));
         }
 
         {

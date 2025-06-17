@@ -22,7 +22,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using FramePFX.Utils.BTE;
 using PFXToolKitUI.Services.Messaging;
-using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.ResourceManaging.NewResourceHelper;
 
@@ -102,8 +101,8 @@ public class ResourceHelper {
     }
 
     private void SetResourceInternal(ResourceSlot slot, ResourceItem resource) {
-        Validate.NotNull(slot);
-        Validate.NotNull(resource);
+        ArgumentNullException.ThrowIfNull(slot);
+        ArgumentNullException.ThrowIfNull(resource);
 
         InternalBeginValueChange(slot, this);
         ResourceItem? oldResource = null;

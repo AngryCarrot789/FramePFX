@@ -23,12 +23,12 @@ using Avalonia.Controls.Documents;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using FramePFX.Editing.ResourceManaging.Autoloading;
-using PFXToolKitUI.Avalonia.Themes.Controls;
+using PFXToolKitUI.Avalonia.Services.Windowing;
 using PFXToolKitUI.Utils;
 
 namespace FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
 
-public partial class ResourceLoaderDialog : WindowEx {
+public partial class ResourceLoaderDialog : DesktopWindow {
     public static readonly StyledProperty<ResourceLoader?> ResourceLoaderProperty = AvaloniaProperty.Register<ResourceLoaderDialog, ResourceLoader?>(nameof(ResourceLoader));
 
     public ResourceLoader? ResourceLoader {

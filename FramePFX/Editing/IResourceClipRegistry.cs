@@ -45,8 +45,8 @@ public sealed class ResourceDropOnTimelineService {
     }
 
     public void Register(Type resourceType, IResourceDropHandler info) {
-        Validate.NotNull(resourceType);
-        Validate.NotNull(info);
+        ArgumentNullException.ThrowIfNull(resourceType);
+        ArgumentNullException.ThrowIfNull(info);
 
         if (!typeof(ResourceItem).IsAssignableFrom(resourceType))
             throw new ArgumentException("Resource type is not an instance of " + nameof(ResourceItem));

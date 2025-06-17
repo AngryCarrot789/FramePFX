@@ -18,20 +18,19 @@
 // 
 
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using FramePFX.Editing.Exporting;
-using PFXToolKitUI.Avalonia.Services;
+using PFXToolKitUI.Avalonia.Services.Windowing;
 
 namespace FramePFX.Avalonia.Exporting;
 
 public class ExportDialogServiceImpl : IExportDialogService {
     public Task ShowExportDialog(ExportSetup setup) {
-        if (IDesktopService.TryGetInstance(out IDesktopService? service) && service.TryGetActiveWindow(out Window? window)) {
+        if (WindowingSystem.TryGetInstance(out WindowingSystem? service) && service.TryGetActiveWindow(out DesktopWindow? window)) {
             ExportDialog dialog = new ExportDialog(setup) {
                 Topmost = true
             };
             
-            return dialog.ShowDialog(window);
+            return service.Register(dialog).ShowDialog(window);
         }
 
         return Task.CompletedTask;

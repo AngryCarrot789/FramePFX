@@ -64,7 +64,7 @@ public class KeyFrameUI {
     }
 
     public KeyFrameUI(AutomationSequenceEditorControl editor, KeyFrame keyFrame) {
-        Validate.NotNull(keyFrame);
+        ArgumentNullException.ThrowIfNull(keyFrame);
 
         this.editor = editor;
         this.keyFrame = keyFrame;

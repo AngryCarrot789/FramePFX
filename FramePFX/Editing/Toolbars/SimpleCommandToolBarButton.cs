@@ -19,7 +19,6 @@
 
 using PFXToolKitUI.CommandSystem;
 using PFXToolKitUI.Toolbars;
-using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.Toolbars;
 
@@ -30,7 +29,7 @@ public class SimpleCommandToolBarButton : ToolBarButton {
     public string CommandId { get; }
 
     public SimpleCommandToolBarButton(string commandId, IButtonElement button) : base(button) {
-        Validate.NotNullOrWhiteSpaces(commandId);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(commandId);
         this.CommandId = commandId;
     }
 

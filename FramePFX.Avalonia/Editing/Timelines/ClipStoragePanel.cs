@@ -26,7 +26,6 @@ using Avalonia;
 using Avalonia.Controls;
 using PFXToolKitUI.Avalonia;
 using FramePFX.Editing.Timelines.Clips;
-using PFXToolKitUI.Utils;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
@@ -56,7 +55,7 @@ public class ClipStoragePanel : Panel, IEnumerable<TimelineClipControl> {
     }
 
     public void Connect(TimelineTrackControl trackControl) {
-        Validate.NotNull(trackControl);
+        ArgumentNullException.ThrowIfNull(trackControl);
 
         this.TimelineControl = trackControl.TimelineControl ?? throw new InvalidOperationException("TimelineTrackControl does not have a timeline control associated");
         this.TrackControl = trackControl;

@@ -47,7 +47,7 @@ public class Project : IServiceable, IDestroy {
     public Timeline ActiveTimeline {
         get => this.activeTimeline;
         set {
-            Validate.NotNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             Timeline oldTimeline = this.activeTimeline;
             if (oldTimeline == value)

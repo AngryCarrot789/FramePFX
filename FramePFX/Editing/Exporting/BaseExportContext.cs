@@ -18,7 +18,6 @@
 // 
 
 using FramePFX.Editing.Timelines;
-using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.Exporting;
 
@@ -53,8 +52,8 @@ public abstract class BaseExportContext {
     public FrameSpan Span => this.Setup.Span;
 
     protected BaseExportContext(BaseExporterInfo exporter, ExportSetup setup) {
-        Validate.NotNull(exporter);
-        Validate.NotNull(setup);
+        ArgumentNullException.ThrowIfNull(exporter);
+        ArgumentNullException.ThrowIfNull(setup);
 
         this.Exporter = exporter;
         this.Setup = setup;

@@ -1,25 +1,26 @@
-<c:WindowEx xmlns="https://github.com/avaloniaui"
-            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-            xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
-            xmlns:rm="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
-            xmlns:avalonia="clr-namespace:PFXToolKitUI.Avalonia.Shortcuts.Avalonia;assembly=PFXToolKitUI.Avalonia"
-            xmlns:e="clr-namespace:FramePFX.Avalonia.Editing"
-            xmlns:c="clr-namespace:PFXToolKitUI.Avalonia.Themes.Controls;assembly=PFXToolKitUI.Avalonia"
-            xmlns:ams="clr-namespace:PFXToolKitUI.Avalonia.AdvancedMenuService;assembly=PFXToolKitUI.Avalonia"
-            xmlns:propertyEditing="clr-namespace:PFXToolKitUI.Avalonia.PropertyEditing;assembly=PFXToolKitUI.Avalonia"
-            xmlns:cu="clr-namespace:PFXToolKitUI.Avalonia.CommandUsages;assembly=PFXToolKitUI.Avalonia"
-            mc:Ignorable="d"
-            x:Class="FramePFX.Avalonia.EditorWindow"
-            Background="{DynamicResource PanelBackground0}"
-            BorderBrush="{DynamicResource PanelBorderBrush}"
-            TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
-            Height="840" Width="1348"
-            FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
-            avalonia:UIInputManager.FocusPath="EditorWindow"
-            WindowStartupLocation="CenterScreen"
-            Title="FramePFX">
+<w:DesktopWindow xmlns="https://github.com/avaloniaui"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
+                 xmlns:rm="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
+                 xmlns:avalonia="clr-namespace:PFXToolKitUI.Avalonia.Shortcuts.Avalonia;assembly=PFXToolKitUI.Avalonia"
+                 xmlns:e="clr-namespace:FramePFX.Avalonia.Editing"
+                 xmlns:c="clr-namespace:PFXToolKitUI.Avalonia.Themes.Controls;assembly=PFXToolKitUI.Avalonia"
+                 xmlns:ams="clr-namespace:PFXToolKitUI.Avalonia.AdvancedMenuService;assembly=PFXToolKitUI.Avalonia"
+                 xmlns:propertyEditing="clr-namespace:PFXToolKitUI.Avalonia.PropertyEditing;assembly=PFXToolKitUI.Avalonia"
+                 xmlns:cu="clr-namespace:PFXToolKitUI.Avalonia.CommandUsages;assembly=PFXToolKitUI.Avalonia"
+                 xmlns:w="clr-namespace:PFXToolKitUI.Avalonia.Services.Windowing;assembly=PFXToolKitUI.Avalonia"
+                 mc:Ignorable="d"
+                 x:Class="FramePFX.Avalonia.EditorWindow"
+                 Background="{DynamicResource PanelBackground0}"
+                 BorderBrush="{DynamicResource PanelBorderBrush}"
+                 TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
+                 Height="840" Width="1348"
+                 FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
+                 avalonia:UIInputManager.FocusPath="EditorWindow"
+                 WindowStartupLocation="CenterScreen"
+                 Title="FramePFX">
     <Grid Margin="0" x:Name="PART_EditorWindowContent">
         <Grid.RowDefinitions>
             <!-- Top menu row -->
@@ -190,4 +191,4 @@
             </DockPanel>
         </Border>
     </Grid>
-</c:WindowEx>
+</w:DesktopWindow>

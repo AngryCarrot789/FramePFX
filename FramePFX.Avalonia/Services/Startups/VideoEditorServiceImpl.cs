@@ -17,11 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Diagnostics;
 using FramePFX.Editing;
 using FramePFX.Editing.Toolbars;
 using FramePFX.Editing.UI;
 using FramePFX.Services.VideoEditors;
 using PFXToolKitUI;
+using PFXToolKitUI.Avalonia.Services.Windowing;
 
 namespace FramePFX.Avalonia.Services.Startups;
 
@@ -41,7 +43,11 @@ public class VideoEditorServiceImpl : IVideoEditorService {
         // Something might want to actually do stuff before the visual tree is fully loaded
         this.VideoEditorCreatedOrShown?.Invoke(window, false);
 
-        window.Show();
+        WindowingSystem.TryGetInstance(out WindowingSystem? system);
+        Debug.Assert(system != null);
+
+        system.Register(window).Show();
+        
         ApplicationPFX.Instance.Dispatcher.InvokeAsync(() => {
             window.PART_ViewPort!.PART_FreeMoveViewPort!.FitContentToCenter();
             if (editor.Project != null) {

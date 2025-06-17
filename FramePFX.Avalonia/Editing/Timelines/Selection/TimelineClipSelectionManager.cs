@@ -25,7 +25,6 @@ using PFXToolKitUI.Avalonia;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
 using PFXToolKitUI.Interactivity;
-using PFXToolKitUI.Utils;
 
 namespace FramePFX.Avalonia.Editing.Timelines.Selection;
 
@@ -58,7 +57,7 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
     private List<IClipElement>? batchClips_new;
 
     public TimelineClipSelectionManager(TimelineControl timeline) {
-        Validate.NotNull(timeline);
+        ArgumentNullException.ThrowIfNull(timeline);
         this.trackMap = timeline.TrackStorage?.ItemMap ?? throw new InvalidOperationException("Timeline control template not initialised");
         this.Timeline = timeline;
         this.selectedClipSet = new HashSet<IClipElement>();

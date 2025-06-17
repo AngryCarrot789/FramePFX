@@ -20,7 +20,6 @@
 using System.Diagnostics.CodeAnalysis;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Utils.BTE;
-using PFXToolKitUI.Utils;
 using PFXToolKitUI.Utils.Destroying;
 
 namespace FramePFX.Editing.ResourceManaging;
@@ -74,7 +73,7 @@ public class ResourceManager : IDestroy {
     public ResourceFolder CurrentFolder {
         get => this.currentFolder;
         set {
-            Validate.NotNull(value);
+            ArgumentNullException.ThrowIfNull(value);
             ResourceFolder oldFolder = this.currentFolder;
             if (oldFolder == value)
                 return;

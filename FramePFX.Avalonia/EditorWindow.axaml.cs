@@ -30,7 +30,6 @@ using Avalonia.Media.Immutable;
 using PFXToolKitUI.Avalonia.AvControls;
 using PFXToolKitUI.Avalonia.Interactivity;
 using PFXToolKitUI.Avalonia.Interactivity.Contexts;
-using PFXToolKitUI.Avalonia.Themes.Controls;
 using PFXToolKitUI.Avalonia.Utils;
 using FramePFX.Editing;
 using FramePFX.Editing.Rendering;
@@ -41,6 +40,7 @@ using FramePFX.Editing.UI;
 using FramePFX.PropertyEditing;
 using PFXToolKitUI;
 using PFXToolKitUI.AdvancedMenuService;
+using PFXToolKitUI.Avalonia.Services.Windowing;
 using PFXToolKitUI.Avalonia.Toolbars.Toolbars;
 using PFXToolKitUI.Icons;
 using PFXToolKitUI.Interactivity;
@@ -56,7 +56,7 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia;
 
-public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
+public partial class EditorWindow : DesktopWindow, ITopLevel, IVideoEditorWindow {
     public VideoEditor VideoEditor { get; }
 
     public VideoEditorPropertyEditor PropertyEditor { get; }

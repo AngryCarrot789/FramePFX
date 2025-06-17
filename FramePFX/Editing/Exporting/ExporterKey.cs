@@ -17,8 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using PFXToolKitUI.Utils;
-
 namespace FramePFX.Editing.Exporting;
 
 /// <summary>
@@ -40,7 +38,7 @@ public readonly struct ExporterKey : IEquatable<ExporterKey> {
     public static IEqualityComparer<ExporterKey> DefaultComparer { get; } = new UniqueIdDisplayNameEqualityComparer();
 
     public ExporterKey(string uniqueId, string? displayName = null) {
-        Validate.NotNullOrWhiteSpaces(uniqueId);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(uniqueId);
 
         this.UniqueId = uniqueId;
         this.DisplayName = displayName ?? uniqueId;

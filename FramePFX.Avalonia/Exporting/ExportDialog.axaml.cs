@@ -28,9 +28,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using PFXToolKitUI.Avalonia.Bindings;
-using PFXToolKitUI.Avalonia.Themes.Controls;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Timelines;
+using PFXToolKitUI.Avalonia.Services.Windowing;
 using PFXToolKitUI.Logging;
 using PFXToolKitUI.Services.Messaging;
 using PFXToolKitUI.Tasks;
@@ -38,7 +38,7 @@ using PFXToolKitUI.Utils;
 
 namespace FramePFX.Avalonia.Exporting;
 
-public partial class ExportDialog : WindowEx {
+public partial class ExportDialog : DesktopWindow {
     public static readonly DirectProperty<ExportDialog, bool> IsExportingProperty = AvaloniaProperty.RegisterDirect<ExportDialog, bool>(nameof(IsExporting), o => o.IsExporting);
 
     public bool IsExporting {
@@ -55,7 +55,7 @@ public partial class ExportDialog : WindowEx {
     private CancellationTokenSource? exportToken;
     
     public ExportDialog(ExportSetup setup) {
-        Validate.NotNull(setup);
+        ArgumentNullException.ThrowIfNull(setup);
 
         this.Setup = setup;
         this.InitializeComponent();

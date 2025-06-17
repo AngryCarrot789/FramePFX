@@ -18,11 +18,11 @@
 // 
 
 using Avalonia.Interactivity;
-using PFXToolKitUI.Avalonia.Themes.Controls;
+using PFXToolKitUI.Avalonia.Services.Windowing;
 
 namespace FramePFX.Avalonia.Services.Startups;
 
-public partial class StartupWindow : WindowEx {
+public partial class StartupWindow : DesktopWindow {
     private readonly StartupManagerFramePFX startupManager;
 
     public StartupWindow(StartupManagerFramePFX startupManager) {

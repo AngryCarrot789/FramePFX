@@ -18,7 +18,6 @@
 // 
 
 using FramePFX.Editing.Timelines;
-using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing.Exporting;
 
@@ -103,8 +102,8 @@ public sealed class ExportSetup {
     public event ExportSetupExporterChangedEventHandler? ExporterChanged;
 
     public ExportSetup(VideoEditor editor, Timeline timeline) {
-        Validate.NotNull(editor);
-        Validate.NotNull(timeline);
+        ArgumentNullException.ThrowIfNull(editor);
+        ArgumentNullException.ThrowIfNull(timeline);
         if (editor.Project == null)
             throw new InvalidOperationException("Editor has no projet");
         if (timeline.Project?.Editor != editor)

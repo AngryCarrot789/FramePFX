@@ -39,7 +39,7 @@ public class SimpleCommandToolBarButton : ToolBarButton {
 
     protected override async Task OnClickedAsync() {
         if (CommandManager.Instance.TryFindCommandById(this.CommandId, out Command? command)) {
-            await CommandManager.Instance.Execute(this.CommandId, command, this.ContextData, true);
+            await CommandManager.Instance.Execute(command, this.ContextData, true);
         }
     }
 }

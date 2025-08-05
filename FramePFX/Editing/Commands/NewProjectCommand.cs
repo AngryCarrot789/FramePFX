@@ -59,6 +59,6 @@ public class NewProjectCommand : Command {
             });
 
             progress.CompletionState.OnProgress(0.25);
-        }, new DefaultProgressTracker());
+        });
     }
 }

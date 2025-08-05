@@ -67,7 +67,7 @@ public class OpenProjectCommand : Command {
             }
 
             return false;
-        }, new DefaultProgressTracker());
+        });
     }
 
     public static async Task<bool> OpenProjectAtBGT(VideoEditor editor, string filePath, IActivityProgress? progress) {

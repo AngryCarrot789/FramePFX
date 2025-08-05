@@ -21,6 +21,7 @@ using PFXToolKitUI;
 using PFXToolKitUI.Persistence;
 using PFXToolKitUI.PropertyEditing.DataTransfer.Enums;
 using PFXToolKitUI.Themes;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Editing;
 
@@ -48,7 +49,7 @@ public class StartupConfigurationOptions : PersistentConfiguration {
 
     static StartupConfigurationOptions() {
         StartupBehaviourProperty.DescriptionLines.Add("This property defines what to do on application startup.");
-        StartupBehaviourProperty.DescriptionLines.Add("Applicable values: " + string.Join(", ", DataParameterEnumInfo<EnumStartupBehaviour>.EnumValues));
+        StartupBehaviourProperty.DescriptionLines.Add("Applicable values: " + string.Join(", ", EnumInfo<EnumStartupBehaviour>.EnumValues));
         StartupThemeProperty.DescriptionLines.Add("The theme the application loads with by default. If the theme does not exist at startup, 'Dark' will be used instead");
     }
 

@@ -501,7 +501,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     private void OnMouseWheel(ScrollViewer scroller, PointerWheelEventArgs e) {
         KeyModifiers mods = e.KeyModifiers;
         if ((mods & KeyModifiers.Alt) != 0) {
-            if (VisualTreeUtils.TryGetParent(e.Source as AvaloniaObject, out TimelineTrackControl? track)) {
+            TimelineTrackControl? track = VisualTreeUtils.FindLogicalParent<TimelineTrackControl>(e.Source as AvaloniaObject);
+            if (track != null) {
                 track.Track!.Height = Maths.Clamp(track.Track.Height + (e.Delta.Y / 120d * 8), TimelineClipControl.HeaderSize, 200d);
             }
 

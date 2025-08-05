@@ -615,7 +615,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
                 List<BaseResource> cloneList = new List<BaseResource>();
                 foreach (BaseResource layerInList in droppedItems) {
                     BaseResource clone = BaseResource.Clone(layerInList);
-                    if (!TextIncrement.GetIncrementableString((s => true), clone.DisplayName, out string? name, canAcceptInitialInput: false))
+                    if (!TextIncrement.GetIncrementableString(s => myParent.Items.All(x => x.DisplayName != s), clone.DisplayName, out string? name, false))
                         name = clone.DisplayName;
                     clone.DisplayName = name;
                     cloneList.Add(clone);

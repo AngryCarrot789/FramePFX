@@ -34,7 +34,7 @@ public class StartupPropEditorConfigurationPage : PropertyEditorConfigurationPag
     }
 
     static StartupPropEditorConfigurationPage() {
-        AffectsModifiedState(StartupBehaviourParameter, StartupThemeParameter);
+        AffectsIsModified(StartupBehaviourParameter, StartupThemeParameter);
     }
 
     protected override ValueTask OnContextCreated(ConfigurationContext context) {

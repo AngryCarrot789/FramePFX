@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -11,14 +11,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.1" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.1"/>
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.1"/>
-        <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.1"/>
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.1"/>
-        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.1"/>
+        <PackageReference Include="Avalonia" Version="11.3.2" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.2"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2"/>
+        <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.2"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.2"/>
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.2"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1"/>
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.2"/>
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0"/>
     </ItemGroup>
 
@@ -37,10 +37,6 @@
       <UpToDateCheckInput Remove="Shortcuts\Dialogs\KeyStrokeUserInputControl.axaml" />
       <UpToDateCheckInput Remove="Shortcuts\Dialogs\MouseStrokeUserInputControl.axaml" />
       <UpToDateCheckInput Remove="Shortcuts\Trees\ShortcutTreeThemes.axaml" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Windows\" />
     </ItemGroup>
 
 </Project>

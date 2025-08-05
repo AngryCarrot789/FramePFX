@@ -20,6 +20,7 @@
 using FFmpeg.AutoGen;
 using PFXToolKitUI.DataTransfer;
 using PFXToolKitUI.PropertyEditing.DataTransfer.Enums;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Plugins.FFmpegMedia.Exporter;
 
@@ -27,13 +28,13 @@ public class DataParameterAVCodecIDPropertyEditorSlot : DataParameterEnumPropert
     public static DataParameterEnumInfo<AVCodecID> CodedIdEnumInfo { get; }
 
     public DataParameterAVCodecIDPropertyEditorSlot(DataParameter<AVCodecID> parameter, Type applicableType, string displayName, IEnumerable<AVCodecID>? values = null, DataParameterEnumInfo<AVCodecID>? translationInfo = null) : base(parameter, applicableType, displayName, values, translationInfo) { }
-    public DataParameterAVCodecIDPropertyEditorSlot(DataParameter<AVCodecID> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", DataParameterEnumInfo<AVCodecID>.EnumValuesOrderedByName, CodedIdEnumInfo) { }
+    public DataParameterAVCodecIDPropertyEditorSlot(DataParameter<AVCodecID> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", EnumInfo<AVCodecID>.EnumValuesOrderedByName, CodedIdEnumInfo) { }
 
     static DataParameterAVCodecIDPropertyEditorSlot() {
         Dictionary<AVCodecID, string> coded2name = new Dictionary<AVCodecID, string>();
-        foreach (AVCodecID codec in DataParameterEnumInfo<AVCodecID>.EnumValues)
+        foreach (AVCodecID codec in EnumInfo<AVCodecID>.EnumValues)
             coded2name[codec] = codec.ToString().Substring(12);
 
-        CodedIdEnumInfo = DataParameterEnumInfo<AVCodecID>.FromAllowed(DataParameterEnumInfo<AVCodecID>.EnumValuesOrderedByName, coded2name);
+        CodedIdEnumInfo = DataParameterEnumInfo<AVCodecID>.FromAllowed(EnumInfo<AVCodecID>.EnumValuesOrderedByName, coded2name);
     }
 }

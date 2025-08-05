@@ -178,7 +178,7 @@ public class ResourceDropRegistry {
 
             if (dropType == EnumDropType.Copy) {
                 BaseResource clone = BaseResource.Clone(res);
-                if (!TextIncrement.GetIncrementableString((s => true), clone.DisplayName, out string? name, canAcceptInitialInput: false))
+                if (!TextIncrement.GetIncrementableString(s => destination.Items.All(x => x.DisplayName != s), clone.DisplayName, out string? name, false))
                     name = clone.DisplayName;
                 clone.DisplayName = name;
                 destination.AddItem(clone);

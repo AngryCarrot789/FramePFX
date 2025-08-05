@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Platforms>x64</Platforms>
@@ -12,32 +12,32 @@
 
     <ItemGroup>
         <!-- All of these references are already included in the main FramePFX application, so we do not export them into the build folder -->
-        <PackageReference Include="Avalonia" Version="11.3.1">
+        <PackageReference Include="Avalonia" Version="11.3.2">
             <Private>false</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.1">
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.2">
             <Private>false</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.1">
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2">
             <Private>false</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
-        <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.1">
+        <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.2">
             <Private>false</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.1">
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.2">
             <Private>false</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
-        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.1">
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.2">
             <Private>false</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1">
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.2">
             <Private>false</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>

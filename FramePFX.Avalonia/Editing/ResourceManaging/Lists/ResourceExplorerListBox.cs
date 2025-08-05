@@ -123,7 +123,8 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
                     this.SelectionManager.Clear();
                 }
 
-                if (!VisualTreeUtils.IsTemplatedItemOrDescended<ResourceExplorerListBoxItem>(e.Source as AvaloniaObject)) {
+                if (VisualTreeUtils.FindLogicalParent<ResourceExplorerListBoxItem>(e.Source as AvaloniaObject) == null) {
+                    // IsTemplatedItemOrDescended
                     this.Focus();
                 }
 

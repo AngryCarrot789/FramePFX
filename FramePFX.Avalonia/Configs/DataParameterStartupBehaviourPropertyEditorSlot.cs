@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using FramePFX.Editing;
 using PFXToolKitUI.DataTransfer;
 using PFXToolKitUI.PropertyEditing.DataTransfer.Enums;
+using PFXToolKitUI.Utils;
 
 namespace FramePFX.Avalonia.Configs;
 
 public class DataParameterStartupBehaviourPropertyEditorSlot : DataParameterEnumPropertyEditorSlot<EnumStartupBehaviour> {
     public static DataParameterEnumInfo<EnumStartupBehaviour> CodedIdEnumInfo { get; }
 
-    public DataParameterStartupBehaviourPropertyEditorSlot(DataParameter<EnumStartupBehaviour> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", DataParameterEnumInfo<EnumStartupBehaviour>.EnumValuesOrderedByName, CodedIdEnumInfo) { }
+    public DataParameterStartupBehaviourPropertyEditorSlot(DataParameter<EnumStartupBehaviour> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", EnumInfo<EnumStartupBehaviour>.EnumValuesOrderedByName, CodedIdEnumInfo) { }
 
     static DataParameterStartupBehaviourPropertyEditorSlot() {
         CodedIdEnumInfo = DataParameterEnumInfo<EnumStartupBehaviour>.All(new Dictionary<EnumStartupBehaviour, string> {

@@ -96,7 +96,7 @@ public class RenderManager {
         TimeSpan SlowRenderInterval = TimeSpan.FromMilliseconds(1000.0 / 30.0); // 30 FPS = 33.33333ms 
         this.slowRapidRenderDispatch = RateLimitedDispatchActionBase.ForDispatcherAsync(this.ScheduleRenderFromRLDA, SlowRenderInterval, DispatchPriority.Send);
 
-        this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, ApplicationPFX.Instance.Dispatcher, DispatchPriority.INTERNAL_BeforeRender);
+        this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, ApplicationPFX.Instance.Dispatcher, DispatchPriority.Normal);
         // this.renderThread = new Thread(this.RenderThreadMain);
     }
 

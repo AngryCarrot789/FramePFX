@@ -70,8 +70,8 @@ public partial class ExportProgressDialog : DesktopWindow, IExportProgress {
         this.currentRenderFrame = renderSpan.Begin;
         this.currentEncodeFrame = renderSpan.Begin;
         this.PART_FrameProgressText.Text = "0/" + (this.EndFrame - 1);
-        this.rapidUpdateRender = RapidDispatchActionEx.ForSync(this.UpdateRenderedFrame, DispatchPriority.INTERNAL_BeforeRender, "ExportUpdateRender");
-        this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() => this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage, DispatchPriority.INTERNAL_BeforeRender, "ExportUpdateEncode");
+        this.rapidUpdateRender = RapidDispatchActionEx.ForSync(this.UpdateRenderedFrame, DispatchPriority.Normal, "ExportUpdateRender");
+        this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() => this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage, DispatchPriority.Normal, "ExportUpdateEncode");
     }
 
     private void UpdateRenderedFrame() {

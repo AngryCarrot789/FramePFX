@@ -175,7 +175,7 @@ public class StartupManagerFramePFX : IStartupManager {
             return;
         }
         
-        await progress.ProgressAndSynchroniseAsync("Startup completed. Loading engine window...", 1.0);
+        await progress.ProgressAndWaitForRender("Startup completed. Loading engine window...", 1.0);
         if (WindowingSystem.TryGetInstance(out WindowingSystem? system)) {
             if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
                 (progress as AppSplashScreen)?.Close();

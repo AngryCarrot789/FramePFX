@@ -184,7 +184,7 @@ public class FramePFXApplication : AvaloniaApplicationPFX {
 
         FramePFXBrushLoader.Init();
         
-        await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.4);
+        await progress.ProgressAndWaitForRender("Loading Native Engine...", 0.4);
 
         try {
             PFXNative.InitialiseLibrary();
@@ -193,7 +193,7 @@ public class FramePFXApplication : AvaloniaApplicationPFX {
             await IMessageDialogService.Instance.ShowMessage("Native Engine Initialisation Failed", "Failed to initialise native engine", e.GetToString());
         }
 
-        await progress.ProgressAndSynchroniseAsync("Loading FFmpeg...", 0.75);
+        await progress.ProgressAndWaitForRender("Loading FFmpeg...", 0.75);
 
         // FramePFX is a small non-linear video editor, written in C# using Avalonia for the UI
         // but what if we don't
@@ -212,7 +212,7 @@ public class FramePFXApplication : AvaloniaApplicationPFX {
         }
 
         {
-            await progress.ProgressAndSynchroniseAsync("Checking native engine functionality", 0.95);
+            await progress.ProgressAndWaitForRender("Checking native engine functionality", 0.95);
 
             const ulong a = ulong.MaxValue;
             const ushort b = ushort.MaxValue;
@@ -266,7 +266,7 @@ public class FramePFXApplication : AvaloniaApplicationPFX {
     protected override async Task OnApplicationRunning(IApplicationStartupProgress progress, string[] envArgs) {
         if (this.Application.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             (progress as AppSplashScreen)?.Close();
-            await progress.ProgressAndSynchroniseAsync("Startup completed", 1.0);
+            await progress.ProgressAndWaitForRender("Startup completed", 1.0);
             await base.OnApplicationRunning(progress, envArgs);
             desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;
         }

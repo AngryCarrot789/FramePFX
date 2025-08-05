@@ -56,7 +56,7 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia;
 
-public partial class EditorWindow : DesktopWindow, ITopLevel, IVideoEditorWindow {
+public partial class EditorWindow : DesktopWindow, IDesktopWindow, IVideoEditorWindow {
     public VideoEditor VideoEditor { get; }
 
     public VideoEditorPropertyEditor PropertyEditor { get; }

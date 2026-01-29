@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2026-2026 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -39,7 +39,7 @@ public partial class App : Application {
         ApplicationPFX.InitializeInstance(new FramePFXApplication(this));
     }
 
-    public override async void OnFrameworkInitializationCompleted() {
+    public override void OnFrameworkInitializationCompleted() {
         base.OnFrameworkInitializationCompleted();
         AvUtils.OnFrameworkInitialised();
 
@@ -48,7 +48,6 @@ public partial class App : Application {
             desktop1.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             AppSplashScreen splashScreen = new AppSplashScreen();
             progress = splashScreen;
-            desktop1.MainWindow = splashScreen;
             splashScreen.Show();
         }
         else {
@@ -60,6 +59,6 @@ public partial class App : Application {
             Directory.SetCurrentDirectory(dir);
         }
         
-        await ApplicationPFX.InitializeApplication(progress, envArgs);
+        _ = ApplicationPFX.InitializeApplicationAsync(progress, envArgs);
     }
 }

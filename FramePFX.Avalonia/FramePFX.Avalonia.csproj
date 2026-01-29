@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -20,17 +20,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.2" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.2"/>
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2"/>
-        <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.2"/>
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.2"/>
-        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.2"/>
+        <PackageReference Include="Avalonia" Version="11.3.4" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.4"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.4"/>
+        <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.4"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.4"/>
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.4"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.2"/>
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.4"/>
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0"/>
 
-        <PackageReference Condition="$(DefineConstants.Contains(ENABLE_XAML_HOT_RELOAD))" Include="Avalonia.Markup.Xaml.Loader" Version="11.3.2"/>
+        <PackageReference Condition="$(DefineConstants.Contains(ENABLE_XAML_HOT_RELOAD))" Include="Avalonia.Markup.Xaml.Loader" Version="11.3.4"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -51,10 +51,6 @@
         <None Remove="Resources\Fonts\Oxanium\Oxanium-VariableFont_wght.ttf"/>
         <None Remove="Resources\Icons\paint-brush-icon.png"/>
         <None Remove="Resources\Icons\pencil-icon.png"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <AdditionalFiles Include="Services\Startups\StartupWindow.axaml"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -87,8 +83,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\FramePFX.BaseFrontEnd\FramePFX.BaseFrontEnd.csproj" />
-        <ProjectReference Include="..\FramePFX.Plugins.AnotherTestPlugin\FramePFX.Plugins.AnotherTestPlugin.csproj" />
-        <ProjectReference Include="..\FramePFX.Plugins.FFmpegMedia\FramePFX.Plugins.FFmpegMedia.csproj" />
+        <ProjectReference Include="..\FramePFX.FFmpeg\FramePFX.FFmpeg.csproj" />
+        <ProjectReference Include="..\FramePFX.NAudio\FramePFX.NAudio.csproj" />
         <ProjectReference Include="..\FramePFX\FramePFX.csproj" />
         <ProjectReference Include="..\PFXToolKitUI\PFXToolKitUI.Avalonia\PFXToolKitUI.Avalonia.csproj" />
     </ItemGroup>

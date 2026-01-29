@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2024-2024 REghZy
+// Copyright (c) 2026-2026 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -24,6 +24,8 @@ using SkiaSharp;
 namespace FramePFX;
 
 public static class AutomationIcons {
+    public const string Circle3x3 = "M 6.5 3.5 A 3 3 0 1 0 0.5 3.5 A 3 3 0 1 0 6.5 3.5 Z";
+    
     // We really shouldn't use icons to draw the little LEDs... but since I used MVVM to bind
     // an Ellipse's Fill property, and converters don't let you use dynamic resource... issues
     public static readonly Icon IconLED_Active = IconManager.Instance.RegisterEllipseIcon(

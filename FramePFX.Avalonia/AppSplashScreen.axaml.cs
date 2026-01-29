@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2026-2026 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,11 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using PFXToolKitUI;
+using PFXToolKitUI.Activities;
 using PFXToolKitUI.Logging;
-using PFXToolKitUI.Tasks;
 
 namespace FramePFX.Avalonia;
 
@@ -34,25 +35,23 @@ public partial class AppSplashScreen : Window, IApplicationStartupProgress {
             if (this.myActionText == value)
                 return;
 
-            ApplicationPFX.Instance.Dispatcher.Invoke(() => {
-                this.myActionText = value;
-                return this.PART_ActivityTextBlock.Text = value;
-            });
+            this.myActionText = value;
+            this.PART_ActivityTextBlock.Text = value;
         }
     }
 
     public CompletionState CompletionState { get; }
-    
+
     public AppSplashScreen() {
         this.InitializeComponent();
         this.CompletionState = new ConcurrentCompletionState(DispatchPriority.Normal);
         this.CompletionState.CompletionValueChanged += this.CompletionStateOnCompletionValueChanged;
     }
 
-    private void CompletionStateOnCompletionValueChanged(CompletionState state) {
+    private void CompletionStateOnCompletionValueChanged(object? sender, EventArgs e) {
         this.PART_ProgressBar.Value = this.CompletionState.TotalCompletion;
     }
-    
+
     public Task ProgressAndWaitForRender(string? action, double? newProgress) {
         if (action != null)
             this.ActionText = action;

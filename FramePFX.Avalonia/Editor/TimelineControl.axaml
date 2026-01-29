@@ -1,0 +1,65 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ee="clr-namespace:FramePFX.Avalonia.Editor"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FramePFX.Avalonia.Editor.TimelineControl"
+             Background="{DynamicResource ABrush.Tone0.Background.Static}">
+    <Grid ColumnDefinitions="200,1,*" RowDefinitions="38,1,*,Auto">
+        <ee:TrackSettingsListBox x:Name="PART_TrackSettingsListBox"
+                                 Grid.Column="0" Grid.Row="2" Grid.RowSpan="2"
+                                 BorderThickness="0"
+                                 Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Visible">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" Spacing="1" Background="{DynamicResource ABrush.Tone2.Background.Static}"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemContainerTheme>
+                <ControlTheme TargetType="{x:Type ee:TrackSettingsListBoxItem}" BasedOn="{StaticResource {x:Type ListBox}}">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
+                    <Setter Property="BorderThickness" Value="0,0,0,0"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
+                    <Setter Property="Template">
+                        <ControlTemplate TargetType="{x:Type ee:TrackSettingsListBoxItem}">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                <Grid>
+                                    <TextBlock x:Name="PART_TrackNameTextBlock" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="4,2"/>
+                                </Grid>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter>
+                </ControlTheme>
+            </ListBox.ItemContainerTheme>
+        </ee:TrackSettingsListBox>
+
+        <!-- Horizontal scrolling is disabled, because we use a completely custom implementation, since we require zooming -->
+        <ScrollViewer x:Name="PART_ScrollViewer" Grid.Column="2" Grid.Row="2"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Visible">
+            <ee:TimelineTrackPanel x:Name="PART_TrackPanel" Background="Transparent"/>
+        </ScrollViewer>
+
+        <ScrollBar x:Name="PART_HorizontalScrollBar" Grid.Column="2" Grid.Row="3"
+                   Orientation="Horizontal"
+                   Minimum="0"
+                   ViewportSize="{Binding ElementName=PART_ScrollViewer, Path=Bounds.Width}"/>
+
+        <Grid Grid.Column="0" Grid.Row="0" Background="{DynamicResource ABrush.Tone4.Background.Static}">
+            <TextBlock x:Name="PART_PlayHeadLocationTextBlock" VerticalAlignment="Center" HorizontalAlignment="Left" Padding="5,2"/>
+        </Grid>
+
+        <Grid Grid.Column="2" Grid.Row="0" Background="{DynamicResource ABrush.Tone2.Background.Static}">
+            <ee:TimelineRuler x:Name="PART_Ruler"/>
+        </Grid>
+
+        <ee:PlayHeadRenderSurface x:Name="PART_PlayHeadRenderSurface" Grid.Column="2" Grid.Row="0" Grid.RowSpan="3"/>
+
+        <GridSplitter Grid.Column="1" Grid.Row="2" Background="Transparent" Margin="-4,0"/>
+    </Grid>
+</UserControl>

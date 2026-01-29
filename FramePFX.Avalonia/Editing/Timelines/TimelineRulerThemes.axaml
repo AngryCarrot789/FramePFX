@@ -1,9 +1,0 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:t="clr-namespace:FramePFX.Avalonia.Editing.Timelines">
-    <ControlTheme x:Key="{x:Type t:TimelineRuler}" TargetType="{x:Type t:TimelineRuler}">
-        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
-        <Setter Property="MajorStepColour" Value="{DynamicResource ABrush.Tone8.Border.Disabled}"/>
-        <Setter Property="MinorStepColour" Value="{DynamicResource ABrush.Tone5.Border.Disabled}"/>
-    </ControlTheme>
-</ResourceDictionary>

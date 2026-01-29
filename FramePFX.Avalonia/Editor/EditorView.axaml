@@ -1,0 +1,19 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:editor="clr-namespace:FramePFX.Avalonia.Editor"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FramePFX.Avalonia.Editor.EditorView"
+             FontFamily="{StaticResource FontOxanium}">
+    <Grid RowDefinitions="*,1,*">
+        <Grid Grid.Row="0">
+            
+        </Grid>
+        <Grid Grid.Row="2">
+            <editor:TimelineControl x:Name="PART_Timeline"/>
+        </Grid>
+        
+        <Border Background="{DynamicResource PanelBorderBrush}" Grid.Row="1"/>
+    </Grid>
+</UserControl>

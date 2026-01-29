@@ -1,5 +1,5 @@
 ﻿// 
-// Copyright (c) 2024-2024 REghZy
+// Copyright (c) 2026-2026 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -61,6 +61,5 @@ class Program {
         => AppBuilder.Configure<App>().
                       UsePlatformDetect().
                       WithInterFont().
-                      With(new Win32PlatformOptions() { CompositionMode = [Win32CompositionMode.LowLatencyDxgiSwapChain], RenderingMode = [Win32RenderingMode.AngleEgl] }).
                       LogToTrace();
 }

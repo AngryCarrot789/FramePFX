@@ -41,7 +41,7 @@ This is the order of API methods that are called into a plugin:
 
 - `OnCreated`: Invoked just after the constructor is invoked and the properties (Descriptor, PluginLoader and folder) are set.
 - `RegisterCommands`: Register your commands here.
-- `RegisterServices`: Register your services here
+- `RegisterComponents`: Register your services here
 - `RegisterConfigurations`: Register your persistent configs
 - `GetXamlResources`: Add the path of your .axaml files (relative to your plugin project) that should be loaded and added to the application's `MergedDictionaries` list
 - `OnApplicationLoaded`: Invoked once all application states are ready. No editor window will be open at this point.

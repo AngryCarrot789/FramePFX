@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -13,13 +13,10 @@
     <ItemGroup>
         <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
         <PackageReference Include="Fractions" Version="8.3.2" />
-        <PackageReference Include="SkiaSharp" Version="3.119.0-preview.1.2" />
+        <PackageReference Include="Rationals" Version="2.3.0" />
+        <PackageReference Include="SkiaSharp" Version="3.119.2-preview.1" />
         <PackageReference Include="System.Buffers" Version="4.6.0"/>
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Services\"/>
     </ItemGroup>
 
     <ItemGroup>

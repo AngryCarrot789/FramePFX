@@ -1,13 +1,11 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:e="clr-namespace:FramePFX.Avalonia.Editing"
-             xmlns:av="clr-namespace:PFXToolKitUI.Avalonia.AvControls;assembly=PFXToolKitUI.Avalonia"
              x:Class="FramePFX.Avalonia.App"
              RequestedThemeVariant="Dark">
     <Application.Styles>
         <SimpleTheme/>
         <StyleInclude Source="avares://PFXToolKitUI.Avalonia/Themes/Controls.axaml"/>
-        <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Simple/Simple.xaml"/>
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Simple/AvaloniaEdit.xaml" />
     </Application.Styles>
     <Application.Resources>
         <ResourceDictionary>
@@ -30,6 +28,7 @@
 
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/AvControls/ControlStyles.axaml"/>
+                <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/Interactivity/Windowing/Overlays/Impl/OverlayWindowStyles.axaml"/>
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/AvControls/Dragger/NumberDraggerStyles.axaml"/>
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/Shortcuts/Trees/ShortcutTreeThemes.axaml"/>
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/PropertyEditing/PropertyEditorGridStyles.axaml"/>
@@ -39,58 +38,7 @@
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/Themes/Configurations/ThemeConfigTreeThemes.axaml"/>
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/Activities/ActivityControlStyles.axaml"/>
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/Notifications/NotificationStyles.axaml"/>
-                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Editing/GeneralControlStyles.axaml"/>
-                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/PropertyEditing/PropertyEditorSlotContentStyles.axaml"/>
-                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Configurations/ConfigurationPageStyles.axaml"/>
-                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/ResourceManaging/Autoloading/InvalidResourceEntryThemes.axaml"/>
-                <MergeResourceInclude Source="/Editing/Playheads/PlayHeadThemes.axaml"/>
-                <MergeResourceInclude Source="/Editing/Automation/AutomationSequenceEditorThemes.axaml"/>
-                <MergeResourceInclude Source="/Editing/Timelines/TimelineRulerThemes.axaml"/>
-                <MergeResourceInclude Source="/Editing/Timelines/TrackSurfaces/TrackControlSurfaceThemes.axaml"/>
-                <MergeResourceInclude Source="/Editing/Timelines/TimelineThemes.axaml"/>
-                <MergeResourceInclude Source="/Editing/ResourceManaging/Trees/ResourceTreeThemes.axaml"/>
-                <MergeResourceInclude Source="/Editing/ResourceManaging/Lists/ResourceListThemes.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-
-        <ControlTheme x:Key="{x:Type e:VideoEditorViewPortControl}" TargetType="{x:Type e:VideoEditorViewPortControl}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Button.Static.Border}"/>
-            <Setter Property="Foreground" Value="{DynamicResource Button.Static.Foreground}"/>
-            <Setter Property="UseLayoutRounding" Value="False"/>
-            <Setter Property="PanToCursorOnUserZoom" Value="True"/>
-            <Setter Property="Template">
-                <ControlTemplate TargetType="{x:Type e:VideoEditorViewPortControl}">
-                    <Grid>
-                        <av:FreeMoveViewPortV2 x:Name="PART_FreeMoveViewPort"
-                                               UseLayoutRounding="False"
-                                               PanToCursorOnUserZoom="{TemplateBinding PanToCursorOnUserZoom}"
-                                               HorizontalAlignment="Stretch"
-                                               VerticalAlignment="Stretch"
-                                               Margin="{TemplateBinding BorderThickness}">
-                            <av:TransformationContainer x:Name="PART_CanvasContainer" UseLayoutRounding="False">
-                                <av:SKAsyncViewPort x:Name="PART_SkiaViewPort" UseLayoutRounding="False"/>
-                            </av:TransformationContainer>
-                        </av:FreeMoveViewPortV2>
-                        <!-- Setting background to null should disable hit-testing but I set the property just to be double sure -->
-                        <Border Background="{x:Null}" IsHitTestVisible="False"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"/>
-                    </Grid>
-                </ControlTemplate>
-            </Setter>
-            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Background" Value="{DynamicResource Button.MouseOver.Background}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource Button.MouseOver.Border}"/>
-            </Style>
-            <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Background" Value="{DynamicResource Button.Pressed.Background}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource Button.Pressed.Border}"/>
-            </Style>
-            <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Background" Value="{DynamicResource Button.Disabled.Background}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource Button.Disabled.Border}"/>
-            </Style>
-        </ControlTheme>
     </Application.Resources>
 </Application>

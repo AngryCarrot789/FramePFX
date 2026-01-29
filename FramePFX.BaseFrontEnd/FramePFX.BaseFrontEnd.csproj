@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -11,25 +11,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.2" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.2"/>
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2"/>
-        <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.2"/>
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.2"/>
-        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.2"/>
+        <PackageReference Include="Avalonia" Version="11.3.4" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.4"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.4"/>
+        <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.4"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.4"/>
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.4"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.2"/>
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.4"/>
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\FramePFX\FramePFX.csproj"/>
         <ProjectReference Include="..\PFXToolKitUI\PFXToolKitUI.Avalonia\PFXToolKitUI.Avalonia.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <AdditionalFiles Include="ResourceManaging\Autoloading\InvalidResourceEntryThemes.axaml"/>
-        <AdditionalFiles Include="ResourceManaging\Autoloading\ResourceLoaderDialog.axaml"/>
     </ItemGroup>
 
     <ItemGroup>

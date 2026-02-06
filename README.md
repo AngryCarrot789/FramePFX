@@ -2,6 +2,9 @@
 
 FramePFX is an open source, non-linear video editor, written in C# using Avalonia for the UI.
 
+## Remake
+I am currently working on a complete remake (in the remake branch). The main differences being a new audio engine, audio driven playback rather than by video, and TimeSpan based positioning rather than by frame.
+
 # Docs
 
 Here are some links to the documentation files, if you want to learn more about the frontend and backend

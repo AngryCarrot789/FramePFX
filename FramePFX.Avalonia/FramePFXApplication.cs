@@ -18,6 +18,7 @@
 // 
 
 using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -168,12 +169,14 @@ public class FramePFXStartupManager : IStartupManager {
         
         vTrack1.AddClip(new ShapeVideoClip() {
             Span = ClipSpan.FromDuration(0, TimeSpan.FromSeconds(1)),
-            DisplayName = "My clip 1"
+            DisplayName = "My clip 1",
+            Width = 300, Height = 300, MediaPosition = new Vector2(200, 200)
         });
         
         vTrack2.AddClip(new ShapeVideoClip() {
             Span = ClipSpan.FromDuration(TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(3)),
-            DisplayName = "My clip 2"
+            DisplayName = "My clip 2",
+            Width = 600, Height = 100, MediaPosition = new Vector2(300, 100)
         });
         
         aTrack1.AddClip(new BlankAudioClip() {

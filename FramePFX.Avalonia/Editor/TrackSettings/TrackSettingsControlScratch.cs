@@ -17,8 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editing.Scratch;
+namespace FramePFX.Avalonia.Editor.TrackSettings;
 
-public sealed class ScratchTrack : Track {
-    internal override ClipType InternalAcceptedClipType => ClipType.Scratch;
+public class TrackSettingsControlScratch : TrackSettingsControl {
+    
 }

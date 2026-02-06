@@ -19,6 +19,7 @@
 
 using System.Runtime.CompilerServices;
 using PFXToolKitUI.Composition;
+using PFXToolKitUI.DataTransfer;
 using PFXToolKitUI.Utils.Events;
 using SkiaSharp;
 
@@ -27,7 +28,7 @@ namespace FramePFX.Editing;
 /// <summary>
 /// The base class for a track
 /// </summary>
-public abstract class Track : IComponentManager {
+public abstract class Track : IComponentManager, ITransferableData {
     private readonly ClipList clips;
     private readonly HashSet<Clip> clipSet;
 
@@ -38,12 +39,7 @@ public abstract class Track : IComponentManager {
     /// </summary>
     public Timeline? Timeline {
         get => field;
-        internal set {
-            PropertyHelper.SetAndRaiseINE(ref field, value, this, static (track, oldTimeline, newTimeline) => {
-                track.OnTimelineChanged(oldTimeline, newTimeline);
-                track.Project = newTimeline?.Project;
-            });
-        }
+        internal set => PropertyHelper.SetAndRaiseINE(ref field, value, this, static (t, o, n) => t.OnTimelineChanged(o, n));
     }
 
     /// <summary>
@@ -65,10 +61,7 @@ public abstract class Track : IComponentManager {
     /// <summary>
     /// Gets the project associated with this track
     /// </summary>
-    public Project? Project {
-        get => field;
-        internal set => PropertyHelper.SetAndRaiseINE(ref field, value, this, this.ProjectChanged);
-    }
+    public Project? Project => this.Timeline?.Project;
 
     /// <summary>
     /// Gets an enumerable of clips
@@ -78,10 +71,13 @@ public abstract class Track : IComponentManager {
     /// <summary>
     /// Gets the type of clip allowed in this track
     /// </summary>
-    public abstract ClipType AcceptedClipType { get; }
+    public ClipType AcceptedClipType => this.InternalAcceptedClipType;
+    
+    internal abstract ClipType InternalAcceptedClipType { get; }
+    
+    public TransferableData TransferableData => field ??= new TransferableData(this);
 
     public event EventHandler<ValueChangedEventArgs<Timeline?>>? TimelineChanged;
-    public event EventHandler<ValueChangedEventArgs<Project?>>? ProjectChanged;
     public event EventHandler? DisplayNameChanged;
     public event EventHandler? ColourChanged;
 
@@ -134,7 +130,7 @@ public abstract class Track : IComponentManager {
         return this.clips.Contains(clip);
     }
 
-    public Clip? GetPrimaryClipAt(long frame) {
+    public Clip? GetPrimaryClipAt(TimeSpan frame) {
         return this.clips.GetPrimaryClipAt(frame);
     }
 
@@ -216,14 +212,14 @@ public class ClipList {
         this.Map = new SortedList<long, Section>();
     }
 
-    public Clip? GetPrimaryClipAt(long frame) {
-        if (!this.Map.TryGetValue(GetIndex(frame), out Section? list)) {
+    public Clip? GetPrimaryClipAt(TimeSpan location) {
+        if (!this.Map.TryGetValue(GetIndex(location.Ticks), out Section? list)) {
             return null;
         }
 
         for (int i = list.size - 1; i >= 0; i--) {
             Clip clip = list.items[i];
-            if (clip.IsPointInRange(frame)) {
+            if (clip.IsPointInRange(location.Ticks)) {
                 return clip;
             }
         }

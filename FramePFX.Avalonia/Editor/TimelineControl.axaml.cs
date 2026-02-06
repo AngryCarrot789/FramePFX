@@ -27,7 +27,6 @@ using Avalonia.Interactivity;
 using FramePFX.Editing;
 using FramePFX.Editing.ViewStates;
 using PFXToolKitUI.Avalonia.Bindings;
-using PFXToolKitUI.Avalonia.Interactivity.SelectingEx;
 using PFXToolKitUI.Avalonia.Utils;
 using PFXToolKitUI.Utils.Events;
 using PFXToolKitUI.Utils.Reactive;

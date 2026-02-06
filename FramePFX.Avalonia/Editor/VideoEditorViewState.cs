@@ -17,8 +17,20 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editing.Scratch;
+using FramePFX.Editing;
+using PFXToolKitUI.Interactivity.Windowing;
 
-public sealed class ScratchTrack : Track {
-    internal override ClipType InternalAcceptedClipType => ClipType.Scratch;
+namespace FramePFX.Avalonia.Editor;
+
+public sealed class VideoEditorViewState {
+    public VideoEditor VideoEditor { get; }
+    
+    public TopLevelIdentifier TopLevelIdentifier { get; }
+
+    private VideoEditorViewState(VideoEditor videoEditor, TopLevelIdentifier topLevelIdentifier) {
+        this.VideoEditor = videoEditor;
+        this.TopLevelIdentifier = topLevelIdentifier;
+    }
+    
+    public static VideoEditorViewState GetInstance(VideoEditor editor, TopLevelIdentifier topLevel) => TopLevelDataMap.GetInstance(editor).GetOrCreate(topLevel, editor, (t, i) => new VideoEditorViewState((VideoEditor) t!, i));
 }

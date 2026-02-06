@@ -2,7 +2,28 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:av="clr-namespace:PFXToolKitUI.Avalonia.AvControls;assembly=PFXToolKitUI.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="FramePFX.Avalonia.Editor.ViewportControl">
-    Welcome to Avalonia!
+             x:Class="FramePFX.Avalonia.Editor.ViewportControl"
+             Background="Transparent"
+             BorderBrush="{DynamicResource Button.Static.Border}"
+             Foreground="{DynamicResource Button.Static.Foreground}"
+             UseLayoutRounding="False"
+             PanToCursorOnUserZoom="True">
+    <Grid>
+        <av:FreeMoveViewPortV2 x:Name="PART_FreeMoveViewPort"
+                               UseLayoutRounding="False"
+                               PanToCursorOnUserZoom="{Binding PanToCursorOnUserZoom, RelativeSource={RelativeSource Self}}"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Stretch"
+                               Margin="{Binding BorderThickness, RelativeSource={RelativeSource Self}}">
+            <av:TransformationContainer x:Name="PART_CanvasContainer" UseLayoutRounding="False">
+                <av:SKAsyncViewPort x:Name="PART_SkiaViewPort" UseLayoutRounding="False"/>
+            </av:TransformationContainer>
+        </av:FreeMoveViewPortV2>
+        <!-- Setting background to null should disable hit-testing but I set the property just to be double sure -->
+        <Border Background="{x:Null}" IsHitTestVisible="False"
+                BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource Self}}"
+                BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource Self}}"/>
+    </Grid>
 </UserControl>

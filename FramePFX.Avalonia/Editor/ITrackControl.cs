@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Editing;
 using FramePFX.Editing.ViewStates;
 
 namespace FramePFX.Avalonia.Editor;

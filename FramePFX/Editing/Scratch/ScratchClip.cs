@@ -20,10 +20,7 @@
 namespace FramePFX.Editing.Scratch;
 
 public abstract class ScratchClip : Clip {
-    /// <summary>
-    /// Returns <see cref="Editing.ClipType.Scratch"/>
-    /// </summary>
-    public sealed override ClipType ClipType => ClipType.Scratch;
+    internal sealed override ClipType InternalClipType => ClipType.Scratch;
 
     protected ScratchClip() {
     }

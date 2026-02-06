@@ -32,6 +32,9 @@ public sealed class TrackViewState {
     /// </summary>
     public Track Track { get; }
 
+    /// <summary>
+    /// Gets the top level that this track view state is associated with
+    /// </summary>
     public TopLevelIdentifier TopLevelIdentifier { get; }
 
     /// <summary>

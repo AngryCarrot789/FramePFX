@@ -27,10 +27,12 @@ using Avalonia.Media.Immutable;
 using FramePFX.Editing;
 using FramePFX.Editing.ViewStates;
 using PFXToolKitUI;
+using PFXToolKitUI.Avalonia.Converters;
 using PFXToolKitUI.Avalonia.Themes.BrushFactories;
 using PFXToolKitUI.Themes;
 using PFXToolKitUI.Utils.Destroying;
 using PFXToolKitUI.Utils.Events;
+using SkiaSharp;
 
 namespace FramePFX.Avalonia.Editor;
 
@@ -39,8 +41,10 @@ namespace FramePFX.Avalonia.Editor;
 /// </summary>
 public sealed class TrackRenderSurface : Control, ITrackRenderSurface, ITrackControl {
     private static readonly DynamicAvaloniaColourBrush s_ClipBackgroundBrush = (DynamicAvaloniaColourBrush) BrushManager.Instance.GetDynamicThemeBrush("ABrush.Tone3.Background.Static");
-    private static readonly DynamicAvaloniaColourBrush s_ClipHeaderForegroundBrush = (DynamicAvaloniaColourBrush) BrushManager.Instance.GetDynamicThemeBrush("ABrush.Foreground.Static");
-    private static readonly List<Clip> s_TmpRenderList = new List<Clip>(1024);
+    // private static readonly DynamicAvaloniaColourBrush s_ClipHeaderForegroundBrush = (DynamicAvaloniaColourBrush) BrushManager.Instance.GetDynamicThemeBrush("ABrush.Foreground.Static");
+    
+    private const int RenderListDefaultCapacity = 1024;
+    private static readonly List<Clip> s_TmpRenderList = new List<Clip>(RenderListDefaultCapacity);
 
     /// <summary>
     /// </summary>
@@ -51,7 +55,7 @@ public sealed class TrackRenderSurface : Control, ITrackRenderSurface, ITrackCon
     private readonly ModelControlMap<Clip, ClipControl> visualClipInfo;
     private TrackViewState? viewState;
     private IDisposable? myClipBackgroundSubscription;
-    private IDisposable? myClipHeaderForegroundSubscription;
+    // private IDisposable? myClipHeaderForegroundSubscription;
     private ImmutablePen? defaultClipPen, selectedClipPen;
 
     public TrackViewState? Track {
@@ -62,10 +66,13 @@ public sealed class TrackRenderSurface : Control, ITrackRenderSurface, ITrackCon
     TrackViewState ITrackRenderSurface.Track => this.Track ?? throw new InvalidOperationException($"Attempt to use {nameof(ITrackRenderSurface)} incorrectly");
 
     TrackViewState ITrackControl.Track => this.Track ?? throw new InvalidOperationException($"Attempt to use {nameof(ITrackControl)} incorrectly");
-    
+
     public IBrush ClipBackground { get; private set; } = Brushes.Transparent;
-    public IBrush ClipHeaderForeground { get; private set; } = Brushes.Black;
-    public IBrush ClipHeaderBackground { get; private set; } = Brushes.Transparent;
+    public IBrush ClipHeaderForeground { get; } = new SolidColorBrush(0);
+    public IBrush ClipHeaderBackground { get; } = new LinearGradientBrush() {
+        StartPoint = new RelativePoint(new Point(0, 0), RelativeUnit.Relative),
+        EndPoint = new RelativePoint(new Point(1, 0), RelativeUnit.Relative)
+    };
 
     public TimelineTrackControl OwnerTrack { get; internal set; } = null!;
 
@@ -85,6 +92,21 @@ public sealed class TrackRenderSurface : Control, ITrackRenderSurface, ITrackCon
         this.UseLayoutRounding = true;
     }
 
+    static TrackRenderSurface() {
+        IDispatcherTimer cleanupTimer = ApplicationPFX.Instance.Dispatcher.CreateTimer(DispatchPriority.Normal);
+        cleanupTimer.Interval = TimeSpan.FromMinutes(1);
+        cleanupTimer.Tick += (s, e) => {
+            // If the capacity is larger than the default, then down-size.
+            // s_TmpRenderList.Count should be 0, unless ClipControl.Render uses Dispatcher.Invoke
+            // on a lower priority than normal. However, AFAIK the render phase disables use of synchronous invoke
+            // so we should be safe. But still, better to check just in case.
+            if (s_TmpRenderList.Capacity > RenderListDefaultCapacity && s_TmpRenderList.Count < RenderListDefaultCapacity)
+                s_TmpRenderList.Capacity = RenderListDefaultCapacity;
+        };
+
+        cleanupTimer.Start();
+    }
+
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e) {
         base.OnAttachedToVisualTree(e);
         this.myClipBackgroundSubscription = s_ClipBackgroundBrush.Subscribe(static (b, s) => {
@@ -93,17 +115,17 @@ public sealed class TrackRenderSurface : Control, ITrackRenderSurface, ITrackCon
             trs.ClipBackground = b.CurrentBrush ?? Brushes.Transparent;
         }, this);
 
-        this.myClipHeaderForegroundSubscription = s_ClipHeaderForegroundBrush.Subscribe(static (b, s) => {
-            TrackRenderSurface trs = ((TrackRenderSurface) s!);
-            trs.InvalidateVisual();
-            trs.ClipHeaderForeground = b.CurrentBrush ?? Brushes.Transparent;
-        }, this);
+        // this.myClipHeaderForegroundSubscription = s_ClipHeaderForegroundBrush.Subscribe(static (b, s) => {
+        //     TrackRenderSurface trs = ((TrackRenderSurface) s!);
+        //     trs.InvalidateVisual();
+        //     trs.ClipHeaderForeground = b.CurrentBrush ?? Brushes.Transparent;
+        // }, this);
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e) {
         base.OnDetachedFromVisualTree(e);
         DisposableUtils.Dispose(ref this.myClipBackgroundSubscription);
-        DisposableUtils.Dispose(ref this.myClipHeaderForegroundSubscription);
+        // DisposableUtils.Dispose(ref this.myClipHeaderForegroundSubscription);
     }
 
     private void OnTrackChanged(TrackViewState? oldTrack, TrackViewState? newTrack) {
@@ -127,7 +149,19 @@ public sealed class TrackRenderSurface : Control, ITrackRenderSurface, ITrackCon
     }
 
     private void OnTrackColourChanged(Track track) {
-        this.ClipHeaderBackground = new ImmutableSolidColorBrush((uint) track.Colour);
+        // this.ClipHeaderBackground = new ImmutableSolidColorBrush((uint) track.Colour);
+        
+        SKColor col = track.Colour;
+        LinearGradientBrush brush = (LinearGradientBrush) this.ClipHeaderBackground;
+        const byte sub = 80; // 40
+        Color primary = Color.FromArgb(col.Alpha, col.Red, col.Green, col.Blue);
+        Color secondary = Color.FromArgb(col.Alpha, (byte) Math.Max(col.Red - sub, 0), (byte) Math.Max(col.Green - sub, 0), (byte) Math.Max(col.Blue - sub, 0));
+
+        brush.GradientStops.Clear();
+        brush.GradientStops.Add(new GradientStop(primary, 0.0));
+        brush.GradientStops.Add(new GradientStop(secondary, 1.0));
+        
+        ((SolidColorBrush) this.ClipHeaderForeground).Color = PerceivedForegroundConverter.GetColour(primary);
         this.InvalidateVisual();
     }
 

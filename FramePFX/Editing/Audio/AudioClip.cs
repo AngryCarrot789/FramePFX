@@ -20,10 +20,7 @@
 namespace FramePFX.Editing.Audio;
 
 public abstract class AudioClip : Clip {
-    /// <summary>
-    /// Returns <see cref="Editing.ClipType.Audio"/>
-    /// </summary>
-    public sealed override ClipType ClipType => ClipType.Audio;
+    internal sealed override ClipType InternalClipType => ClipType.Audio;
 
     protected AudioClip() {
     }

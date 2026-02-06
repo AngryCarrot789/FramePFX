@@ -22,10 +22,7 @@ namespace FramePFX.Editing.Audio;
 public sealed class AudioTrack : Track {
     private readonly List<Clip> tmpList2 = new List<Clip>(2);
     
-    /// <summary>
-    /// Returns <see cref="Editing.ClipType.Audio"/>
-    /// </summary>
-    public override ClipType AcceptedClipType => ClipType.Audio;
+    internal override ClipType InternalAcceptedClipType => ClipType.Audio;
 
     public int Produce(long timelineLocation, Span<float> dstSamples, int sampleRate) {
         int count = 0;

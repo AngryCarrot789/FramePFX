@@ -38,6 +38,7 @@
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/Themes/Configurations/ThemeConfigTreeThemes.axaml"/>
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/Activities/ActivityControlStyles.axaml"/>
                 <ResourceInclude Source="avares://PFXToolKitUI.Avalonia/Notifications/NotificationStyles.axaml"/>
+                <ResourceInclude Source="Editor/TrackSettings/TrackSettingsControlStyles.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

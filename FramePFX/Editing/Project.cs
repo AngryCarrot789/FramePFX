@@ -47,7 +47,9 @@ public sealed class Project {
         get => field;
         set => PropertyHelper.SetAndRaiseINE(ref field, value, this, this.FrameRateChanged);
     } = new Rational(new BigInteger(60), new BigInteger(1));
-    
+
+    public ProjectSettings Settings { get; }
+
     /// <summary>
     /// Gets the main timeline associated with this project
     /// </summary>
@@ -58,6 +60,7 @@ public sealed class Project {
     public event EventHandler? FrameRateChanged;
 
     public Project() {
+        this.Settings = new ProjectSettings(this);
         this.MainTimeline = new Timeline() { Project = this };
     }
 }

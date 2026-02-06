@@ -3,40 +3,56 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ee="clr-namespace:FramePFX.Avalonia.Editor"
+             xmlns:ts="clr-namespace:FramePFX.Avalonia.Editor.TrackSettings"
+             xmlns:converters="clr-namespace:PFXToolKitUI.Avalonia.Converters;assembly=PFXToolKitUI.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FramePFX.Avalonia.Editor.TimelineControl"
              Background="{DynamicResource ABrush.Tone0.Background.Static}">
     <Grid ColumnDefinitions="200,1,*" RowDefinitions="38,1,*,Auto">
-        <ee:TrackSettingsListBox x:Name="PART_TrackSettingsListBox"
-                                 Grid.Column="0" Grid.Row="2" Grid.RowSpan="2"
-                                 BorderThickness="0"
-                                 Background="{DynamicResource ABrush.Tone3.Background.Static}"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Visible">
+        <ts:TrackSettingsListBox x:Name="PART_TrackSettingsListBox"
+                                            Grid.Column="0" Grid.Row="2" Grid.RowSpan="2"
+                                            BorderThickness="0"
+                                            Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Visible">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Vertical" Spacing="1" Background="{DynamicResource ABrush.Tone2.Background.Static}"/>
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
             <ListBox.ItemContainerTheme>
-                <ControlTheme TargetType="{x:Type ee:TrackSettingsListBoxItem}" BasedOn="{StaticResource {x:Type ListBox}}">
+                <ControlTheme TargetType="{x:Type ts:TrackSettingsListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
                     <Setter Property="Padding" Value="0"/>
                     <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
                     <Setter Property="BorderThickness" Value="0,0,0,0"/>
                     <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
                     <Setter Property="Template">
-                        <ControlTemplate TargetType="{x:Type ee:TrackSettingsListBoxItem}">
-                            <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}">
-                                <Grid>
-                                    <TextBlock x:Name="PART_TrackNameTextBlock" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="4,2"/>
-                                </Grid>
-                            </Border>
+                        <ControlTemplate TargetType="{x:Type ts:TrackSettingsListBoxItem}">
+                            <DockPanel Background="Transparent">
+                                <Border x:Name="PART_TrackColourStrip" Background="Black" DockPanel.Dock="Left" Width="20">
+                                    <DockPanel LastChildFill="False">
+                                        <Button Background="Transparent" BorderThickness="0" Height="20" DockPanel.Dock="Top" Content="A"
+                                                Foreground="{Binding ElementName=PART_TrackColourStrip, Path=Background, Converter={x:Static converters:PerceivedForegroundConverter.Instance}}"/>
+                                        
+                                        <Button Background="Transparent" BorderThickness="0" Height="20" DockPanel.Dock="Bottom" Content="B"
+                                                Foreground="{Binding ElementName=PART_TrackColourStrip, Path=Background, Converter={x:Static converters:PerceivedForegroundConverter.Instance}}"/>
+                                    </DockPanel>
+                                </Border>
+                                <ContentPresenter x:Name="PART_ContentPresenter"
+                                                  Padding="{TemplateBinding Padding}"
+                                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  Background="{TemplateBinding Background}"
+                                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                                  BorderThickness="{TemplateBinding BorderThickness}"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                  CornerRadius="{TemplateBinding CornerRadius}"/>
+                            </DockPanel>
                         </ControlTemplate>
                     </Setter>
                 </ControlTheme>
             </ListBox.ItemContainerTheme>
-        </ee:TrackSettingsListBox>
+        </ts:TrackSettingsListBox>
 
         <!-- Horizontal scrolling is disabled, because we use a completely custom implementation, since we require zooming -->
         <ScrollViewer x:Name="PART_ScrollViewer" Grid.Column="2" Grid.Row="2"

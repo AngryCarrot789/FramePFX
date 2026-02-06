@@ -20,15 +20,12 @@
 using System;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using FramePFX.Editing;
 using FramePFX.Editing.ViewStates;
 using PFXToolKitUI.Avalonia.AvControls.ListBoxes;
-using PFXToolKitUI.Avalonia.Bindings;
-using PFXToolKitUI.Avalonia.Utils;
 using Track = FramePFX.Editing.Track;
 
-namespace FramePFX.Avalonia.Editor;
+namespace FramePFX.Avalonia.Editor.TrackSettings;
 
 public class TrackSettingsListBox : ModelBasedListBox<Track> {
     public static readonly StyledProperty<TimelineViewState?> TimelineProperty = AvaloniaProperty.Register<TrackSettingsListBox, TimelineViewState?>(nameof(Timeline));
@@ -40,7 +37,10 @@ public class TrackSettingsListBox : ModelBasedListBox<Track> {
         set => this.SetValue(TimelineProperty, value);
     }
 
+    protected override bool CanDragItemPositionCore => this.Timeline != null;
+
     public TrackSettingsListBox() : base(8) {
+        this.CanDragItemPosition = true;
     }
 
     static TrackSettingsListBox() {
@@ -76,36 +76,9 @@ public class TrackSettingsListBox : ModelBasedListBox<Track> {
     private void TimelineOnTrackMoved(object? sender, TrackMovedEventArgs e) {
         this.MoveModel(e.OldIndex, e.NewIndex);
     }
-}
 
-public class TrackSettingsListBoxItem : ModelBasedListBoxItem<Track> {
-    private readonly IBinder<Track> trackNameBinder = new EventUpdateBinder<Track>(nameof(Track.DisplayNameChanged), (b) => ((TextBlock) b.Control).Text = b.Model.DisplayName);
-
-    private readonly IBinder<TrackViewState> heightBinder =
-        new EventUpdateBinder<TrackViewState>(
-            nameof(TrackViewState.HeightChanged),
-            (b) => ((TrackSettingsListBoxItem) b.Control).Height = b.Model.Height /* + 1.0 /* bottom border thickness */);
-
-    public TrackSettingsListBoxItem() {
-        this.AddBinderForModel(this.trackNameBinder);
-    }
-
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
-        base.OnApplyTemplate(e);
-        this.trackNameBinder.AttachControl(e.NameScope.GetTemplateChild<TextBlock>("PART_TrackNameTextBlock"));
-    }
-
-    protected override void OnAddingToList() {
-    }
-
-    protected override void OnAddedToList() {
-        this.heightBinder.Attach(this, TrackViewState.GetInstance(this.Model!, ((TrackSettingsListBox) this.ListBox!).Timeline!.TopLevelIdentifier));
-    }
-
-    protected override void OnRemovingFromList() {
-        this.heightBinder.Detach();
-    }
-
-    protected override void OnRemovedFromList() {
+    protected override void MoveItemIndexOverride(int oldIndex, int newIndex) {
+        base.MoveItemIndexOverride(oldIndex, newIndex);
+        this.Timeline?.Timeline.MoveTrack(oldIndex, newIndex);
     }
 }

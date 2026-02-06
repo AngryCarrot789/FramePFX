@@ -1,0 +1,65 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ts="clr-namespace:FramePFX.Avalonia.Editor.TrackSettings"
+                    xmlns:d="clr-namespace:PFXToolKitUI.Avalonia.AvControls.Dragger;assembly=PFXToolKitUI.Avalonia"
+                    xmlns:f="clr-namespace:PFXToolKitUI.Interactivity.Formatting;assembly=PFXToolKitUI">
+    <f:UnitToPercentFormatter x:Key="OpacityUnitPercentageFormatter" NonEditingRoundedPlaces="1" EditingRoundedPlaces="4"/>
+
+    <ControlTheme x:Key="{x:Type ts:TrackSettingsControlVideo}" TargetType="{x:Type ts:TrackSettingsControlVideo}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type ts:TrackSettingsControlVideo}">
+                <DockPanel Margin="2,2,2,0" LastChildFill="False" ClipToBounds="True">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                        <ToggleButton x:Name="PART_VisibilityButton"
+                                      VerticalAlignment="Top" Content="V" BorderBrush="Black"
+                                      Height="17" Width="17" Theme="{StaticResource StaticBorderToggleButtonTheme}"/>
+                        <d:NumberDragger Width="55" Height="17" BorderBrush="Black"
+                                         VerticalAlignment="Top"
+                                         Minimum="0" Maximum="1" Margin="2,0,0,0"
+                                         TinyChange="0.0001" SmallChange="0.001"
+                                         NormalChange="0.002" LargeChange="0.01"
+                                         Theme="{StaticResource NumberDraggerAbletonTheme}"
+                                         x:Name="PART_OpacitySlider" Padding="0,1,0,0"
+                                         ValueFormatter="{StaticResource OpacityUnitPercentageFormatter}"/>
+                    </StackPanel>
+                    <TextBlock DockPanel.Dock="Right" Margin="0,1,4,0"
+                               x:Name="PART_TrackNameTextBlock"
+                               IsHitTestVisible="False"/>
+                </DockPanel>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type ts:TrackSettingsControlAudio}" TargetType="{x:Type ts:TrackSettingsControlAudio}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type ts:TrackSettingsControlAudio}">
+                <DockPanel Margin="2,2,2,0" LastChildFill="False" ClipToBounds="True">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                        <ToggleButton x:Name="PART_MutedButton"
+                                      VerticalAlignment="Top" Content="M" BorderBrush="Black"
+                                      Height="17" Width="17" Theme="{StaticResource StaticBorderToggleButtonTheme}"/>
+                        <d:NumberDragger Width="55" Height="17" BorderBrush="Black"
+                                         VerticalAlignment="Top"
+                                         Minimum="0" Maximum="1" Margin="2,0,0,0"
+                                         TinyChange="0.0001" SmallChange="0.001"
+                                         NormalChange="0.002" LargeChange="0.01"
+                                         Theme="{StaticResource NumberDraggerAbletonTheme}"
+                                         x:Name="PART_VolumeSlider" Padding="0,1,0,0"
+                                         ValueFormatter="{StaticResource OpacityUnitPercentageFormatter}"/>
+                    </StackPanel>
+                    <TextBlock DockPanel.Dock="Right" Margin="0,1,4,0"
+                               x:Name="PART_TrackNameTextBlock"
+                               IsHitTestVisible="False"/>
+                </DockPanel>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type ts:TrackSettingsControlScratch}" TargetType="{x:Type ts:TrackSettingsControlScratch}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type ts:TrackSettingsControlScratch}">
+                <TextBlock x:Name="PART_TrackNameTextBlock" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="4,2"/>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

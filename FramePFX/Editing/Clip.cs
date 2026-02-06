@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Editing.Video;
 using PFXToolKitUI.Composition;
 using PFXToolKitUI.DataTransfer;
 using PFXToolKitUI.Utils.Events;
@@ -42,7 +43,12 @@ public abstract class Clip : IComponentManager, ITransferableData {
     /// </summary>
     public long MediaOffset {
         get => field;
-        set => PropertyHelper.SetAndRaiseINE(ref field, value, this, this.MediaOffsetChanged);
+        set => PropertyHelper.SetAndRaiseINE(ref field, value, this, static (t, o, n) => {
+            t.OnMediaOffsetChanged(o, n);
+            if (t.Track is VideoTrack videoTrack) {
+                videoTrack.RaiseRenderInvalidated(t.Span);
+            }
+        });
     }
 
     /// <summary>
@@ -53,7 +59,10 @@ public abstract class Clip : IComponentManager, ITransferableData {
         set {
             PropertyHelper.SetAndRaiseINE(ref field, value, this, static (t, o, n) => {
                 t.Track?.InternalOnClipSpanChanged(t, o, n);
-                t.SpanChanged?.Invoke(t,  new ValueChangedEventArgs<ClipSpan>(o, n));
+                t.SpanChanged?.Invoke(t, new ValueChangedEventArgs<ClipSpan>(o, n));
+                if (t.Track is VideoTrack videoTrack) {
+                    videoTrack.Timeline?.RaiseRenderInvalidated(videoTrack, ClipSpan.Union(o, n));
+                }
             });
         }
     }
@@ -69,12 +78,14 @@ public abstract class Clip : IComponentManager, ITransferableData {
     /// <summary>
     /// Gets the type of this clip
     /// </summary>
-    public abstract ClipType ClipType { get; }
-    
+    public ClipType ClipType => this.InternalClipType;
+
+    internal abstract ClipType InternalClipType { get; }
+
     public TransferableData TransferableData => field ??= new TransferableData(this);
 
     public event EventHandler? DisplayNameChanged;
-    public event EventHandler? MediaOffsetChanged;
+    public event EventHandler<ValueChangedEventArgs<long>>? MediaOffsetChanged;
     public event EventHandler<ValueChangedEventArgs<ClipSpan>>? SpanChanged;
     public event EventHandler<ValueChangedEventArgs<Track?>>? TrackChanged;
 
@@ -83,5 +94,9 @@ public abstract class Clip : IComponentManager, ITransferableData {
 
     public bool IsPointInRange(long timelineLocation) {
         return this.Span.IntersectedBy(timelineLocation);
+    }
+    
+    protected virtual void OnMediaOffsetChanged(long oldOffset, long newOffset) {
+        this.MediaOffsetChanged?.Invoke(this, new ValueChangedEventArgs<long>(oldOffset, newOffset));
     }
 }

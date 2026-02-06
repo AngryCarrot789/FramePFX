@@ -17,13 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using FramePFX.Editing.Video;
 using PFXToolKitUI.Composition;
 using PFXToolKitUI.Utils;
-using PFXToolKitUI.Utils.Collections.Observable;
 using PFXToolKitUI.Utils.Events;
 
 namespace FramePFX.Editing;
@@ -49,7 +47,10 @@ public sealed class Timeline : IComponentManager {
         set {
             value = new TimeSpan(Math.Max(0, value.Ticks));
             this.MaximumDuration = new TimeSpan(Math.Max(this.MaximumDuration.Ticks, value.Ticks));
-            PropertyHelper.SetAndRaiseINE(ref field, value, this, this.PlayHeadLocationChanged);
+            PropertyHelper.SetAndRaiseINE(ref field, value, this, static (t, o, n) => {
+                t.PlayHeadLocationChanged?.Invoke(t, new ValueChangedEventArgs<TimeSpan>(o, n));
+                t.RaiseRenderInvalidated(null, new ClipSpan(o, n));
+            });
         }
     }
 
@@ -71,6 +72,8 @@ public sealed class Timeline : IComponentManager {
         get => field;
         internal set => PropertyHelper.SetAndRaiseINE(ref field, value, this, static (t, o, n) => t.OnProjectChanged(o, n));
     }
+
+    public RenderManager RenderManager => field ??= new RenderManager(this);
 
     public event EventHandler<TrackAddedOrRemovedEventArgs>? TrackAdded, TrackRemoved;
     public event EventHandler<TrackMovedEventArgs>? TrackMoved;
@@ -142,6 +145,10 @@ public sealed class Timeline : IComponentManager {
         return b;
     }
 
+    internal void InternalOnClipSpanChanged(VideoTrack track, Clip clip, ClipSpan oldSpan, ClipSpan newSpan) {
+        this.RaiseRenderInvalidated(track, ClipSpan.Union(oldSpan, newSpan));
+    }
+
     /// <summary>
     /// Raises the <see cref="RenderInvalidated"/> event with no source track and <see cref="ClipSpan.MaxValue"/>
     /// </summary>
@@ -149,13 +156,12 @@ public sealed class Timeline : IComponentManager {
 
     public void RaiseRenderInvalidated(VideoTrack? source, ClipSpan span) {
         this.RenderInvalidated?.Invoke(this, new TimelineRenderInvalidatedEventArgs(source, span));
+        this.RenderManager.InvalidateRender();
     }
 
     private void OnProjectChanged(Project? oldProject, Project? newProject) {
         this.ProjectChanged?.Invoke(this, new ValueChangedEventArgs<Project?>(oldProject, newProject));
-        foreach (Track track in this.Tracks) {
-            track.Project = newProject;
-        }
+        RenderManager.InternalOnTimelineProjectChanged(this.RenderManager, oldProject, newProject);
     }
 }
 
@@ -170,11 +176,14 @@ public readonly struct TrackMovedEventArgs(Track track, int oldIndex, int newInd
     public int NewIndex { get; } = newIndex;
 }
 
-public readonly struct TimelineRenderInvalidatedEventArgs(VideoTrack? source, ClipSpan span) {
+/// <summary>
+/// Contains information about the cause of timeline render invalidation
+/// </summary>
+public readonly struct TimelineRenderInvalidatedEventArgs(VideoTrack? sauce, ClipSpan span) {
     /// <summary>
     /// Gets the track that caused the render to become invalidated. Null if not caused by track invalidation
     /// </summary>
-    public VideoTrack? Source { get; } = source;
+    public VideoTrack? Source { get; } = sauce;
 
     /// <summary>
     /// Gets the invalidated range. May be <see cref="ClipSpan.MaxValue"/>

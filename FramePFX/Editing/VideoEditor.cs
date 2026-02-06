@@ -17,9 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using PFXToolKitUI.Composition;
+
 namespace FramePFX.Editing;
 
-public sealed class VideoEditor {
+public sealed class VideoEditor : IComponentManager {
     /// <summary>
     /// Gets the loaded project
     /// </summary>
@@ -27,12 +29,17 @@ public sealed class VideoEditor {
 
     public PreviewManager PreviewManager { get; private set; }
 
+    public PlaybackManager Playback { get; }
+    
+    public ComponentStorage ComponentStorage => field ??= new ComponentStorage(this);
+
     public event EventHandler<ProjectLoadingEventArgs>? ProjectLoading;
     public event EventHandler<ProjectLoadedEventArgs>? ProjectLoaded;
     public event EventHandler<ProjectUnloadingEventArgs>? ProjectUnloading;
     public event EventHandler<ProjectUnloadedEventArgs>? ProjectUnloaded;
 
     public VideoEditor() {
+        this.Playback = new PlaybackManager(this);
     }
     
     public void SetProject(Project project) {

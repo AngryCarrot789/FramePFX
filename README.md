@@ -1,3 +1,35 @@
+
+<div align="right">
+  <details>
+    <summary >🌐 Language</summary>
+    <div>
+      <div align="center">
+        <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=en">English</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=zh-CN">简体中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=zh-TW">繁體中文</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=ja">日本語</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=ko">한국어</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=hi">हिन्दी</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=th">ไทย</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=fr">Français</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=de">Deutsch</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=es">Español</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=it">Italiano</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=ru">Русский</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=pt">Português</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=nl">Nederlands</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=pl">Polski</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=ar">العربية</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=fa">فارسی</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=tr">Türkçe</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=vi">Tiếng Việt</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=id">Bahasa Indonesia</a>
+        | <a href="https://openaitx.github.io/view.html?user=AngryCarrot789&project=FramePFX&lang=as">অসমীয়া</
+      </div>
+    </div>
+  </details>
+</div>
+
 # FramePFX
 
 FramePFX is an open source, non-linear video editor, written in C# using Avalonia for the UI.
